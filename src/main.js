@@ -1206,7 +1206,7 @@ function createTrajectoryTube(cameraPoses) {
 function createCameraFrustums(cameraPoses) {
     if (!cameraPoses || cameraPoses.length === 0) return null;
     
-    // Filter to every 2nd camera for rendering (performance)
+    // Filter to every 3rd camera for rendering (performance)
     // BUT always include best view cameras (for debugging)
     // ALSO store mapping from instanceId → trajectoryData index for click handling
     renderPosesMapping = []; // Clear previous mapping
@@ -1215,9 +1215,9 @@ function createCameraFrustums(cameraPoses) {
     cameraPoses.forEach((pose, trajectoryIndex) => {
         // Always include if it's a best view camera
         const isBestView = bestViewFrameIds.has(pose.index);
-        const isEverySecond = trajectoryIndex % 2 === 0;
+        const isEveryThird = trajectoryIndex % 3 === 0;
         
-        if (isBestView || isEverySecond) {
+        if (isBestView || isEveryThird) {
             renderPoses.push(pose);
             renderPosesMapping.push(trajectoryIndex); // Store the original trajectory index
         }
@@ -1228,6 +1228,7 @@ function createCameraFrustums(cameraPoses) {
     
     console.log(`\n📷 CREATING CAMERA FRUSTUMS:`);
     console.log(`   - Total in trajectory: ${cameraPoses.length}`);
+    console.log(`   - Sampling: Every 3rd camera`);
     console.log(`   - Rendering: ${renderPoses.length} cameras`);
     console.log(`   - Regular cameras: ${renderPoses.length - bestViewCount} (BLUE)`);
     console.log(`   - Best view cameras: ${bestViewCount} (BRIGHT YELLOW ⚠️)`);
@@ -1354,7 +1355,8 @@ function createCameraFrustums(cameraPoses) {
     frustumLines.renderOrder = 0;
     cameraGroup.add(frustumLines);
     
-    return cameraGroup;
+    // Return both the frustum group and the filtered poses for trajectory tube
+    return { group: cameraGroup, filteredPoses: renderPoses };
 }
 
 // Recreate camera frustums (e.g., when best view data changes)
@@ -1383,10 +1385,24 @@ function recreateCameraFrustums() {
     }
     
     // Create new frustums with updated highlighting
-    cameraFrustums = createCameraFrustums(trajectoryData);
-    if (cameraFrustums) {
+    const result = createCameraFrustums(trajectoryData);
+    if (result) {
+        cameraFrustums = result.group;
         scene.add(cameraFrustums);
         cameraFrustums.visible = trajectoryVisible;
+        
+        // Also update trajectory tube with filtered poses
+        if (trajectoryTube) {
+            scene.remove(trajectoryTube);
+            trajectoryTube.geometry.dispose();
+            trajectoryTube.material.dispose();
+        }
+        trajectoryTube = createTrajectoryTube(result.filteredPoses);
+        if (trajectoryTube) {
+            scene.add(trajectoryTube);
+            trajectoryTube.visible = trajectoryVisible;
+        }
+        
         console.log('✅ Camera frustums recreated with best view highlighting');
     }
 }
@@ -1403,24 +1419,25 @@ function toggleCameraTrajectory(visible) {
         
         console.log('Creating trajectory visualization...');
         
-        // Create trajectory if it doesn't exist
-        if (!trajectoryTube) {
-            trajectoryTube = createTrajectoryTube(trajectoryData);
-            if (trajectoryTube) {
-                // No rotation - keeping original coordinate system
-                scene.add(trajectoryTube);
-                console.log('Trajectory tube added to scene');
-            } else {
-                console.error('Failed to create trajectory tube');
-            }
-        }
-        
-        if (!cameraFrustums) {
-            cameraFrustums = createCameraFrustums(trajectoryData);
-            if (cameraFrustums) {
-                // No rotation - keeping original coordinate system
-                scene.add(cameraFrustums);
-                console.log('Camera frustums added to scene');
+        // Create camera frustums and trajectory tube together (use same filtered poses)
+        if (!cameraFrustums || !trajectoryTube) {
+            const result = createCameraFrustums(trajectoryData);
+            if (result) {
+                if (!cameraFrustums) {
+                    cameraFrustums = result.group;
+                    scene.add(cameraFrustums);
+                    console.log('Camera frustums added to scene');
+                }
+                
+                if (!trajectoryTube) {
+                    trajectoryTube = createTrajectoryTube(result.filteredPoses);
+                    if (trajectoryTube) {
+                        scene.add(trajectoryTube);
+                        console.log('Trajectory tube added to scene');
+                    } else {
+                        console.error('Failed to create trajectory tube');
+                    }
+                }
             } else {
                 console.error('Failed to create camera frustums');
             }
