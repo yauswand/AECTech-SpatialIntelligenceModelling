@@ -1148,14 +1148,28 @@ function createTrajectoryTube(cameraPoses) {
     // Extract positions for the curve
     const points = cameraPoses.map(pose => pose.position);
     
+    // Log first few points for debugging
+    console.log('First 3 camera positions:', points.slice(0, 3).map(p => 
+        `[${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)}]`
+    ));
+    
     // Create smooth curve through all points
+    // Use 'centripetal' for more stable interpolation (no wild overshoots)
     const curve = new THREE.CatmullRomCurve3(points);
-    curve.curveType = 'catmullrom';
-    curve.tension = 0.5;
+    curve.curveType = 'centripetal';  // Changed from 'catmullrom' - more stable!
+    curve.tension = 0.0;  // Lower tension prevents overshoots
     
     // Create tube geometry along the curve - sleek and thin
     // Parameters: curve, tubularSegments, radius, radialSegments, closed
     const tubeGeometry = new THREE.TubeGeometry(curve, points.length * 2, 0.008, 8, false);
+    
+    // Compute bounds to check for issues
+    tubeGeometry.computeBoundingBox();
+    const bbox = tubeGeometry.boundingBox;
+    console.log('Trajectory tube bounds:');
+    console.log(`  X: [${bbox.min.x.toFixed(2)}, ${bbox.max.x.toFixed(2)}]`);
+    console.log(`  Y: [${bbox.min.y.toFixed(2)}, ${bbox.max.y.toFixed(2)}]`);
+    console.log(`  Z: [${bbox.min.z.toFixed(2)}, ${bbox.max.z.toFixed(2)}]`);
     
     // Create gradient colors along the tube (cyan to purple)
     const colors = [];
