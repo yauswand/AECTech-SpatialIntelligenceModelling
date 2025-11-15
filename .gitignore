@@ -44,6 +44,17 @@ sam_vit_b_01ec64.pthconda
 cloud/Untitled_Scan_22_24_52/
 ScanFull/
 
+# Polycam scan data (images, depth, cameras)
+11_15_2025/
+*/keyframes/
+*/corrected_images/
+*/corrected_cameras/
+
+# Trajectory data files (generated, not source)
+cloud/trajectory.json
+cloud/*_trajectory.json
+camera_trajectory.json
+
 # Semantic labeling - entire directory excluded
 semantic_labeling/
 
