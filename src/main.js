@@ -55,6 +55,8 @@ const keyboard = {
     a: false,
     s: false,
     d: false,
+    q: false,
+    e: false,
     shift: false,
     space: false
 };
@@ -159,6 +161,8 @@ function setupKeyboardControls() {
         if (key === 'a') keyboard.a = true;
         if (key === 's') keyboard.s = true;
         if (key === 'd') keyboard.d = true;
+        if (key === 'q') keyboard.q = true;
+        if (key === 'e') keyboard.e = true;
         if (key === 'shift') keyboard.shift = true;
         if (key === ' ') keyboard.space = true;
         
@@ -174,6 +178,8 @@ function setupKeyboardControls() {
         if (key === 'a') keyboard.a = false;
         if (key === 's') keyboard.s = false;
         if (key === 'd') keyboard.d = false;
+        if (key === 'q') keyboard.q = false;
+        if (key === 'e') keyboard.e = false;
         if (key === 'shift') keyboard.shift = false;
         if (key === ' ') keyboard.space = false;
     });
@@ -209,14 +215,50 @@ function handleKeyboardMovement() {
         controls.target.addScaledVector(right, -speed);
     }
     
-    // Up/Down movement
+    // Up/Down movement (Q/E keys - primary controls)
+    if (keyboard.q) {
+        camera.position.y -= speed;
+        controls.target.y -= speed;
+    }
+    if (keyboard.e) {
+        camera.position.y += speed;
+        controls.target.y += speed;
+    }
+    
+    // Alternative up/down controls (Space/Shift for backward compatibility)
     if (keyboard.space) {
         camera.position.y += speed;
         controls.target.y += speed;
     }
-    if (keyboard.shift && !keyboard.w && !keyboard.s && !keyboard.a && !keyboard.d) {
+    if (keyboard.shift && !keyboard.w && !keyboard.s && !keyboard.a && !keyboard.d && !keyboard.q && !keyboard.e) {
         camera.position.y -= speed;
         controls.target.y -= speed;
+    }
+}
+
+// Auto-load default PLY file from public folder
+async function loadDefaultPLY() {
+    const defaultPLYPath = '/11_15_2025.ply';
+    
+    try {
+        console.log(`📁 Auto-loading default PLY file: ${defaultPLYPath}`);
+        const response = await fetch(defaultPLYPath);
+        
+        if (!response.ok) {
+            console.log(`⚠️ Default PLY file not found: ${defaultPLYPath}`);
+            return false;
+        }
+        
+        const arrayBuffer = await response.arrayBuffer();
+        const blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
+        const file = new File([blob], '11_15_2025.ply', { type: 'application/octet-stream' });
+        
+        console.log('✅ Default PLY file loaded, rendering...');
+        loadPLYFile(file);
+        return true;
+    } catch (error) {
+        console.error('❌ Error loading default PLY file:', error);
+        return false;
     }
 }
 
@@ -2326,10 +2368,461 @@ function createFrameViewerUI() {
     return viewer;
 }
 
+// Chat interface state
+let chatHistory = [];
+const LM_STUDIO_API_URL = 'http://localhost:1234/v1/chat/completions'; // Default LM Studio URL
+
+// Setup chat interface
+function setupChatInterface() {
+    const chatContainer = document.getElementById('chat-container');
+    const chatToggleBtn = document.getElementById('chat-toggle-btn');
+    const toggleChatBtn = document.getElementById('toggle-chat');
+    const chatInput = document.getElementById('chat-input');
+    const chatSendBtn = document.getElementById('chat-send-btn');
+    const chatMessages = document.getElementById('chat-messages');
+
+    // Toggle chat visibility
+    chatToggleBtn.addEventListener('click', () => {
+        chatContainer.classList.remove('hidden');
+        chatToggleBtn.classList.add('hidden');
+        chatInput.focus();
+    });
+
+    toggleChatBtn.addEventListener('click', () => {
+        chatContainer.classList.add('hidden');
+        chatToggleBtn.classList.remove('hidden');
+    });
+    
+    // Chat is open by default, so hide the toggle button initially
+    chatToggleBtn.classList.add('hidden');
+
+    // Send message on button click
+    chatSendBtn.addEventListener('click', () => {
+        sendChatMessage();
+    });
+
+    // Send message on Enter key
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendChatMessage();
+        }
+    });
+
+    // Function to send message
+    async function sendChatMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        // Disable input while processing
+        chatInput.disabled = true;
+        chatSendBtn.disabled = true;
+
+        // Add user message to chat
+        addChatMessage('user', message);
+        chatInput.value = '';
+
+        // Show loading indicator
+        const loadingId = addChatMessage('assistant', '', true);
+
+        try {
+            // Get context about the current model
+            const modelContext = getModelContext();
+
+            // Call LM Studio API
+            const response = await fetch(LM_STUDIO_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model: 'local-model', // LM Studio uses this
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `You are an AI assistant helping users understand a 3D spatial intelligence model. You can answer questions about:
+- The 3D point cloud/mesh visualization
+- Camera trajectories and poses
+- Semantic labels and object detection
+- Navigation and controls
+- Technical details about the visualization
+
+Current model context:
+${modelContext}
+
+Be helpful, concise, and technical when appropriate.`
+                        },
+                        ...chatHistory,
+                        {
+                            role: 'user',
+                            content: message
+                        }
+                    ],
+                    temperature: 0.7,
+                    stream: false
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            const assistantMessage = data.choices[0].message.content;
+
+            // Remove loading indicator
+            removeChatMessage(loadingId);
+
+            // Add assistant response
+            addChatMessage('assistant', assistantMessage);
+
+            // Update chat history
+            chatHistory.push(
+                { role: 'user', content: message },
+                { role: 'assistant', content: assistantMessage }
+            );
+
+            // Keep history manageable (last 10 exchanges)
+            if (chatHistory.length > 20) {
+                chatHistory = chatHistory.slice(-20);
+            }
+
+        } catch (error) {
+            console.error('Chat API error:', error);
+            
+            // Remove loading indicator
+            removeChatMessage(loadingId);
+
+            // Show error message
+            addChatMessage('assistant', `Sorry, I encountered an error: ${error.message}. Make sure LM Studio is running on ${LM_STUDIO_API_URL}`);
+        } finally {
+            // Re-enable input
+            chatInput.disabled = false;
+            chatSendBtn.disabled = false;
+            chatInput.focus();
+        }
+    }
+
+    // Function to format markdown text to HTML
+    function formatMarkdown(text) {
+        if (!text) return '';
+        
+        // Split by code blocks first to preserve them
+        const codeBlockRegex = /```([\s\S]*?)```/g;
+        const codeBlocks = [];
+        let codeBlockIndex = 0;
+        let html = text.replace(codeBlockRegex, (match, code) => {
+            const placeholder = `__CODE_BLOCK_${codeBlockIndex}__`;
+            const language = code.match(/^(\w+)\n/);
+            const codeContent = language ? code.replace(/^\w+\n/, '') : code;
+            codeBlocks.push(`<pre><code class="code-block">${escapeHtml(codeContent.trim())}</code></pre>`);
+            codeBlockIndex++;
+            return placeholder;
+        });
+        
+        // Process tables before escaping HTML
+        // Match markdown tables: | Header | Header |\n|--------|--------|\n| Cell | Cell |
+        const tableRegex = /(\|[^\n]+\|\n\|[-\s|:]+\|\n(?:\|[^\n]+\|\n?)+)/g;
+        const tables = [];
+        let tableIndex = 0;
+        html = html.replace(tableRegex, (match) => {
+            const placeholder = `__TABLE_${tableIndex}__`;
+            const tableHtml = formatTable(match);
+            tables.push(tableHtml);
+            tableIndex++;
+            return placeholder;
+        });
+        
+        // Escape HTML (but preserve placeholders)
+        html = escapeHtml(html);
+        
+        // Restore code blocks
+        codeBlocks.forEach((block, i) => {
+            html = html.replace(`__CODE_BLOCK_${i}__`, block);
+        });
+        
+        // Restore tables
+        tables.forEach((table, i) => {
+            html = html.replace(`__TABLE_${i}__`, table);
+        });
+        
+        // Process line by line for better control
+        const lines = html.split('\n');
+        const processedLines = [];
+        let inList = false;
+        let listType = null;
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const trimmed = line.trim();
+            
+            // Headers
+            if (trimmed.match(/^### /)) {
+                closeList();
+                processedLines.push(`<h3>${trimmed.substring(4)}</h3>`);
+                continue;
+            }
+            if (trimmed.match(/^## /)) {
+                closeList();
+                processedLines.push(`<h2>${trimmed.substring(3)}</h2>`);
+                continue;
+            }
+            if (trimmed.match(/^# /)) {
+                closeList();
+                processedLines.push(`<h1>${trimmed.substring(2)}</h1>`);
+                continue;
+            }
+            
+            // Code block placeholder (already processed)
+            if (trimmed.includes('__CODE_BLOCK_')) {
+                closeList();
+                processedLines.push(trimmed);
+                continue;
+            }
+            
+            // Unordered list
+            if (trimmed.match(/^[\*\-\+] /)) {
+                if (!inList || listType !== 'ul') {
+                    closeList();
+                    inList = true;
+                    listType = 'ul';
+                    processedLines.push('<ul>');
+                }
+                const content = formatInlineMarkdown(trimmed.substring(2));
+                processedLines.push(`<li>${content}</li>`);
+                continue;
+            }
+            
+            // Ordered list
+            if (trimmed.match(/^\d+\. /)) {
+                if (!inList || listType !== 'ol') {
+                    closeList();
+                    inList = true;
+                    listType = 'ol';
+                    processedLines.push('<ol>');
+                }
+                const content = formatInlineMarkdown(trimmed.replace(/^\d+\. /, ''));
+                processedLines.push(`<li>${content}</li>`);
+                continue;
+            }
+            
+            // Table placeholder (already processed)
+            if (trimmed.includes('__TABLE_')) {
+                closeList();
+                processedLines.push(trimmed);
+                continue;
+            }
+            
+            // Blockquote
+            if (trimmed.startsWith('> ')) {
+                closeList();
+                const content = formatInlineMarkdown(trimmed.substring(2));
+                processedLines.push(`<blockquote>${content}</blockquote>`);
+                continue;
+            }
+            
+            // Horizontal rule
+            if (trimmed.match(/^[-*_]{3,}$/)) {
+                closeList();
+                processedLines.push('<hr>');
+                continue;
+            }
+            
+            // Empty line
+            if (!trimmed) {
+                closeList();
+                processedLines.push('');
+                continue;
+            }
+            
+            // Regular paragraph
+            closeList();
+            const formatted = formatInlineMarkdown(trimmed);
+            processedLines.push(`<p>${formatted}</p>`);
+        }
+        
+        closeList();
+        
+        function closeList() {
+            if (inList) {
+                processedLines.push(`</${listType}>`);
+                inList = false;
+                listType = null;
+            }
+        }
+        
+        return processedLines.join('\n');
+    }
+    
+    // Format markdown table
+    function formatTable(tableText) {
+        const lines = tableText.trim().split('\n');
+        
+        // First line is header
+        const headerLine = lines[0];
+        // Second line is separator (skip it)
+        // Rest are data rows
+        const dataLines = lines.slice(2);
+        
+        // Parse header
+        const headerCells = headerLine.split('|')
+            .map(cell => cell.trim())
+            .filter(cell => cell && !cell.match(/^[-:|\s]+$/)); // Filter out separator-like cells
+        
+        // Parse data rows
+        const rows = dataLines.map(line => {
+            return line.split('|')
+                .map(cell => cell.trim())
+                .filter(cell => cell && !cell.match(/^[-:|\s]+$/)); // Filter out separator-like cells
+        }).filter(row => row.length > 0); // Remove empty rows
+        
+        let html = '<table class="markdown-table">';
+        
+        // Header
+        if (headerCells.length > 0) {
+            html += '<thead><tr>';
+            headerCells.forEach(cell => {
+                const formatted = formatInlineMarkdown(cell);
+                html += `<th>${formatted}</th>`;
+            });
+            html += '</tr></thead>';
+        }
+        
+        // Body
+        if (rows.length > 0) {
+            html += '<tbody>';
+            rows.forEach(row => {
+                html += '<tr>';
+                // Match columns to header count
+                const maxCols = Math.max(headerCells.length, row.length);
+                for (let i = 0; i < maxCols; i++) {
+                    const cell = row[i] || '';
+                    const formatted = formatInlineMarkdown(cell);
+                    html += `<td>${formatted}</td>`;
+                }
+                html += '</tr>';
+            });
+            html += '</tbody>';
+        }
+        
+        html += '</table>';
+        return html;
+    }
+    
+    // Format inline markdown (bold, italic, code, links)
+    function formatInlineMarkdown(text) {
+        // Inline code (preserve it first)
+        const inlineCodeRegex = /`([^`]+)`/g;
+        const inlineCodes = [];
+        let codeIndex = 0;
+        let html = text.replace(inlineCodeRegex, (match, code) => {
+            const placeholder = `__INLINE_CODE_${codeIndex}__`;
+            inlineCodes.push(`<code class="inline-code">${escapeHtml(code)}</code>`);
+            codeIndex++;
+            return placeholder;
+        });
+        
+        // Bold (**text** or __text__) - do this first
+        html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+        
+        // Strikethrough (~~text~~)
+        html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
+        
+        // Italic (*text* or _text_) - simple approach, bold already processed
+        html = html.replace(/\*([^*]+?)\*/g, '<em>$1</em>');
+        html = html.replace(/_([^_]+?)_/g, '<em>$1</em>');
+        
+        // Links [text](url)
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+        
+        // Restore inline code
+        inlineCodes.forEach((code, i) => {
+            html = html.replace(`__INLINE_CODE_${i}__`, code);
+        });
+        
+        return html;
+    }
+    
+    // Escape HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Function to add message to chat
+    function addChatMessage(role, content, isLoading = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${role}`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        
+        if (isLoading) {
+            contentDiv.innerHTML = '<div class="chat-loading"><span></span><span></span><span></span></div>';
+            messageDiv.dataset.loadingId = Date.now().toString();
+        } else {
+            // Format markdown and set as HTML
+            const formattedContent = formatMarkdown(content);
+            contentDiv.innerHTML = formattedContent;
+        }
+        
+        messageDiv.appendChild(contentDiv);
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        return messageDiv.dataset.loadingId || null;
+    }
+
+    // Function to remove message (for loading indicator)
+    function removeChatMessage(loadingId) {
+        if (!loadingId) return;
+        const message = chatMessages.querySelector(`[data-loading-id="${loadingId}"]`);
+        if (message) {
+            message.remove();
+        }
+    }
+
+    // Function to get current model context
+    function getModelContext() {
+        let context = [];
+        
+        if (currentGeometry) {
+            const pointCount = currentGeometry.attributes.position.count;
+            const hasFaces = currentGeometry.index !== null && currentGeometry.index.count > 0;
+            const faceCount = hasFaces ? Math.floor(currentGeometry.index.count / 3) : 0;
+            
+            context.push(`- Point cloud loaded: ${pointCount.toLocaleString()} vertices`);
+            if (hasFaces) {
+                context.push(`- Mesh data available: ${faceCount.toLocaleString()} faces`);
+            }
+        } else {
+            context.push('- No model currently loaded');
+        }
+        
+        if (trajectoryData && trajectoryData.length > 0) {
+            context.push(`- Camera trajectory: ${trajectoryData.length} camera poses`);
+        }
+        
+        if (labelData && labelData.labeled_objects) {
+            context.push(`- Semantic labels: ${labelData.labeled_objects.length} labeled objects`);
+        }
+        
+        return context.join('\n');
+    }
+}
+
 // Initialize everything when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     init();
     setupDragAndDrop();
     setupUI();
+    setupChatInterface();
+    
+    // Auto-load default PLY file from public folder
+    loadDefaultPLY();
 });
 
