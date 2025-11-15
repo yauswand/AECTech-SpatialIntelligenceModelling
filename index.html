@@ -29,8 +29,8 @@
             <h1>PLY Point Cloud Viewer</h1>
             <p>Drag and drop a .ply file anywhere on the screen to visualize it</p>
             <ul>
-                <li>WASD: Move camera (Shift to move faster)</li>
-                <li>Space: Move up | Shift (alone): Move down</li>
+                <li>WASD: Move camera horizontally (Shift to move faster)</li>
+                <li>Q: Move down | E: Move up</li>
                 <li>M: Toggle wireframe/points (if mesh has faces)</li>
                 <li>Left mouse: Rotate view</li>
                 <li>Right mouse / Two fingers: Pan</li>
@@ -50,6 +50,39 @@
     <div id="info" class="info hidden">
         <span id="point-count"></span>
     </div>
+
+    <!-- View Mode Selector -->
+    <div id="view-mode-selector" class="view-mode-selector">
+        <button class="mode-btn active" data-mode="ply">PLY</button>
+        <button class="mode-btn" data-mode="3d">3D</button>
+        <button class="mode-btn" data-mode="frames">Frames</button>
+    </div>
+
+    <!-- Chat Interface -->
+    <div id="chat-container" class="chat-container">
+        <div class="chat-header">
+            <h3>AI Assistant</h3>
+            <button id="toggle-chat" class="toggle-btn">−</button>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="chat-message system">
+                <div class="message-content">
+                    <p>Hello! I'm your AI assistant. Ask me anything about the 3D model, camera trajectory, or semantic labels.</p>
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-container">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Ask a question about the model..." />
+            <button id="chat-send-btn" class="chat-send-btn">Send</button>
+        </div>
+    </div>
+
+    <!-- Chat Toggle Button -->
+    <button id="chat-toggle-btn" class="chat-toggle-btn" title="Open AI Assistant">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </button>
 
     <!-- Control Toolbar -->
     <div id="controls" class="controls hidden">
