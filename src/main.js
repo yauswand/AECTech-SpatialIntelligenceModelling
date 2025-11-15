@@ -1089,7 +1089,7 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
     
     // Step 3: Apply translation and X-axis flip to all camera poses
     console.log(`\n   🔄 Applying translation + X-axis flip to ${cameraPoses.length} camera poses...`);
-    console.log(`   ⚠️ NOTE: Polycam cameras are flipped along X-axis to match PLY orientation`);
+    console.log(`   ⚠️ NOTE: Positions flipped along X-axis, rotations kept as-is (testing)`);
     
     const alignedPoses = cameraPoses.map(pose => {
         // First translate
@@ -1098,17 +1098,13 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
         // Then flip X-axis (left ↔ right)
         alignedPos.x = -alignedPos.x;
         
-        // Also need to flip the camera rotation to match
-        // Flip the X component of position in the quaternion/matrix
-        const flippedQuaternion = pose.quaternion.clone();
-        // Invert Y and Z components to flip orientation along X-axis
-        flippedQuaternion.y = -flippedQuaternion.y;
-        flippedQuaternion.z = -flippedQuaternion.z;
+        // Keep original quaternion without flipping (testing orientation)
+        const quaternion = pose.quaternion.clone();
         
         return {
             index: pose.index,
             position: alignedPos,
-            quaternion: flippedQuaternion,
+            quaternion: quaternion,
             matrix: pose.matrix,  // Keep original matrix for reference
             timestamp: pose.timestamp,
             intrinsics: pose.intrinsics
