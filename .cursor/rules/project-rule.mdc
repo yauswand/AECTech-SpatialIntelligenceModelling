@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+Always run any command within the webapp terminal environment. First activate the webapp env before running the commands.
+When generating terminal commands, use syntax compatible with PowerShell.
+Do not chain commands with `&&`.
+Instead, use a semicolon `;` to separate multiple commands (e.g., `cd E:\WebCloudRenderer; git checkout -b feature/vlm-semantic-labeling`).

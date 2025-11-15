@@ -1,0 +1,27 @@
+{
+  "name": "ply-point-cloud-viewer",
+  "version": "1.0.0",
+  "description": "A web-based PLY point cloud viewer using Three.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
+
+
+
+
+
+
+
+
+
+

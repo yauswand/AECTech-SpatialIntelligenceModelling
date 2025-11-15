@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+
+# Machine Learning Models (large files)
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.pthconda
+sam_vit_b_01ec64.pthconda
+
+# Large point cloud and scan files
+*.ply
+*.zip
+cloud/Untitled_Scan_22_24_52/
+ScanFull/
+
+# Semantic labeling - entire directory excluded
+semantic_labeling/
+
+# Output directories
+spatial_intelligence/output/
+
+
+
