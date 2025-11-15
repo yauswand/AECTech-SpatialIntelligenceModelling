@@ -164,7 +164,7 @@ async function listCollection() {
         });
         
         return result;
-    } catch (err) {
+    } catch (err) {r
         console.error('Error listing collection:', err);
         throw err;
     }

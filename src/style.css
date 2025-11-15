@@ -205,6 +205,50 @@ body {
     display: none;
 }
 
+/* View Mode Selector */
+.view-mode-selector {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 6px;
+    z-index: 100;
+}
+
+.mode-btn {
+    padding: 10px 20px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.mode-btn:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.mode-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+.mode-btn.active:hover {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+}
+
 /* Control Toolbar */
 .controls {
     position: fixed;
@@ -420,6 +464,23 @@ body {
     display: none;
 }
 
+.frame-viewer.fullscreen-gallery {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    transform: none;
+    border-radius: 0;
+    border: none;
+    background: #000000;
+    backdrop-filter: none;
+    box-shadow: none;
+    z-index: 10;
+}
+
 .frame-viewer-header {
     display: flex;
     justify-content: space-between;
@@ -466,11 +527,20 @@ body {
     gap: 30px;
     padding: 40px;
     overflow-x: auto;
-    overflow-y: hidden;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: nowrap;
+    overflow-y: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-wrap: wrap;
     min-height: 400px;
+    max-height: calc(90vh - 100px);
+}
+
+.frame-viewer.fullscreen-gallery .frame-gallery {
+    justify-content: center;
+    align-items: center;
+    padding: 80px 40px 40px 40px;
+    max-height: 100vh;
+    height: 100%;
 }
 
 .frame-container {

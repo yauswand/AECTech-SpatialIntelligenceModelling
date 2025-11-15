@@ -9,19 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@openrouter/sdk": "^0.1.11",
+    "@qdrant/js-client-rest": "^1.15.1",
+    "@qdrant/qdrant-js": "^1.15.1",
+    "dotenv": "^17.2.3",
+    "openai": "^6.9.0",
     "three": "^0.160.0"
   },
   "devDependencies": {
     "vite": "^5.0.0"
   }
 }
-
-
-
-
-
-
-
-
-
-

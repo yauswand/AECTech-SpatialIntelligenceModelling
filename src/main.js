@@ -655,6 +655,9 @@ function setupUI() {
     
     // Setup control panel
     setupControlPanel();
+    
+    // Setup view mode selector
+    setupViewModeSelector();
 }
 
 // Setup control panel handlers
@@ -2250,6 +2253,25 @@ function displayFrameViewer(frames, currentFrameIndex) {
         viewer = createFrameViewerUI();
     }
     
+    // Check if we're in frames mode by checking the active button
+    const framesModeBtn = document.querySelector('.mode-btn[data-mode="frames"]');
+    const isFramesMode = framesModeBtn && framesModeBtn.classList.contains('active');
+    if (isFramesMode) {
+        viewer.classList.add('fullscreen-gallery');
+        // Hide header and close button in frames mode
+        const header = viewer.querySelector('.frame-viewer-header');
+        if (header) {
+            header.style.display = 'none';
+        }
+    } else {
+        viewer.classList.remove('fullscreen-gallery');
+        // Show header and close button in camera selection mode
+        const header = viewer.querySelector('.frame-viewer-header');
+        if (header) {
+            header.style.display = 'flex';
+        }
+    }
+    
     // Clear previous content
     const gallery = viewer.querySelector('.frame-gallery');
     gallery.innerHTML = '';
@@ -2342,8 +2364,15 @@ function createFrameViewerUI() {
     
     document.body.appendChild(viewer);
     
-    // Close button handler
+    // Close button handler (only for camera selection mode, not frames mode)
     document.getElementById('close-frame-viewer').addEventListener('click', () => {
+        // Check if we're in frames mode - if so, don't handle close (user should use mode selector)
+        const framesModeBtn = document.querySelector('.mode-btn[data-mode="frames"]');
+        if (framesModeBtn && framesModeBtn.classList.contains('active')) {
+            return; // Don't handle close in frames mode
+        }
+        
+        // Just hide the viewer (for camera selection mode)
         viewer.classList.add('hidden');
         
         // Deselect camera (restore original colors including best view yellow)
@@ -2826,3 +2855,110 @@ document.addEventListener('DOMContentLoaded', () => {
     loadDefaultPLY();
 });
 
+// Setup view mode selector
+function setupViewModeSelector() {
+    const modeButtons = document.querySelectorAll('.mode-btn');
+    const canvasContainer = document.getElementById('canvas-container');
+    
+    modeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            modeButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            button.classList.add('active');
+            
+            // Get the selected mode
+            const selectedMode = button.getAttribute('data-mode');
+            console.log('View mode selected:', selectedMode);
+            
+            // Switch views based on mode
+            switchViewMode(selectedMode);
+        });
+    });
+}
+
+// Switch between different view modes
+function switchViewMode(mode) {
+    const canvasContainer = document.getElementById('canvas-container');
+    let frameViewer = document.getElementById('frame-viewer');
+    const chatContainer = document.getElementById('chat-container');
+    const chatToggleBtn = document.getElementById('chat-toggle-btn');
+    const controls = document.getElementById('controls');
+    const toggleControlsBtn = document.getElementById('toggle-controls');
+    
+    if (mode === 'frames') {
+        // Hide canvas
+        if (canvasContainer) {
+            canvasContainer.style.display = 'none';
+        }
+        
+        // Minimize chat if it's open
+        if (chatContainer && !chatContainer.classList.contains('hidden')) {
+            chatContainer.classList.add('hidden');
+            if (chatToggleBtn) {
+                chatToggleBtn.classList.remove('hidden');
+            }
+        }
+        
+        // Collapse controls if they're open and not already collapsed
+        if (controls && !controls.classList.contains('hidden')) {
+            if (!controls.classList.contains('collapsed')) {
+                controls.classList.add('collapsed');
+                if (toggleControlsBtn) {
+                    toggleControlsBtn.textContent = '+';
+                }
+            }
+        }
+        
+        // Show frame viewer with all frames
+        showAllFrames();
+    } else {
+        // Show canvas for PLY and 3D modes
+        if (canvasContainer) {
+            canvasContainer.style.display = 'block';
+        }
+        
+        // Hide frame viewer
+        if (frameViewer) {
+            frameViewer.classList.add('hidden');
+        }
+    }
+}
+
+// Show all frames in gallery
+function showAllFrames() {
+    if (!trajectoryData || trajectoryData.length === 0) {
+        console.warn('No trajectory data available to show frames');
+        // Still show the viewer but with a message
+        let viewer = document.getElementById('frame-viewer');
+        if (!viewer) {
+            viewer = createFrameViewerUI();
+        }
+        const gallery = viewer.querySelector('.frame-gallery');
+        gallery.innerHTML = '<div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.7);">No trajectory data loaded. Please load a trajectory file first.</div>';
+        viewer.classList.remove('hidden');
+        return;
+    }
+    
+    if (!scanFolderPath) {
+        console.warn('Scan folder path not available');
+        let viewer = document.getElementById('frame-viewer');
+        if (!viewer) {
+            viewer = createFrameViewerUI();
+        }
+        const gallery = viewer.querySelector('.frame-gallery');
+        gallery.innerHTML = '<div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.7);">Scan folder path not available. Please load a trajectory file first.</div>';
+        viewer.classList.remove('hidden');
+        return;
+    }
+    
+    // Create array of all frames from trajectory data
+    const allFrames = trajectoryData.map((pose, index) => ({
+        frameNumber: pose.index,
+        isCurrent: false,
+        label: `Camera ${index + 1}`
+    }));
+    
+    // Display all frames (this will also show the viewer)
+    displayFrameViewer(allFrames, null);
+}
