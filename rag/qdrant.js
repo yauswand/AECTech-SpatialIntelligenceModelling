@@ -68,6 +68,7 @@ async function uploadObject(obj) {
 (async () => {
     try {
         await uploadObject(obj);
+        await listCollection();
     } catch (err) {
         console.error('Failed to upload object:', err);
         process.exit(1);
@@ -138,5 +139,34 @@ async function ensureCollection() {
       frame_index: obj.frame_index,
       description: objectToText(obj), // keep text version in payload too
     };
+}
+
+async function listCollection() {
+    try {
+        const result = await client.scroll(COLLECTION, {
+            limit: 100, // Adjust limit as needed
+            with_payload: true,
+            with_vector: false, // Set to true if you want to see vectors
+        });
+        
+        console.log(`\n=== Collection: ${COLLECTION} ===`);
+        console.log(`Total points found: ${result.points.length}`);
+        
+        if (result.points.length === 0) {
+            console.log('Collection is empty.');
+            return result;
+        }
+        
+        console.log('\nPoints in collection:');
+        result.points.forEach((point, index) => {
+            console.log(`\n[${index + 1}] Point ID: ${point.id}`);
+            console.log('Payload:', JSON.stringify(point.payload, null, 2));
+        });
+        
+        return result;
+    } catch (err) {
+        console.error('Error listing collection:', err);
+        throw err;
+    }
 }
   
