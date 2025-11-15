@@ -1089,7 +1089,11 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
     
     // Step 3: Apply translation and X-axis flip to all camera poses
     console.log(`\n   🔄 Applying translation + X-axis flip to ${cameraPoses.length} camera poses...`);
-    console.log(`   ⚠️ NOTE: Positions flipped along X-axis, rotations kept as-is (testing)`);
+    console.log(`   ⚠️ NOTE: Positions AND orientations flipped along X-axis`);
+    
+    // Create a 180-degree rotation around Y-axis for mirroring orientations
+    const yAxisFlip = new THREE.Quaternion();
+    yAxisFlip.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
     
     const alignedPoses = cameraPoses.map(pose => {
         // First translate
@@ -1098,8 +1102,10 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
         // Then flip X-axis (left ↔ right)
         alignedPos.x = -alignedPos.x;
         
-        // Keep original quaternion without flipping (testing orientation)
+        // Also flip the orientation by applying 180° rotation around Y-axis
+        // This ensures cameras face the correct direction after X-axis mirroring
         const quaternion = pose.quaternion.clone();
+        quaternion.premultiply(yAxisFlip);
         
         return {
             index: pose.index,
