@@ -45,19 +45,30 @@ cameraPoses.forEach(pose => {
 const cameraCenter = cameraCenterSum.divideScalar(cameraPoses.length);
 ```
 
-#### 3. **Apply Alignment Translation** (Lines 1042-1074)
-Align cameras to PLY coordinate system:
+#### 3. **Apply Alignment Translation + X-Axis Flip** (Lines 1090-1116)
+Align cameras to PLY coordinate system and flip X-axis:
 ```javascript
 // Translation = PLY_center - Camera_center
 const translation = plyCenter.clone().sub(cameraCenter);
 
-// Apply to all camera poses
+// Apply translation + X-axis flip to all camera poses
 const alignedPoses = cameraPoses.map(pose => {
+    // First translate
     const alignedPos = pose.position.clone().add(translation);
+    
+    // Then flip X-axis (left ↔ right)
+    // This corrects for Polycam's coordinate system difference
+    alignedPos.x = -alignedPos.x;
+    
+    // Also flip camera rotation to match
+    const flippedQuaternion = pose.quaternion.clone();
+    flippedQuaternion.y = -flippedQuaternion.y;
+    flippedQuaternion.z = -flippedQuaternion.z;
+    
     return {
         index: pose.index,
         position: alignedPos,
-        quaternion: pose.quaternion,
+        quaternion: flippedQuaternion,
         matrix: pose.matrix,
         timestamp: pose.timestamp,
         intrinsics: pose.intrinsics
@@ -167,10 +178,16 @@ When loading trajectory:
 ### Transformation Applied
 ```
 T = PLY_centroid - Camera_centroid
-aligned_camera_position = original_camera_position + T
+translated_position = original_camera_position + T
+aligned_camera_position = (-translated_position.x, translated_position.y, translated_position.z)
 ```
 
-This is a **pure translation** - no rotation or scaling, preserving the original camera orientations and scene scale.
+This applies:
+1. **Translation** - Centers cameras on PLY centroid
+2. **X-axis flip** - Corrects for Polycam coordinate system (left ↔ right)
+3. **Rotation flip** - Flips camera orientations to match
+
+The X-axis flip is necessary because Polycam exports the PLY and camera poses in slightly different coordinate conventions.
 
 ### Why This Works
 - Both PLY and cameras are from the same reconstruction

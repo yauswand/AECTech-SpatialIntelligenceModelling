@@ -1087,34 +1087,51 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
         }));
     }
     
-    // Step 3: Apply translation to all camera poses
-    console.log(`\n   🔄 Applying translation to ${cameraPoses.length} camera poses...`);
+    // Step 3: Apply translation and X-axis flip to all camera poses
+    console.log(`\n   🔄 Applying translation + X-axis flip to ${cameraPoses.length} camera poses...`);
+    console.log(`   ⚠️ NOTE: Polycam cameras are flipped along X-axis to match PLY orientation`);
     
     const alignedPoses = cameraPoses.map(pose => {
+        // First translate
         const alignedPos = pose.position.clone().add(translation);
+        
+        // Then flip X-axis (left ↔ right)
+        alignedPos.x = -alignedPos.x;
+        
+        // Also need to flip the camera rotation to match
+        // Flip the X component of position in the quaternion/matrix
+        const flippedQuaternion = pose.quaternion.clone();
+        // Invert Y and Z components to flip orientation along X-axis
+        flippedQuaternion.y = -flippedQuaternion.y;
+        flippedQuaternion.z = -flippedQuaternion.z;
         
         return {
             index: pose.index,
             position: alignedPos,
-            quaternion: pose.quaternion,
-            matrix: pose.matrix,
+            quaternion: flippedQuaternion,
+            matrix: pose.matrix,  // Keep original matrix for reference
             timestamp: pose.timestamp,
             intrinsics: pose.intrinsics
         };
     });
     
-    // Verify alignment
+    // Verify alignment (centroid will be X-flipped relative to PLY)
     let verifySum = new THREE.Vector3(0, 0, 0);
     alignedPoses.forEach(pose => {
         verifySum.add(pose.position);
     });
     const verifiedCenter = verifySum.divideScalar(alignedPoses.length);
-    const alignmentError = verifiedCenter.distanceTo(plyCenter);
     
-    console.log(`\n   ✅ ALIGNMENT COMPLETE!`);
-    console.log(`   📍 New Camera Centroid: [${verifiedCenter.x.toFixed(3)}, ${verifiedCenter.y.toFixed(3)}, ${verifiedCenter.z.toFixed(3)}]`);
+    // Create a flipped PLY center for comparison
+    const flippedPlyCenter = plyCenter.clone();
+    flippedPlyCenter.x = -flippedPlyCenter.x;
+    const alignmentError = verifiedCenter.distanceTo(flippedPlyCenter);
+    
+    console.log(`\n   ✅ ALIGNMENT + FLIP COMPLETE!`);
+    console.log(`   📍 PLY Centroid (original): [${plyCenter.x.toFixed(3)}, ${plyCenter.y.toFixed(3)}, ${plyCenter.z.toFixed(3)}]`);
+    console.log(`   📍 Camera Centroid (flipped): [${verifiedCenter.x.toFixed(3)}, ${verifiedCenter.y.toFixed(3)}, ${verifiedCenter.z.toFixed(3)}]`);
     console.log(`   📊 Alignment Error: ${alignmentError.toFixed(6)} meters`);
-    console.log(`   🎯 Cameras are now aligned with PLY coordinate system!\n`);
+    console.log(`   🎯 Cameras are now aligned + X-flipped to match PLY!\n`);
     
     return alignedPoses;
 }
