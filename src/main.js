@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
+import { ModeToggle } from './components/ModeToggle.js';
+import { RenovationApp } from './renovation-app.js';
 
 // Scene setup
 let scene, camera, renderer, controls;
@@ -2326,8 +2328,46 @@ function createFrameViewerUI() {
     return viewer;
 }
 
+// Mode management
+let currentMode = 'ply';
+let renovationApp = null;
+
+// Initialize mode toggle and handle mode switching
+function initModeToggle() {
+    const toggleContainer = document.getElementById('mode-toggle-container');
+    const plyViewerMode = document.getElementById('ply-viewer-mode');
+    const renovationContainer = document.getElementById('renovation-app-container');
+    
+    const modeToggle = new ModeToggle((mode) => {
+        currentMode = mode;
+        
+        if (mode === 'ply') {
+            // Show PLY viewer
+            plyViewerMode.style.display = 'block';
+            renovationContainer.style.display = 'none';
+            if (renovationApp) {
+                renovationApp.hide();
+            }
+        } else {
+            // Show Renovation app
+            plyViewerMode.style.display = 'none';
+            renovationContainer.style.display = 'block';
+            
+            if (!renovationApp) {
+                renovationApp = new RenovationApp();
+                const appElement = renovationApp.create();
+                renovationContainer.appendChild(appElement);
+            }
+            renovationApp.show();
+        }
+    });
+    
+    toggleContainer.appendChild(modeToggle.create());
+}
+
 // Initialize everything when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+    initModeToggle();
     init();
     setupDragAndDrop();
     setupUI();

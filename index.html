@@ -3,12 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PLY Point Cloud Viewer</title>
+    <title>Office Renovation & PLY Viewer</title>
     <link rel="stylesheet" href="/src/style.css">
 </head>
 <body>
-    <!-- Main canvas container -->
-    <div id="canvas-container"></div>
+    <!-- Mode Toggle -->
+    <div id="mode-toggle-container"></div>
+    
+    <!-- PLY Viewer Mode -->
+    <div id="ply-viewer-mode">
+        <!-- Main canvas container -->
+        <div id="canvas-container"></div>
 
     <!-- Drag and drop overlay -->
     <div id="drop-zone" class="drop-zone">
@@ -109,6 +114,11 @@
             </div>
         </div>
     </div>
+
+    </div>
+    
+    <!-- Renovation App Mode -->
+    <div id="renovation-app-container"></div>
 
     <script type="module" src="/src/main.js"></script>
 </body>
