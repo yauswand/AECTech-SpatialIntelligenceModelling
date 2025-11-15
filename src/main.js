@@ -1391,18 +1391,6 @@ function recreateCameraFrustums() {
         scene.add(cameraFrustums);
         cameraFrustums.visible = trajectoryVisible;
         
-        // Also update trajectory tube with filtered poses
-        if (trajectoryTube) {
-            scene.remove(trajectoryTube);
-            trajectoryTube.geometry.dispose();
-            trajectoryTube.material.dispose();
-        }
-        trajectoryTube = createTrajectoryTube(result.filteredPoses);
-        if (trajectoryTube) {
-            scene.add(trajectoryTube);
-            trajectoryTube.visible = trajectoryVisible;
-        }
-        
         console.log('✅ Camera frustums recreated with best view highlighting');
     }
 }
@@ -1417,46 +1405,29 @@ function toggleCameraTrajectory(visible) {
             return;
         }
         
-        console.log('Creating trajectory visualization...');
+        console.log('Creating camera frustums...');
         
-        // Create camera frustums and trajectory tube together (use same filtered poses)
-        if (!cameraFrustums || !trajectoryTube) {
+        // Create camera frustums (no trajectory tube)
+        if (!cameraFrustums) {
             const result = createCameraFrustums(trajectoryData);
             if (result) {
-                if (!cameraFrustums) {
-                    cameraFrustums = result.group;
-                    scene.add(cameraFrustums);
-                    console.log('Camera frustums added to scene');
-                }
-                
-                if (!trajectoryTube) {
-                    trajectoryTube = createTrajectoryTube(result.filteredPoses);
-                    if (trajectoryTube) {
-                        scene.add(trajectoryTube);
-                        console.log('Trajectory tube added to scene');
-                    } else {
-                        console.error('Failed to create trajectory tube');
-                    }
-                }
+                cameraFrustums = result.group;
+                scene.add(cameraFrustums);
+                console.log('Camera frustums added to scene');
             } else {
                 console.error('Failed to create camera frustums');
             }
         }
         
-        // Show trajectory
-        if (trajectoryTube) {
-            trajectoryTube.visible = true;
-            console.log('Trajectory tube visible, position:', trajectoryTube.position);
-        }
+        // Show camera frustums
         if (cameraFrustums) {
             cameraFrustums.visible = true;
             console.log('Camera frustums visible');
         }
         
     } else {
-        console.log('Hiding trajectory');
-        // Hide trajectory
-        if (trajectoryTube) trajectoryTube.visible = false;
+        console.log('Hiding camera frustums');
+        // Hide camera frustums
         if (cameraFrustums) cameraFrustums.visible = false;
     }
 }
@@ -2597,6 +2568,7 @@ function displayFrameViewer(frames, currentFrameIndex) {
         
         img.alt = `Frame ${frameInfo.frameNumber}`;
         img.style.display = 'none'; // Hide until loaded
+        img.style.transform = 'rotate(90deg)'; // Rotate images to display upright
         
         let pathIndex = 0;
         
