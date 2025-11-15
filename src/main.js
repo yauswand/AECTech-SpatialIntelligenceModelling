@@ -1080,36 +1080,42 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
         return cameraPoses.map(pose => ({
             index: pose.index,
             position: pose.position.clone(),
-            quaternion: pose.quaternion,
+            quaternion: pose.quaternion.clone(),
             matrix: pose.matrix,
             timestamp: pose.timestamp,
             intrinsics: pose.intrinsics
         }));
     }
     
-    // Step 3: Apply translation and X-axis flip to all camera poses
-    console.log(`\n   🔄 Applying translation + X-axis flip to ${cameraPoses.length} camera poses...`);
-    console.log(`   ⚠️ NOTE: Positions AND orientations flipped along X-axis`);
+    // Step 3: Apply translation and 180° Y-axis rotation around centroid
+    console.log(`\n   🔄 Applying translation + 180° Y-axis rotation to ${cameraPoses.length} camera poses...`);
+    console.log(`   ⚠️ NOTE: Translation + 180° rotation around Y-axis at centroid`);
     
-    // Create a 180-degree rotation around Y-axis for mirroring orientations
-    const yAxisFlip = new THREE.Quaternion();
-    yAxisFlip.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+    // Create a 180-degree rotation around Y-axis
+    const yAxisRotation = new THREE.Quaternion();
+    yAxisRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
     
     const alignedPoses = cameraPoses.map(pose => {
-        // First translate
+        // First translate to align centroids
         const alignedPos = pose.position.clone().add(translation);
         
-        // Then flip X-axis (left ↔ right)
-        alignedPos.x = -alignedPos.x;
+        // Then rotate 180° around Y-axis at the PLY centroid
+        // 1. Move to origin (relative to PLY center)
+        const posRelativeToPly = alignedPos.clone().sub(plyCenter);
         
-        // Also flip the orientation by applying 180° rotation around Y-axis
-        // This ensures cameras face the correct direction after X-axis mirroring
+        // 2. Apply Y-axis rotation
+        posRelativeToPly.applyQuaternion(yAxisRotation);
+        
+        // 3. Move back from origin
+        const finalPos = posRelativeToPly.add(plyCenter);
+        
+        // Also apply rotation to camera orientation
         const quaternion = pose.quaternion.clone();
-        quaternion.premultiply(yAxisFlip);
+        quaternion.premultiply(yAxisRotation);
         
         return {
             index: pose.index,
-            position: alignedPos,
+            position: finalPos,
             quaternion: quaternion,
             matrix: pose.matrix,  // Keep original matrix for reference
             timestamp: pose.timestamp,
@@ -1117,23 +1123,19 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
         };
     });
     
-    // Verify alignment (centroid will be X-flipped relative to PLY)
+    // Verify alignment
     let verifySum = new THREE.Vector3(0, 0, 0);
     alignedPoses.forEach(pose => {
         verifySum.add(pose.position);
     });
     const verifiedCenter = verifySum.divideScalar(alignedPoses.length);
+    const alignmentError = verifiedCenter.distanceTo(plyCenter);
     
-    // Create a flipped PLY center for comparison
-    const flippedPlyCenter = plyCenter.clone();
-    flippedPlyCenter.x = -flippedPlyCenter.x;
-    const alignmentError = verifiedCenter.distanceTo(flippedPlyCenter);
-    
-    console.log(`\n   ✅ ALIGNMENT + FLIP COMPLETE!`);
-    console.log(`   📍 PLY Centroid (original): [${plyCenter.x.toFixed(3)}, ${plyCenter.y.toFixed(3)}, ${plyCenter.z.toFixed(3)}]`);
-    console.log(`   📍 Camera Centroid (flipped): [${verifiedCenter.x.toFixed(3)}, ${verifiedCenter.y.toFixed(3)}, ${verifiedCenter.z.toFixed(3)}]`);
+    console.log(`\n   ✅ TRANSLATION COMPLETE!`);
+    console.log(`   📍 PLY Centroid:           [${plyCenter.x.toFixed(3)}, ${plyCenter.y.toFixed(3)}, ${plyCenter.z.toFixed(3)}]`);
+    console.log(`   📍 Camera Centroid (aligned): [${verifiedCenter.x.toFixed(3)}, ${verifiedCenter.y.toFixed(3)}, ${verifiedCenter.z.toFixed(3)}]`);
     console.log(`   📊 Alignment Error: ${alignmentError.toFixed(6)} meters`);
-    console.log(`   🎯 Cameras are now aligned + X-flipped to match PLY!\n`);
+    console.log(`   🎯 Cameras are now aligned with PLY centroid!\n`);
     
     return alignedPoses;
 }
