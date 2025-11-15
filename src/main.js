@@ -2,10 +2,28 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
 
+// ================================================================================
+// ⚠️ CRITICAL CONFIGURATION - DO NOT MODIFY ⚠️
+// ================================================================================
+// The following settings are LOCKED and should NEVER be changed:
+//
+// 1. VIEWER: Y-up coordinate system (camera.up = 0, 1, 0)
+// 2. MODEL ROTATION: -90° around X-axis on PLY load
+// 3. NO CENTERING: Models load at their original coordinates
+// 4. NO SCALING: Models maintain original size
+//
+// These settings have been finalized to ensure proper alignment between
+// Polycam point clouds and camera trajectories. Changing them will break
+// the coordinate system alignment.
+//
+// DO NOT CHANGE THESE CONFIGURATIONS EVER AGAIN.
+// ================================================================================
+
 // Scene setup
 let scene, camera, renderer, controls;
 let currentPointCloud = null;
 let currentGeometry = null;
+let axesHelper = null; // Coordinate system gizmo
 let renderMode = 'auto'; // 'auto', 'wireframe', 'points'
 let animationTime = 0;
 
@@ -24,6 +42,7 @@ let cameraFrustums = null;
 let trajectoryData = null;
 let pointCloudTransform = null; // Store transform applied to point cloud
 let scanFolderPath = null; // Store scan folder path for loading frames
+let frameTimestampMap = null; // Map frame_index to timestamp for Polycam data
 
 // Semantic labels
 let labelsVisible = false;
@@ -66,14 +85,26 @@ function init() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
-    // Setup camera
+    // ============================================================================
+    // VIEWER CONFIGURATION - DO NOT CHANGE THIS EVER AGAIN
+    // ============================================================================
+    // FINAL LOCKED CONFIGURATION:
+    // - Y-up coordinate system (camera.up = 0, 1, 0)
+    // - Camera position at (5, 5, 5)
+    // - This matches the Polycam data with model rotation applied below
+    // DO NOT MODIFY THESE SETTINGS
+    // ============================================================================
     camera = new THREE.PerspectiveCamera(
         75,
         window.innerWidth / window.innerHeight,
         0.1,
         1000
     );
-    camera.position.set(0, 0, 5);
+    
+    camera.up.set(0, 1, 0);  // Y-up - DO NOT CHANGE
+    camera.position.set(5, 5, 5);  // DO NOT CHANGE
+    
+    console.log('✓ Viewer configured for Y-up (LOCKED CONFIGURATION)');
 
     // Create renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -81,13 +112,14 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    // Add orbit controls
+    // Add orbit controls (will automatically use camera's up vector)
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.screenSpacePanning = false;
     controls.minDistance = 1;
     controls.maxDistance = 100;
+    controls.target.set(0, 0, 0); // Look at origin
 
     // Add lighting with game engine aesthetic
     const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
@@ -106,6 +138,13 @@ function init() {
     const fillLight = new THREE.DirectionalLight(0xff6040, 0.3);
     fillLight.position.set(-1, -1, 1);
     scene.add(fillLight);
+
+    // Add simple coordinate axes helper to main scene
+    axesHelper = new THREE.AxesHelper(5); // Size 5 units
+    axesHelper.position.set(0, 0, 0); // At world origin
+    scene.add(axesHelper);
+    
+    console.log('✓ Coordinate axes added at origin (showing data coordinates: X=red, Y=green, Z=blue)');
 
     // Handle window resize
     window.addEventListener('resize', onWindowResize);
@@ -248,27 +287,72 @@ function loadPLYFile(file) {
             const geometry = loader.parse(event.target.result);
             currentGeometry = geometry;
             
-            // Center the geometry
-            geometry.computeBoundingBox();
-            const center = new THREE.Vector3();
-            geometry.boundingBox.getCenter(center);
-            geometry.translate(-center.x, -center.y, -center.z);
-
-            // Calculate scale to fit in view
-            const size = new THREE.Vector3();
-            geometry.boundingBox.getSize(size);
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 4 / maxDim;
-            geometry.scale(scale, scale, scale);
+            console.log('\n📦 POINT CLOUD LOADED:');
             
-            // Recompute bounding box after transformation to get final bounds
+            // ============================================================================
+            // MODEL ROTATION - DO NOT CHANGE THIS EVER AGAIN
+            // ============================================================================
+            // FINAL LOCKED CONFIGURATION:
+            // - Rotation: -90° around X-axis
+            // - Formula: X' = X, Y' = Z, Z' = -Y
+            // - This aligns Polycam Y-up data with the Y-up viewer correctly
+            // DO NOT MODIFY THIS ROTATION
+            // ============================================================================
+            console.log('   Applying -90° rotation around X-axis (LOCKED)...');
+            
+            const positions = geometry.attributes.position;
+            const posArray = positions.array;
+            
+            for (let i = 0; i < posArray.length; i += 3) {
+                const x = posArray[i];
+                const y = posArray[i + 1];
+                const z = posArray[i + 2];
+                
+                // LOCKED ROTATION: -90° around X-axis - DO NOT CHANGE
+                posArray[i] = x;       // X stays the same
+                posArray[i + 1] = z;   // Y becomes Z
+                posArray[i + 2] = -y;  // Z becomes -Y
+            }
+            
+            positions.needsUpdate = true;
+            // ============================================================================
+            
+            // Compute bounding box after transformation
             geometry.computeBoundingBox();
+            
+            // ============================================================================
+            // CALCULATE PLY CENTROID FOR CAMERA ALIGNMENT
+            // ============================================================================
+            // Calculate the actual centroid of the point cloud
+            // This is needed to align Polycam camera trajectories with the PLY
+            const pointCount = positions.count;
+            let sumX = 0, sumY = 0, sumZ = 0;
+            
+            for (let i = 0; i < pointCount; i++) {
+                sumX += positions.getX(i);
+                sumY += positions.getY(i);
+                sumZ += positions.getZ(i);
+            }
+            
+            const center = new THREE.Vector3(
+                sumX / pointCount,
+                sumY / pointCount,
+                sumZ / pointCount
+            );
+            
+            const scale = 1.0; // No scaling
+            
+            console.log(`   Bounding Box Min: [${geometry.boundingBox.min.x.toFixed(2)}, ${geometry.boundingBox.min.y.toFixed(2)}, ${geometry.boundingBox.min.z.toFixed(2)}]`);
+            console.log(`   Bounding Box Max: [${geometry.boundingBox.max.x.toFixed(2)}, ${geometry.boundingBox.max.y.toFixed(2)}, ${geometry.boundingBox.max.z.toFixed(2)}]`);
+            console.log(`\n   📍 PLY CENTROID CALCULATED: [${center.x.toFixed(3)}, ${center.y.toFixed(3)}, ${center.z.toFixed(3)}]`);
+            console.log(`   This will be used to align camera trajectories from Polycam\n`);
+            
             const bounds = {
                 min: geometry.boundingBox.min.clone(),
                 max: geometry.boundingBox.max.clone()
             };
             
-            // Store transformation and bounds for trajectory/label alignment
+            // Store transformation info (identity transform)
             pointCloudTransform = { center, scale, bounds };
 
             // Check if geometry has colors, if not add default colors with emissive look
@@ -317,11 +401,11 @@ function loadPLYFile(file) {
             }
 
             // Update info
-            const pointCount = geometry.attributes.position.count;
+            const vertexCount = geometry.attributes.position.count;
             const faceCount = hasFaces ? geometry.index.count / 3 : 0;
             const modeText = hasFaces ? ' | Press M to toggle mode' : '';
             document.getElementById('point-count').textContent = 
-                `${pointCount.toLocaleString()} vertices${faceCount > 0 ? ` | ${Math.floor(faceCount).toLocaleString()} faces` : ''}${modeText}`;
+                `${vertexCount.toLocaleString()} vertices${faceCount > 0 ? ` | ${Math.floor(faceCount).toLocaleString()} faces` : ''}${modeText}`;
             
             // Hide loading, show info and controls
             loading.classList.add('hidden');
@@ -355,11 +439,11 @@ function loadPLYFile(file) {
 async function tryAutoLoadTrajectory(plyFileName) {
     // Check for common trajectory file patterns
     const baseName = plyFileName.replace('.ply', '');
+    
+    // Prioritize specific trajectory files based on PLY name
     const possibleTrajectoryPaths = [
         `/cloud/${baseName}_trajectory.json`,
-        `/cloud/yash_livingroom_trajectory.json`,  // Default fallback
-        `/cloud/trajectory.json`,
-        `/cloud/${baseName}.json`
+        `/cloud/trajectory.json`
     ];
     
     console.log('\n📷 AUTO-LOADING CAMERA TRAJECTORY...');
@@ -749,42 +833,146 @@ async function loadCameraTrajectoryFromFile(trajectoryFile) {
                     const trajectoryJson = JSON.parse(event.target.result);
                     const cameraPoses = [];
                     
+                    console.log('\n🔍 TRAJECTORY JSON LOADED:');
+                    console.log(`   - scan_folder from JSON: "${trajectoryJson.scan_folder}"`);
+                    console.log(`   - frame_count: ${trajectoryJson.frame_count || 'N/A'}`);
+                    console.log(`   - Has "cameras" array: ${trajectoryJson.cameras ? 'YES' : 'NO'}`);
+                    console.log(`   - Has "poses" array: ${trajectoryJson.poses ? 'YES' : 'NO'}`);
+                    
                     // Store scan folder path for loading frames
                     if (trajectoryJson.scan_folder) {
-                        scanFolderPath = `/cloud/Untitled_Scan_22_24_52/${trajectoryJson.scan_folder}`;
-                        console.log('📁 Scan folder path set to:', scanFolderPath);
-                        console.log('📷 Frame format will be: frame_00000.png or frame_00000.jpg');
+                        // Check if it's the new Polycam format
+                        if (trajectoryJson.scan_folder.includes('11_15_2025')) {
+                            // Polycam format: images and depth maps use timestamp filenames
+                            scanFolderPath = `/${trajectoryJson.scan_folder}`;
+                            console.log('\n✅ POLYCAM FORMAT DETECTED!');
+                            console.log('📁 Polycam scan folder path set to:', scanFolderPath);
+                            console.log('📷 Frame format: {timestamp}.jpg (e.g., 435456552349.jpg)');
+                            console.log('🗺️ Depth format: {timestamp}.png');
+                        } else {
+                            // Old ARKit format
+                            scanFolderPath = `/cloud/Untitled_Scan_22_24_52/${trajectoryJson.scan_folder}`;
+                            console.log('\n⚠️ OLD ARKIT FORMAT DETECTED');
+                            console.log('📁 Scan folder path set to:', scanFolderPath);
+                            console.log('📷 Frame format will be: frame_00000.png or frame_00000.jpg');
+                        }
                     } else {
-                        console.warn('⚠️ No scan_folder found in trajectory JSON');
+                        console.warn('\n❌ NO scan_folder found in trajectory JSON!');
                         // Try default path
                         scanFolderPath = '/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21';
                         console.log('📁 Using default scan folder path:', scanFolderPath);
                     }
                     
+                    // Initialize timestamp mapping for Polycam data
+                    const isPolycamData = trajectoryJson.scan_folder && trajectoryJson.scan_folder.includes('11_15_2025');
+                    if (isPolycamData) {
+                        frameTimestampMap = new Map();
+                    }
+                    
+                    // Check if new Polycam format (cameras array) or old ARKit format (poses array)
+                    const cameraArray = trajectoryJson.cameras || trajectoryJson.poses;
+                    
+                    if (!cameraArray) {
+                        throw new Error('No camera data found in trajectory JSON');
+                    }
+                    
+                    console.log('📷 Loading camera poses as-is (no transformations)...');
+                    
                     // Parse ALL camera poses for calculation accuracy
-                    for (let i = 0; i < trajectoryJson.poses.length; i++) {
-                        const poseData = trajectoryJson.poses[i];
-                        const poseMatrix = poseData.cameraPoseARFrame;
-                        if (poseMatrix && poseMatrix.length === 16) {
-                            // Create THREE.js matrix from the pose data
-                            const matrix = buildMatrixFromPoseArray(poseMatrix);
+                    for (let i = 0; i < cameraArray.length; i++) {
+                        const poseData = cameraArray[i];
+                        
+                        // Handle new Polycam format with 'transform' field
+                        if (poseData.transform) {
+                            // Transform is 4x4 matrix in row-major order
+                            // This is the camera-to-world transform from Polycam
+                            const t = poseData.transform;
+                            const matrix = new THREE.Matrix4();
+                            matrix.set(
+                                t[0][0], t[0][1], t[0][2], t[0][3],
+                                t[1][0], t[1][1], t[1][2], t[1][3],
+                                t[2][0], t[2][1], t[2][2], t[2][3],
+                                t[3][0], t[3][1], t[3][2], t[3][3]
+                            );
                             
-                            // Extract position and rotation
-                            const position = new THREE.Vector3();
+                            // Extract position and rotation directly - no transformations
+                            const position = new THREE.Vector3(t[0][3], t[1][3], t[2][3]);
+                            
+                            // Extract rotation from the 3x3 upper-left submatrix
+                            const rotMatrix = new THREE.Matrix4();
+                            rotMatrix.set(
+                                t[0][0], t[0][1], t[0][2], 0,
+                                t[1][0], t[1][1], t[1][2], 0,
+                                t[2][0], t[2][1], t[2][2], 0,
+                                0, 0, 0, 1
+                            );
+                            
                             const quaternion = new THREE.Quaternion();
-                            const scale = new THREE.Vector3();
-                            matrix.decompose(position, quaternion, scale);
+                            quaternion.setFromRotationMatrix(rotMatrix);
+                            
+                            const scale = new THREE.Vector3(1, 1, 1);
                             
                             cameraPoses.push({
-                                index: poseData.frame_index,
+                                index: poseData.index,
                                 position: position,
                                 quaternion: quaternion,
-                                matrix: matrix
+                                matrix: matrix,
+                                timestamp: poseData.timestamp,
+                                intrinsics: poseData.intrinsics
                             });
+                            
+                            // Store timestamp mapping
+                            if (poseData.timestamp) {
+                                if (!frameTimestampMap) frameTimestampMap = new Map();
+                                frameTimestampMap.set(poseData.index, poseData.timestamp);
+                            }
+                        }
+                        // Handle old ARKit format with 'cameraPoseARFrame' field
+                        else if (poseData.cameraPoseARFrame) {
+                            const poseMatrix = poseData.cameraPoseARFrame;
+                            if (poseMatrix && poseMatrix.length === 16) {
+                                // Create THREE.js matrix from the pose data
+                                const matrix = buildMatrixFromPoseArray(poseMatrix);
+                                
+                                // Extract position and rotation
+                                const position = new THREE.Vector3();
+                                const quaternion = new THREE.Quaternion();
+                                const scale = new THREE.Vector3();
+                                matrix.decompose(position, quaternion, scale);
+                                
+                                cameraPoses.push({
+                                    index: poseData.frame_index,
+                                    position: position,
+                                    quaternion: quaternion,
+                                    matrix: matrix,
+                                    timestamp: poseData.timestamp,
+                                    intrinsics: poseData.intrinsics
+                                });
+                                
+                                // Store timestamp mapping for Polycam data
+                                if (isPolycamData && poseData.timestamp) {
+                                    frameTimestampMap.set(poseData.frame_index, poseData.timestamp);
+                                }
+                            }
                         }
                     }
                     
                     console.log(`Loaded ${cameraPoses.length} camera poses`);
+                    
+                    // Debug: Log timestamp mapping
+                    if (frameTimestampMap && frameTimestampMap.size > 0) {
+                        console.log(`📸 Frame-to-Timestamp mapping created: ${frameTimestampMap.size} entries`);
+                        console.log(`   Sample mappings (first 5):`);
+                        let count = 0;
+                        for (const [frameIdx, timestamp] of frameTimestampMap) {
+                            if (count++ < 5) {
+                                console.log(`     Frame ${frameIdx} → ${timestamp}.jpg`);
+                            }
+                        }
+                    } else {
+                        console.warn(`⚠️ No timestamp mapping created!`);
+                    }
+                    
                     resolve(cameraPoses);
                     
                 } catch (error) {
@@ -809,11 +997,6 @@ async function loadCameraTrajectoryFromFile(trajectoryFile) {
 
 // Load trajectory data and apply transformations
 async function loadAndProcessTrajectory(trajectoryFile) {
-    if (!pointCloudTransform) {
-        console.warn('Point cloud not loaded yet. Load a PLY file first.');
-        return false;
-    }
-    
     // Clean up existing trajectory
     cleanupTrajectory();
     
@@ -824,17 +1007,33 @@ async function loadAndProcessTrajectory(trajectoryFile) {
         return false;
     }
     
-    // Apply same transformations as point cloud
-    trajectoryData = transformTrajectoryData(
-        rawPoses,
-        pointCloudTransform.center,
-        pointCloudTransform.scale
-    );
+    // Apply alignment transformation (if point cloud is loaded)
+    if (pointCloudTransform && pointCloudTransform.center) {
+        console.log('\n🔗 Point cloud loaded - aligning camera trajectory...');
+        trajectoryData = transformTrajectoryData(
+            rawPoses,
+            pointCloudTransform.center,  // PLY centroid
+            pointCloudTransform.scale    // Scale (typically 1.0)
+        );
+    } else {
+        // No point cloud loaded yet - store raw poses without alignment
+        console.log('\n⚠️ WARNING: Point cloud not loaded yet!');
+        console.log('   Camera trajectory will be stored but NOT aligned.');
+        console.log('   Load the PLY file first, then reload the trajectory for proper alignment.\n');
+        trajectoryData = rawPoses.map(pose => ({
+            index: pose.index,
+            position: pose.position.clone(),
+            quaternion: pose.quaternion,
+            matrix: pose.matrix,
+            timestamp: pose.timestamp,
+            intrinsics: pose.intrinsics
+        }));
+    }
     
-    console.log('Trajectory loaded and transformed:', {
+    console.log('\n📊 Trajectory Summary:', {
         poseCount: trajectoryData.length,
-        firstPosition: trajectoryData[0].position,
-        lastPosition: trajectoryData[trajectoryData.length - 1].position
+        firstPosition: `[${trajectoryData[0].position.x.toFixed(2)}, ${trajectoryData[0].position.y.toFixed(2)}, ${trajectoryData[0].position.z.toFixed(2)}]`,
+        lastPosition: `[${trajectoryData[trajectoryData.length - 1].position.x.toFixed(2)}, ${trajectoryData[trajectoryData.length - 1].position.y.toFixed(2)}, ${trajectoryData[trajectoryData.length - 1].position.z.toFixed(2)}]`
     });
     
     // If trajectory is enabled, show it
@@ -846,21 +1045,77 @@ async function loadAndProcessTrajectory(trajectoryFile) {
 }
 
 // Apply same transformation to trajectory as point cloud
-function transformTrajectoryData(cameraPoses, center, scale) {
-    const transformedPoses = cameraPoses.map(pose => {
-        const transformedPos = pose.position.clone();
-        transformedPos.sub(center);
-        transformedPos.multiplyScalar(scale);
+function transformTrajectoryData(cameraPoses, plyCenter, scale) {
+    // ============================================================================
+    // POLYCAM CAMERA-TO-PLY ALIGNMENT FIX
+    // ============================================================================
+    // Problem: Polycam recenters the exported PLY but does NOT recenter camera poses
+    // Solution: Calculate camera centroid and align it with PLY centroid
+    // ============================================================================
+    
+    console.log('\n🎯 ALIGNING CAMERA TRAJECTORY WITH PLY CENTROID...');
+    console.log(`   Camera poses: ${cameraPoses.length}`);
+    
+    // Step 1: Calculate camera centroid (average position of all cameras)
+    let cameraCenterSum = new THREE.Vector3(0, 0, 0);
+    cameraPoses.forEach(pose => {
+        cameraCenterSum.add(pose.position);
+    });
+    const cameraCenter = cameraCenterSum.divideScalar(cameraPoses.length);
+    
+    console.log(`\n   📍 PLY Centroid:    [${plyCenter.x.toFixed(3)}, ${plyCenter.y.toFixed(3)}, ${plyCenter.z.toFixed(3)}]`);
+    console.log(`   📷 Camera Centroid: [${cameraCenter.x.toFixed(3)}, ${cameraCenter.y.toFixed(3)}, ${cameraCenter.z.toFixed(3)}]`);
+    
+    // Step 2: Calculate translation needed to align cameras with PLY
+    // Translation = PLY_center - Camera_center
+    const translation = plyCenter.clone().sub(cameraCenter);
+    const translationDistance = translation.length();
+    
+    console.log(`\n   🔧 Translation Vector: [${translation.x.toFixed(3)}, ${translation.y.toFixed(3)}, ${translation.z.toFixed(3)}]`);
+    console.log(`   📏 Translation Distance: ${translationDistance.toFixed(3)} meters`);
+    
+    if (translationDistance < 0.001) {
+        console.log(`   ✅ Cameras already aligned (distance < 1mm) - no translation needed\n`);
+        return cameraPoses.map(pose => ({
+            index: pose.index,
+            position: pose.position.clone(),
+            quaternion: pose.quaternion,
+            matrix: pose.matrix,
+            timestamp: pose.timestamp,
+            intrinsics: pose.intrinsics
+        }));
+    }
+    
+    // Step 3: Apply translation to all camera poses
+    console.log(`\n   🔄 Applying translation to ${cameraPoses.length} camera poses...`);
+    
+    const alignedPoses = cameraPoses.map(pose => {
+        const alignedPos = pose.position.clone().add(translation);
         
         return {
             index: pose.index,
-            position: transformedPos,
-            quaternion: pose.quaternion.clone(),
-            matrix: pose.matrix.clone()
+            position: alignedPos,
+            quaternion: pose.quaternion,
+            matrix: pose.matrix,
+            timestamp: pose.timestamp,
+            intrinsics: pose.intrinsics
         };
     });
     
-    return transformedPoses;
+    // Verify alignment
+    let verifySum = new THREE.Vector3(0, 0, 0);
+    alignedPoses.forEach(pose => {
+        verifySum.add(pose.position);
+    });
+    const verifiedCenter = verifySum.divideScalar(alignedPoses.length);
+    const alignmentError = verifiedCenter.distanceTo(plyCenter);
+    
+    console.log(`\n   ✅ ALIGNMENT COMPLETE!`);
+    console.log(`   📍 New Camera Centroid: [${verifiedCenter.x.toFixed(3)}, ${verifiedCenter.y.toFixed(3)}, ${verifiedCenter.z.toFixed(3)}]`);
+    console.log(`   📊 Alignment Error: ${alignmentError.toFixed(6)} meters`);
+    console.log(`   🎯 Cameras are now aligned with PLY coordinate system!\n`);
+    
+    return alignedPoses;
 }
 
 // Create smooth spline trajectory tube
@@ -1120,6 +1375,7 @@ function toggleCameraTrajectory(visible) {
         if (!trajectoryTube) {
             trajectoryTube = createTrajectoryTube(trajectoryData);
             if (trajectoryTube) {
+                // No rotation - keeping original coordinate system
                 scene.add(trajectoryTube);
                 console.log('Trajectory tube added to scene');
             } else {
@@ -1130,6 +1386,7 @@ function toggleCameraTrajectory(visible) {
         if (!cameraFrustums) {
             cameraFrustums = createCameraFrustums(trajectoryData);
             if (cameraFrustums) {
+                // No rotation - keeping original coordinate system
                 scene.add(cameraFrustums);
                 console.log('Camera frustums added to scene');
             } else {
@@ -1157,6 +1414,8 @@ function toggleCameraTrajectory(visible) {
 
 // Clean up trajectory objects
 function cleanupTrajectory() {
+    console.log('🧹 Cleaning up old trajectory data...');
+    
     if (trajectoryTube) {
         scene.remove(trajectoryTube);
         trajectoryTube.geometry.dispose();
@@ -1188,6 +1447,9 @@ function cleanupTrajectory() {
     cameraLensInstances = [];
     selectedCameraIndex = -1;
     scanFolderPath = null;
+    frameTimestampMap = null;
+    
+    console.log('   ✅ Trajectory data cleared (scanFolderPath and frameTimestampMap reset)');
 }
 
 // Try to automatically load semantic labels based on PLY filename
@@ -1311,7 +1573,7 @@ async function loadLabelsDataWithWebappCalculation(labelsJson) {
         // Process each object - ALWAYS CALCULATE FRESH POSITIONS (never use Python pre-calculated)
         for (const obj of labelsJson.labeled_objects) {
             if (!obj.best_view) {
-                console.warn(`⚠️ ${obj.class_name}: No best view data`);
+                // console.warn(`⚠️ ${obj.class_name}: No best view data`);
                 failCount++;
                 continue;
             }
@@ -1323,7 +1585,7 @@ async function loadLabelsDataWithWebappCalculation(labelsJson) {
             // Find the camera pose for this frame
             const cameraPose = trajectoryData.find(pose => pose.index === frameId);
             if (!cameraPose) {
-                console.warn(`⚠️ ${obj.class_name}: Frame ${frameId} not in trajectory`);
+                // console.warn(`⚠️ ${obj.class_name}: Frame ${frameId} not in trajectory`);
                 failCount++;
                 continue;
             }
@@ -1372,9 +1634,9 @@ async function loadLabelsDataWithWebappCalculation(labelsJson) {
                     }
                 });
                 successCount++;
-                console.log(`✓ ${obj.class_name}: [${position3D.x.toFixed(2)}, ${position3D.y.toFixed(2)}, ${position3D.z.toFixed(2)}]`);
+                // console.log(`✓ ${obj.class_name}: [${position3D.x.toFixed(2)}, ${position3D.y.toFixed(2)}, ${position3D.z.toFixed(2)}]`);
             } else {
-                console.warn(`✗ ${obj.class_name}: Failed to calculate 3D position`);
+                // console.warn(`✗ ${obj.class_name}: Failed to calculate 3D position`);
                 failCount++;
             }
         }
@@ -1468,11 +1730,11 @@ async function calculate3DPositionFromBestView(frameId, bbox, cameraPose) {
         // Get depth value at scaled coordinates
         const depth = getDepthAtPixel(depthData, centerX_depth, centerY_depth);
         if (!depth || depth <= 0 || depth > 10.0) {
-            console.warn(`Invalid depth ${depth?.toFixed(3)}m at RGB(${centerX_rgb.toFixed(1)}, ${centerY_rgb.toFixed(1)}) → Depth(${centerX_depth.toFixed(1)}, ${centerY_depth.toFixed(1)})`);
+            // console.warn(`Invalid depth ${depth?.toFixed(3)}m at RGB(${centerX_rgb.toFixed(1)}, ${centerY_rgb.toFixed(1)}) → Depth(${centerX_depth.toFixed(1)}, ${centerY_depth.toFixed(1)})`);
             return null;
         }
         
-        console.log(`Frame ${frameId}: RGB center (${centerX_rgb.toFixed(1)}, ${centerY_rgb.toFixed(1)}) → Depth (${centerX_depth.toFixed(1)}, ${centerY_depth.toFixed(1)}), depth: ${depth.toFixed(3)}m`);
+        // console.log(`Frame ${frameId}: RGB center (${centerX_rgb.toFixed(1)}, ${centerY_rgb.toFixed(1)}) → Depth (${centerX_depth.toFixed(1)}, ${centerY_depth.toFixed(1)}), depth: ${depth.toFixed(3)}m`);
         
         // Unproject to 3D using ARKit convention (camera looks at -Z)
         // Use RGB coordinates for unprojection (intrinsics are for RGB resolution)
@@ -1496,8 +1758,8 @@ async function calculate3DPositionFromBestView(frameId, bbox, cameraPose) {
                 if (point3D.x < bounds.min.x - margin || point3D.x > bounds.max.x + margin ||
                     point3D.y < bounds.min.y - margin || point3D.y > bounds.max.y + margin ||
                     point3D.z < bounds.min.z - margin || point3D.z > bounds.max.z + margin) {
-                    console.warn(`✗ Position [${point3D.x.toFixed(2)}, ${point3D.y.toFixed(2)}, ${point3D.z.toFixed(2)}] outside bounds`);
-                    console.warn(`  Bounds: X=[${bounds.min.x.toFixed(2)}, ${bounds.max.x.toFixed(2)}], Y=[${bounds.min.y.toFixed(2)}, ${bounds.max.y.toFixed(2)}], Z=[${bounds.min.z.toFixed(2)}, ${bounds.max.z.toFixed(2)}]`);
+                    // console.warn(`✗ Position [${point3D.x.toFixed(2)}, ${point3D.y.toFixed(2)}, ${point3D.z.toFixed(2)}] outside bounds`);
+                    // console.warn(`  Bounds: X=[${bounds.min.x.toFixed(2)}, ${bounds.max.x.toFixed(2)}], Y=[${bounds.min.y.toFixed(2)}, ${bounds.max.y.toFixed(2)}], Z=[${bounds.min.z.toFixed(2)}, ${bounds.max.z.toFixed(2)}]`);
                     return null; // Reject labels outside point cloud
                 }
             }
@@ -1541,8 +1803,17 @@ async function loadDepthImage(frameId) {
         return null;
     }
     
-    const frameNumberPadded = String(frameId).padStart(5, '0');
-    const depthPath = `${scanFolderPath}/depth_${frameNumberPadded}.png`;
+    // Determine the correct filename based on data format
+    let depthPath;
+    if (frameTimestampMap && frameTimestampMap.has(frameId)) {
+        // Polycam format: use timestamp
+        const timestamp = frameTimestampMap.get(frameId);
+        depthPath = `${scanFolderPath}/depth/${timestamp}.png`;
+    } else {
+        // Old ARKit format: use padded frame number
+        const frameNumberPadded = String(frameId).padStart(5, '0');
+        depthPath = `${scanFolderPath}/depth_${frameNumberPadded}.png`;
+    }
     
     try {
         // Load 16-bit depth image
@@ -1560,7 +1831,7 @@ async function loadDepthImage(frameId) {
         ctx.drawImage(img, 0, 0);
         const imageData = ctx.getImageData(0, 0, img.width, img.height);
         
-        console.log(`Loaded depth ${frameId}: ${img.width}x${img.height}`);
+        // console.log(`Loaded depth ${frameId}: ${img.width}x${img.height}`);
         
         return {
             data: imageData.data,
@@ -1628,6 +1899,21 @@ function getDepthAtPixel(depthData, x, y) {
 
 // Load camera intrinsics for a frame
 async function loadFrameIntrinsics(frameId) {
+    // For Polycam data, intrinsics are in the trajectory - extract from trajectoryData
+    if (frameTimestampMap && trajectoryData) {
+        const cameraPose = trajectoryData.find(pose => pose.index === frameId);
+        if (cameraPose && cameraPose.intrinsics) {
+            // Intrinsics are in flattened 3x3 format: [fx, 0, cx, 0, fy, cy, 0, 0, 1]
+            return {
+                fx: cameraPose.intrinsics[0],
+                fy: cameraPose.intrinsics[4],
+                cx: cameraPose.intrinsics[2],
+                cy: cameraPose.intrinsics[5]
+            };
+        }
+    }
+    
+    // For old ARKit format, load from separate JSON file
     if (!scanFolderPath) {
         return null;
     }
@@ -2227,16 +2513,38 @@ function displayFrameViewer(frames, currentFrameIndex) {
         
         const img = document.createElement('img');
         
-        // Try multiple possible paths with correct 5-digit padding
-        const frameNumberPadded = String(frameInfo.frameNumber).padStart(5, '0');
-        const possiblePaths = [
-            `${scanFolderPath}/frame_${frameNumberPadded}.jpg`,
-            `${scanFolderPath}/frame_${frameNumberPadded}.png`,
-            `/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21/frame_${frameNumberPadded}.jpg`,
-            `/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21/frame_${frameNumberPadded}.png`,
-        ];
+        // Determine paths based on data format
+        let possiblePaths = [];
         
-        console.log(`Trying to load frame ${frameInfo.frameNumber}, paths:`, possiblePaths);
+        // Debug: Check frameTimestampMap status
+        console.log(`[FRAME LOAD DEBUG] Frame ${frameInfo.frameNumber}:`);
+        console.log(`  - frameTimestampMap exists:`, frameTimestampMap ? 'YES' : 'NO');
+        console.log(`  - frameTimestampMap size:`, frameTimestampMap ? frameTimestampMap.size : 0);
+        console.log(`  - Has this frame:`, frameTimestampMap ? frameTimestampMap.has(frameInfo.frameNumber) : false);
+        
+        if (frameTimestampMap && frameTimestampMap.has(frameInfo.frameNumber)) {
+            // Polycam format: use timestamp
+            const timestamp = frameTimestampMap.get(frameInfo.frameNumber);
+            console.log(`  - Timestamp for frame ${frameInfo.frameNumber}:`, timestamp);
+            console.log(`  - scanFolderPath:`, scanFolderPath);
+            
+            possiblePaths = [
+                `${scanFolderPath}/corrected_images/${timestamp}.jpg`,
+                `${scanFolderPath}/images/${timestamp}.jpg`,
+            ];
+        } else {
+            // Old ARKit format: use padded frame number
+            console.log(`  - Using ARKit format (no timestamp found)`);
+            const frameNumberPadded = String(frameInfo.frameNumber).padStart(5, '0');
+            possiblePaths = [
+                `${scanFolderPath}/frame_${frameNumberPadded}.jpg`,
+                `${scanFolderPath}/frame_${frameNumberPadded}.png`,
+                `/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21/frame_${frameNumberPadded}.jpg`,
+                `/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21/frame_${frameNumberPadded}.png`,
+            ];
+        }
+        
+        console.log(`  - Trying paths:`, possiblePaths);
         
         img.alt = `Frame ${frameInfo.frameNumber}`;
         img.style.display = 'none'; // Hide until loaded
