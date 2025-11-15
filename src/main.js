@@ -440,14 +440,15 @@ async function tryAutoLoadTrajectory(plyFileName) {
     // Check for common trajectory file patterns
     const baseName = plyFileName.replace('.ply', '');
     
-    // Prioritize specific trajectory files based on PLY name
+    // Prioritize fixed trajectory path first, then fallbacks
     const possibleTrajectoryPaths = [
+        `/camera_trajectory.json`,  // Always try this first
         `/cloud/${baseName}_trajectory.json`,
         `/cloud/trajectory.json`
     ];
     
     console.log('\n📷 AUTO-LOADING CAMERA TRAJECTORY...');
-    console.log(`Searching for trajectory file for ${plyFileName}...`);
+    console.log(`Searching for trajectory file...`);
     
     // Try to fetch each possible trajectory file
     for (const trajectoryPath of possibleTrajectoryPaths) {
