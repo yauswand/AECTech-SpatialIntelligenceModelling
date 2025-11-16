@@ -10,33 +10,21 @@
     <!-- Main canvas container -->
     <div id="canvas-container"></div>
 
-    <!-- Drag and drop overlay -->
-    <div id="drop-zone" class="drop-zone">
-        <div class="drop-zone-content">
-            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <h2>Drop PLY File Here</h2>
-            <p>or drag and drop anywhere</p>
-        </div>
-    </div>
-
     <!-- Instructions overlay -->
     <div id="instructions" class="instructions">
         <div class="instructions-content">
-            <h1>PLY Point Cloud Viewer</h1>
-            <p>Drag and drop a .ply file anywhere on the screen to visualize it</p>
-            <ul>
-                <li>WASD: Move camera (Shift to move faster)</li>
-                <li>Space: Move up | Shift (alone): Move down</li>
-                <li>M: Toggle wireframe/points (if mesh has faces)</li>
-                <li>Left mouse: Rotate view</li>
-                <li>Right mouse / Two fingers: Pan</li>
-                <li>Scroll / Pinch: Zoom</li>
-            </ul>
-            <button id="close-instructions">Got it!</button>
+            <h1>Upload Your Data</h1>
+            <p>Select a folder containing your point cloud scan data</p>
+            <div class="folder-structure-info">
+                <p style="font-size: 14px; opacity: 0.7; margin-bottom: 20px;">Expected folder structure:</p>
+                <ul style="text-align: left; font-size: 13px; opacity: 0.6; margin-bottom: 25px;">
+                    <li>📄 {name}.ply - Point cloud file</li>
+                    <li>📄 camera_trajectory.json - Camera data</li>
+                    <li>📁 keyframes/corrected_cameras/</li>
+                    <li>📁 keyframes/corrected_images/</li>
+                </ul>
+            </div>
+            <button id="select-folder-btn">Select Folder</button>
         </div>
     </div>
 

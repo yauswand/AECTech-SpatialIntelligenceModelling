@@ -19,6 +19,24 @@ import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
 // DO NOT CHANGE THESE CONFIGURATIONS EVER AGAIN.
 // ================================================================================
 
+// ================================================================================
+// 📁 DEFAULT FILE PATHS - Auto-Loading Configuration
+// ================================================================================
+// These paths will be automatically loaded when the app starts.
+// Simply place your files in these locations to auto-load them:
+//
+// 1. Point Cloud: Place your .ply file at the path below
+// 2. Camera Trajectory: Already configured (see tryAutoLoadTrajectory function)
+//    - Priority 1: /camera_trajectory.json
+//    - Priority 2: /cloud/<modelname>_trajectory.json
+//    - Priority 3: /cloud/trajectory.json
+//
+// 3. Semantic Labels: Already configured (see tryAutoLoadLabels function)
+//    - Priority 1: /semantic_labeling/output/unique_objects/unique_objects_final.json
+//
+// Auto-loading has been replaced by folder picker interface
+// ================================================================================
+
 // Scene setup
 let scene, camera, renderer, controls;
 let currentPointCloud = null;
@@ -43,6 +61,16 @@ let trajectoryData = null;
 let pointCloudTransform = null; // Store transform applied to point cloud
 let scanFolderPath = null; // Store scan folder path for loading frames
 let frameTimestampMap = null; // Map frame_index to timestamp for Polycam data
+
+// Folder upload handles
+let selectedFolderHandle = null; // FileSystemDirectoryHandle from folder picker
+let folderFileHandles = {
+    plyFile: null,
+    trajectoryFile: null,
+    keyframesFolder: null,
+    correctedImagesFolder: null,
+    correctedCamerasFolder: null
+};
 
 // Semantic labels
 let labelsVisible = false;
@@ -435,6 +463,193 @@ function loadPLYFile(file) {
     reader.readAsArrayBuffer(file);
 }
 
+// Auto-load functionality has been removed - use folder picker instead
+
+// ================================================================================
+// FOLDER UPLOAD FUNCTIONALITY
+// ================================================================================
+
+// Select and validate folder structure using File System Access API
+async function selectDataFolder() {
+    try {
+        // Check if File System Access API is supported
+        if (!('showDirectoryPicker' in window)) {
+            alert('Your browser does not support the File System Access API.\n\nPlease use Chrome or Edge browser.');
+            console.error('File System Access API not supported');
+            return false;
+        }
+
+        console.log('\n📁 SELECTING DATA FOLDER...');
+        
+        // Show directory picker
+        const dirHandle = await window.showDirectoryPicker({
+            mode: 'read'
+        });
+        
+        console.log(`✅ Folder selected: ${dirHandle.name}`);
+        
+        // Validate folder structure
+        const validation = await validateFolderStructure(dirHandle);
+        
+        if (!validation.valid) {
+            alert(`Invalid folder structure:\n\n${validation.errors.join('\n')}\n\nPlease select a folder with the correct structure.`);
+            console.error('❌ Folder validation failed:', validation.errors);
+            return false;
+        }
+        
+        // Store folder handle and file handles
+        selectedFolderHandle = dirHandle;
+        folderFileHandles = validation.handles;
+        
+        console.log('✅ Folder structure validated successfully!');
+        console.log('   - PLY file found:', validation.handles.plyFile.name);
+        console.log('   - Trajectory file found:', validation.handles.trajectoryFile.name);
+        console.log('   - Keyframes folder found');
+        console.log('   - Corrected cameras folder found');
+        console.log('   - Corrected images folder found');
+        
+        // Load the data automatically
+        await loadDataFromFolder();
+        
+        return true;
+        
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            console.log('📁 Folder selection cancelled by user');
+        } else {
+            console.error('❌ Error selecting folder:', error);
+            alert(`Error selecting folder: ${error.message}`);
+        }
+        return false;
+    }
+}
+
+// Validate folder structure and return file handles
+async function validateFolderStructure(dirHandle) {
+    const errors = [];
+    const handles = {
+        plyFile: null,
+        trajectoryFile: null,
+        keyframesFolder: null,
+        correctedImagesFolder: null,
+        correctedCamerasFolder: null
+    };
+    
+    try {
+        // Check for .ply file in root
+        let plyFound = false;
+        for await (const entry of dirHandle.values()) {
+            if (entry.kind === 'file' && entry.name.toLowerCase().endsWith('.ply')) {
+                handles.plyFile = entry;
+                plyFound = true;
+                break;
+            }
+        }
+        if (!plyFound) {
+            errors.push('❌ No .ply file found in root folder');
+        }
+        
+        // Check for camera_trajectory.json
+        try {
+            handles.trajectoryFile = await dirHandle.getFileHandle('camera_trajectory.json');
+        } catch {
+            errors.push('❌ camera_trajectory.json not found in root folder');
+        }
+        
+        // Check for keyframes folder
+        try {
+            handles.keyframesFolder = await dirHandle.getDirectoryHandle('keyframes');
+            
+            // Check for corrected_cameras subfolder
+            try {
+                handles.correctedCamerasFolder = await handles.keyframesFolder.getDirectoryHandle('corrected_cameras');
+            } catch {
+                errors.push('❌ keyframes/corrected_cameras/ folder not found');
+            }
+            
+            // Check for corrected_images subfolder
+            try {
+                handles.correctedImagesFolder = await handles.keyframesFolder.getDirectoryHandle('corrected_images');
+            } catch {
+                errors.push('❌ keyframes/corrected_images/ folder not found');
+            }
+            
+        } catch {
+            errors.push('❌ keyframes/ folder not found');
+        }
+        
+    } catch (error) {
+        errors.push(`❌ Error reading folder: ${error.message}`);
+    }
+    
+    return {
+        valid: errors.length === 0,
+        errors,
+        handles
+    };
+}
+
+// Load data from selected folder
+async function loadDataFromFolder() {
+    console.log('\n📦 LOADING DATA FROM FOLDER...');
+    
+    const loading = document.getElementById('loading');
+    const instructions = document.getElementById('instructions');
+    
+    try {
+        // Hide instructions screen
+        instructions.classList.add('hidden');
+        loading.classList.remove('hidden');
+        
+        // 1. Load PLY file
+        console.log('\n1️⃣ Loading PLY file...');
+        const plyFileHandle = folderFileHandles.plyFile;
+        const plyFile = await plyFileHandle.getFile();
+        await loadPLYFile(plyFile);
+        
+        // 2. Load trajectory file
+        console.log('\n2️⃣ Loading camera trajectory...');
+        const trajectoryFileHandle = folderFileHandles.trajectoryFile;
+        const trajectoryFile = await trajectoryFileHandle.getFile();
+        await loadAndProcessTrajectory(trajectoryFile);
+        
+        // 3. Set scan folder path for frame viewer
+        // Store relative path that will be used to load images from folder handle
+        scanFolderPath = 'folder-handle'; // Special marker to use folder handle
+        
+        console.log('\n✅ ALL DATA LOADED SUCCESSFULLY!');
+        console.log('📷 Frame viewer is now connected to keyframes/corrected_images/');
+        
+    } catch (error) {
+        console.error('❌ Error loading data from folder:', error);
+        alert(`Error loading data: ${error.message}`);
+        loading.classList.add('hidden');
+        instructions.classList.remove('hidden');
+    }
+}
+
+// Load image from folder handle
+async function loadImageFromFolder(filename) {
+    try {
+        if (!folderFileHandles.correctedImagesFolder) {
+            console.error('❌ Corrected images folder not available');
+            return null;
+        }
+        
+        // Get file from corrected_images folder
+        const fileHandle = await folderFileHandles.correctedImagesFolder.getFileHandle(filename);
+        const file = await fileHandle.getFile();
+        
+        // Create object URL for the image
+        const url = URL.createObjectURL(file);
+        return url;
+        
+    } catch (error) {
+        console.warn(`⚠️ Could not load image ${filename}:`, error.message);
+        return null;
+    }
+}
+
 // Try to automatically load trajectory file based on PLY filename
 async function tryAutoLoadTrajectory(plyFileName) {
     // Check for common trajectory file patterns
@@ -622,79 +837,19 @@ function easeInOutCubic(t) {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-// Drag and drop handlers
-function setupDragAndDrop() {
-    const dropZone = document.getElementById('drop-zone');
-    const body = document.body;
-
-    // Prevent default drag behaviors
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        body.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    // Show drop zone when dragging files
-    ['dragenter', 'dragover'].forEach(eventName => {
-        body.addEventListener(eventName, () => {
-            dropZone.classList.add('active');
-        });
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        body.addEventListener(eventName, (e) => {
-            // Only hide if we're leaving the body entirely
-            if (eventName === 'dragleave' && e.target === body) {
-                dropZone.classList.remove('active', 'drag-over');
-            }
-            if (eventName === 'drop') {
-                dropZone.classList.remove('active', 'drag-over');
-            }
-        });
-    });
-
-    // Highlight drop zone when hovering over it
-    dropZone.addEventListener('dragenter', () => {
-        dropZone.classList.add('drag-over');
-    });
-
-    dropZone.addEventListener('dragleave', (e) => {
-        if (e.target === dropZone) {
-            dropZone.classList.remove('drag-over');
-        }
-    });
-
-    // Handle dropped files
-    body.addEventListener('drop', handleDrop);
-
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-
-        if (files.length > 0) {
-            const file = files[0];
-            
-            // Validate file extension
-            if (file.name.toLowerCase().endsWith('.ply')) {
-                loadPLYFile(file);
-            } else {
-                alert('Please drop a .ply file');
-            }
-        }
-    }
-}
+// Drag and drop functionality has been removed - use folder picker instead
 
 // UI event handlers
 function setupUI() {
-    const closeButton = document.getElementById('close-instructions');
+    const selectFolderBtn = document.getElementById('select-folder-btn');
     const instructions = document.getElementById('instructions');
 
-    closeButton.addEventListener('click', () => {
-        instructions.classList.add('hidden');
-    });
+    // Connect folder selection button
+    if (selectFolderBtn) {
+        selectFolderBtn.addEventListener('click', async () => {
+            await selectDataFolder();
+        });
+    }
     
     // Setup control panel
     setupControlPanel();
@@ -2537,71 +2692,102 @@ function displayFrameViewer(frames, currentFrameIndex) {
         
         const img = document.createElement('img');
         
-        // Determine paths based on data format
-        let possiblePaths = [];
-        
         // Debug: Check frameTimestampMap status
         console.log(`[FRAME LOAD DEBUG] Frame ${frameInfo.frameNumber}:`);
         console.log(`  - frameTimestampMap exists:`, frameTimestampMap ? 'YES' : 'NO');
         console.log(`  - frameTimestampMap size:`, frameTimestampMap ? frameTimestampMap.size : 0);
         console.log(`  - Has this frame:`, frameTimestampMap ? frameTimestampMap.has(frameInfo.frameNumber) : false);
-        
-        if (frameTimestampMap && frameTimestampMap.has(frameInfo.frameNumber)) {
-            // Polycam format: use timestamp
-            const timestamp = frameTimestampMap.get(frameInfo.frameNumber);
-            console.log(`  - Timestamp for frame ${frameInfo.frameNumber}:`, timestamp);
-            console.log(`  - scanFolderPath:`, scanFolderPath);
-            
-            possiblePaths = [
-                `${scanFolderPath}/corrected_images/${timestamp}.jpg`,
-                `${scanFolderPath}/images/${timestamp}.jpg`,
-            ];
-        } else {
-            // Old ARKit format: use padded frame number
-            console.log(`  - Using ARKit format (no timestamp found)`);
-            const frameNumberPadded = String(frameInfo.frameNumber).padStart(5, '0');
-            possiblePaths = [
-                `${scanFolderPath}/frame_${frameNumberPadded}.jpg`,
-                `${scanFolderPath}/frame_${frameNumberPadded}.png`,
-                `/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21/frame_${frameNumberPadded}.jpg`,
-                `/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21/frame_${frameNumberPadded}.png`,
-            ];
-        }
-        
-        console.log(`  - Trying paths:`, possiblePaths);
+        console.log(`  - scanFolderPath:`, scanFolderPath);
         
         img.alt = `Frame ${frameInfo.frameNumber}`;
         img.style.display = 'none'; // Hide until loaded
         img.style.transform = 'rotate(90deg)'; // Rotate images to display upright
         
-        let pathIndex = 0;
-        
-        const tryNextPath = () => {
-            if (pathIndex < possiblePaths.length) {
-                const path = possiblePaths[pathIndex];
-                console.log(`Attempting path: ${path}`);
-                img.src = path;
-                pathIndex++;
+        // Check if using folder handle or URL paths
+        if (scanFolderPath === 'folder-handle' && frameTimestampMap && frameTimestampMap.has(frameInfo.frameNumber)) {
+            // Load from folder handle
+            const timestamp = frameTimestampMap.get(frameInfo.frameNumber);
+            console.log(`  - Loading from folder handle, timestamp: ${timestamp}`);
+            
+            // Try to load image from folder
+            (async () => {
+                try {
+                    const url = await loadImageFromFolder(`${timestamp}.jpg`);
+                    if (url) {
+                        img.src = url;
+                        img.onload = () => {
+                            console.log(`✓ Successfully loaded from folder: ${timestamp}.jpg`);
+                            loader.remove();
+                            img.style.display = 'block';
+                        };
+                        img.onerror = () => {
+                            console.error(`✗ Failed to load from folder: ${timestamp}.jpg`);
+                            loader.innerHTML = `<div class="frame-error">❌<br>Frame not found</div>`;
+                        };
+                    } else {
+                        loader.innerHTML = `<div class="frame-error">❌<br>Frame not found</div>`;
+                    }
+                } catch (error) {
+                    console.error(`Error loading frame from folder:`, error);
+                    loader.innerHTML = `<div class="frame-error">❌<br>Frame not found</div>`;
+                }
+            })();
+        } else {
+            // Original URL-based loading
+            let possiblePaths = [];
+            
+            if (frameTimestampMap && frameTimestampMap.has(frameInfo.frameNumber)) {
+                // Polycam format: use timestamp
+                const timestamp = frameTimestampMap.get(frameInfo.frameNumber);
+                console.log(`  - Timestamp for frame ${frameInfo.frameNumber}:`, timestamp);
+                
+                possiblePaths = [
+                    `${scanFolderPath}/corrected_images/${timestamp}.jpg`,
+                    `${scanFolderPath}/images/${timestamp}.jpg`,
+                ];
             } else {
-                // All paths failed, show error
-                loader.innerHTML = `<div class="frame-error">❌<br>Frame not found</div>`;
-                console.error(`Failed to load frame ${frameInfo.frameNumber}`);
+                // Old ARKit format: use padded frame number
+                console.log(`  - Using ARKit format (no timestamp found)`);
+                const frameNumberPadded = String(frameInfo.frameNumber).padStart(5, '0');
+                possiblePaths = [
+                    `${scanFolderPath}/frame_${frameNumberPadded}.jpg`,
+                    `${scanFolderPath}/frame_${frameNumberPadded}.png`,
+                    `/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21/frame_${frameNumberPadded}.jpg`,
+                    `/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21/frame_${frameNumberPadded}.png`,
+                ];
             }
-        };
-        
-        img.onload = () => {
-            console.log(`✓ Successfully loaded: ${img.src}`);
-            loader.remove();
-            img.style.display = 'block';
-        };
-        
-        img.onerror = () => {
-            console.log(`✗ Failed: ${img.src}`);
+            
+            console.log(`  - Trying paths:`, possiblePaths);
+            
+            let pathIndex = 0;
+            
+            const tryNextPath = () => {
+                if (pathIndex < possiblePaths.length) {
+                    const path = possiblePaths[pathIndex];
+                    console.log(`Attempting path: ${path}`);
+                    img.src = path;
+                    pathIndex++;
+                } else {
+                    // All paths failed, show error
+                    loader.innerHTML = `<div class="frame-error">❌<br>Frame not found</div>`;
+                    console.error(`Failed to load frame ${frameInfo.frameNumber}`);
+                }
+            };
+            
+            img.onload = () => {
+                console.log(`✓ Successfully loaded: ${img.src}`);
+                loader.remove();
+                img.style.display = 'block';
+            };
+            
+            img.onerror = () => {
+                console.log(`✗ Failed: ${img.src}`);
+                tryNextPath();
+            };
+            
+            // Start loading
             tryNextPath();
-        };
-        
-        // Start loading
-        tryNextPath();
+        }
         
         const label = document.createElement('div');
         label.className = 'frame-label';
@@ -2662,7 +2848,6 @@ function createFrameViewerUI() {
 // Initialize everything when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     init();
-    setupDragAndDrop();
     setupUI();
 });
 
