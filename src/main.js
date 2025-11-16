@@ -1002,7 +1002,6 @@ function setupViewModeSelector() {
 // Switch between different view modes
 function switchViewMode(mode) {
     const canvasContainer = document.getElementById('canvas-container');
-    const threeContainer = document.getElementById('three-tab-container');
     let frameViewer = document.getElementById('frame-viewer');
     const chatContainer = document.getElementById('chat-container');
     const chatToggleBtn = document.getElementById('chat-toggle-btn');
@@ -1013,9 +1012,6 @@ function switchViewMode(mode) {
         // Hide canvas
         if (canvasContainer) {
             canvasContainer.style.display = 'none';
-        }
-        if (threeContainer) {
-            threeContainer.style.display = 'none';
         }
         
         // Minimize chat if it's open
@@ -1039,28 +1035,14 @@ function switchViewMode(mode) {
         // Show frame viewer with all frames
         showAllFrames();
     } else {
+        // Show canvas for PLY and 3D modes
+        if (canvasContainer) {
+            canvasContainer.style.display = 'block';
+        }
+        
         // Hide frame viewer
         if (frameViewer) {
             frameViewer.classList.add('hidden');
-        }
-
-        if (mode === '3d') {
-            if (threeContainer) threeContainer.style.display = 'block';
-            if (canvasContainer) canvasContainer.style.display = 'none';
-            (async () => {
-                // lazy init 3D dashboard
-                if (!window.__threeDashboard) {
-                    const mod = await import('./threeDashboard.js');
-                    window.__threeDashboard = mod;
-                    mod.initThreeDashboard(threeContainer);
-                } else {
-                    window.__threeDashboard.show();
-                }
-            })();
-        } else {
-            // PLY
-            if (canvasContainer) canvasContainer.style.display = 'block';
-            if (threeContainer) threeContainer.style.display = 'none';
         }
     }
 }
@@ -4059,16 +4041,5 @@ Be helpful, concise, and technical when appropriate.`
 document.addEventListener('DOMContentLoaded', () => {
     init();
     setupUI();
-    // Ensure bottom dock (properties panel) is available even in PLY tab
-    (async () => {
-        try {
-            const dash = await import('./threeDashboard.js');
-            if (dash.ensureBottomDock) {
-                await dash.ensureBottomDock();
-            }
-        } catch (e) {
-            console.warn('Bottom dock init skipped:', e);
-        }
-    })();
 });
 

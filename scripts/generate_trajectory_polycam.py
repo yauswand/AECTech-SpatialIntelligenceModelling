@@ -19,7 +19,7 @@ def generate_trajectory_json(keyframes_folder_path, output_path=None):
         output_path: Path to output JSON file (default: trajectory.json in project root)
     """
     keyframes_folder = Path(keyframes_folder_path)
-    images_folder = keyframes_folder / 'corrected_images'
+    images_folder = keyframes_folder / 'images'
     cameras_folder = keyframes_folder / 'corrected_cameras'
     
     if not images_folder.exists():
