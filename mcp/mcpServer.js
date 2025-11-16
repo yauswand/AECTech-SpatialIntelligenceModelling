@@ -47,7 +47,7 @@ const mcpServer = new McpServer({
 }, {
     capabilities: {
         resources: {},
-        tools: {},
+    tools: {},
     },
 });
 
@@ -130,14 +130,22 @@ function analyzeQueryIntent(query) {
         return { type: 'count', query };
     }
     
+    // Property queries (check first - if we have property + object, it's a property query)
+    // Match both singular and plural forms
+    const hasProperty = /\b(colors?|colours?|materials?|rooms?|dimensions?|sizes?)\b/.test(lowerQuery);
+    const hasObject = /\b(chairs?|desks?|tables?|sofas?|beds?|lamps?|cabinets?|shelves?|doors?|windows?)\b/.test(lowerQuery);
+    
+    if (hasProperty && hasObject) {
+        return { type: 'property', query };
+    }
+    
+    if (hasProperty) {
+        return { type: 'property', query };
+    }
+    
     // List queries
     if (lowerQuery.match(/\b(list|all|show|what are|which)\b/)) {
         return { type: 'list', query };
-    }
-    
-    // Property queries (color, material, etc.)
-    if (lowerQuery.match(/\b(color|colour|material|room|dimensions?|size)\b/)) {
-        return { type: 'property', query };
     }
     
     // Default to search
@@ -158,9 +166,26 @@ function extractProperty(query) {
 function extractObjectType(query) {
     const lowerQuery = query.toLowerCase();
     const objectTypes = ['chair', 'desk', 'table', 'sofa', 'bed', 'lamp', 'cabinet', 'shelf', 'door', 'window'];
+    
     for (const objType of objectTypes) {
+        // Check for plural form first
+        if (lowerQuery.includes(objType + 's')) {
+            return { type: objType, isPlural: true };
+        }
+        // Check for singular form
         if (lowerQuery.includes(objType)) {
-            return objType;
+            // Check if query suggests plural:
+            // 1. Plural property words (colors, materials, etc.) - anywhere in query
+            // 2. Context words (are, all, the, what are) before the object
+            // 3. "of the" pattern before the object
+            // 4. Property word after the object (e.g., "sofa colors")
+            const hasPluralProperty = /\b(colors|materials|dimensions|sizes)\b/.test(lowerQuery);
+            const beforeMatch = lowerQuery.substring(0, lowerQuery.indexOf(objType));
+            const afterMatch = lowerQuery.substring(lowerQuery.indexOf(objType) + objType.length);
+            const hasPluralContext = /\b(are|all|the|what are|of the)\b/.test(beforeMatch);
+            const hasPropertyAfter = /\b(colors?|materials?|dimensions?|sizes?)\b/.test(afterMatch);
+            const isPlural = hasPluralProperty || hasPluralContext || hasPropertyAfter;
+            return { type: objType, isPlural };
         }
     }
     return null;
@@ -169,7 +194,7 @@ function extractObjectType(query) {
 // Register query tool
 mcpServer.tool(
     "query_spatial_data",
-    "Query spatial intelligence data using natural language. Can answer questions about objects, their properties (color, material, room, dimensions), counts, and lists. Examples: 'number of chairs', 'color of desk', 'list all materials', 'what objects are in the living room'",
+    "Query spatial intelligence data using natural language. Can answer questions about objects, their properties (color, material, room, dimensions), counts, and lists. Supports both singular and plural queries. Examples: 'number of chairs', 'color of desk', 'what are the colors of the sofas', 'list all materials', 'what objects are in the living room'",
     {
         query: z.string().describe("Natural language query about the spatial data"),
         collection: z.string().optional().default(DEFAULT_COLLECTION).describe("Qdrant collection name to search"),
@@ -183,13 +208,21 @@ mcpServer.tool(
             const intent = analyzeQueryIntent(query);
             console.error(`[Query Intent] Type: ${intent.type}, Query: "${query}"`);
             
+            // Debug: check what we detected
+            if (intent.type === 'property') {
+                const prop = extractProperty(query);
+                const obj = extractObjectType(query);
+                console.error(`[Debug] Property: ${prop}, Object:`, obj);
+            }
+            
             // Step 2: Embed the query
             const queryEmbedding = await embedText(query);
             
-            // Step 3: Search Qdrant
+            // Step 3: Search Qdrant - use higher limit to get all matches
+            const searchLimit = Math.max(limit, 100);
             const searchResults = await qdrantClient.search(collection, {
                 vector: queryEmbedding,
-                limit: limit,
+                limit: searchLimit,
                 with_payload: true,
                 with_vector: false,
             });
@@ -227,29 +260,23 @@ mcpServer.tool(
             const results = searchResults.map(r => r.payload);
             
             if (intent.type === 'count') {
-                const objectType = extractObjectType(query);
-                if (objectType) {
-                    const count = results.filter(r => 
-                        r.name && r.name.toLowerCase().includes(objectType)
-                    ).length;
+                const objectTypeInfo = extractObjectType(query);
+                if (objectTypeInfo) {
+                    const { type, isPlural } = objectTypeInfo;
+                    const matching = results.filter(r => {
+                        if (!r.name) return false;
+                        const nameLower = r.name.toLowerCase();
+                        return nameLower === type || nameLower === type + 's' || nameLower.includes(type);
+                    });
+                    const count = matching.length;
+                    const pluralForm = isPlural ? type + 's' : type;
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: `Found ${count} ${objectType}(s) in the database.`,
-                            },
-                        ],
+                        content: [{ type: "text", text: `Found ${count} ${pluralForm} in the database.` }],
                         isError: false,
                     };
                 } else {
-                    // Count all results
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: `Found ${results.length} matching object(s) in the database.`,
-                            },
-                        ],
+                        content: [{ type: "text", text: `Found ${results.length} matching object(s) in the database.` }],
                         isError: false,
                     };
                 }
@@ -330,59 +357,97 @@ mcpServer.tool(
             
             if (intent.type === 'property') {
                 const property = extractProperty(query);
-                const objectType = extractObjectType(query);
+                const objectTypeInfo = extractObjectType(query);
                 
-                // Helper function to format dimensions
-                const formatDimensions = (result) => {
-                    if (result.width !== undefined || result.height !== undefined || result.depth !== undefined) {
-                        const w = result.width ?? '?';
-                        const h = result.height ?? '?';
-                        const d = result.depth ?? '?';
-                        return `${w}m (W) × ${h}m (H) × ${d}m (D)`;
-                    }
-                    return null;
-                };
+                console.error(`[Property Query] property: ${property}, objectTypeInfo:`, objectTypeInfo);
                 
-                // Helper function to get property value
-                const getPropertyValue = (result, prop) => {
-                    if (prop === 'dimensions') {
-                        return formatDimensions(result);
-                    }
-                    return result[prop];
-                };
-                
-                if (objectType && property) {
-                    const matching = results.find(r => 
-                        r.name && r.name.toLowerCase().includes(objectType)
-                    );
+                if (property && objectTypeInfo) {
+                    const { type, isPlural } = objectTypeInfo;
                     
-                    if (matching) {
-                        const value = getPropertyValue(matching, property);
-                        if (value) {
-                            return {
-                                content: [
-                                    {
-                                        type: "text",
-                                        text: `The ${property} of ${objectType} is: ${value}`,
-                                    },
-                                ],
-                                isError: false,
-                            };
+                    // For property queries, always scroll to get ALL matching objects
+                    // Semantic search might miss some or return mixed results
+                    let matching = [];
+                    try {
+                        const allObjects = await qdrantClient.scroll(collection, {
+                            limit: 1000,
+                            with_payload: true,
+                            with_vector: false,
+                        });
+                        matching = allObjects.points
+                            .map(p => p.payload)
+                            .filter(r => {
+                                if (!r.name) return false;
+                                const nameLower = r.name.toLowerCase().trim();
+                                return nameLower === type || nameLower === type + 's' || nameLower.includes(type);
+                            });
+                        console.error(`[Property Query] Found ${matching.length} ${type}(s) after scrolling`);
+                    } catch (err) {
+                        console.error("Error scrolling collection:", err);
+                        // Fallback to semantic search results
+                        matching = results.filter(r => {
+                            if (!r.name) return false;
+                            const nameLower = r.name.toLowerCase().trim();
+                            return nameLower === type || nameLower === type + 's' || nameLower.includes(type);
+                        });
+                    }
+                    
+                    if (matching.length > 0) {
+                        // Get property values
+                        const getValue = (r) => {
+                            if (property === 'dimensions') {
+                                if (r.width !== undefined || r.height !== undefined || r.depth !== undefined) {
+                                    const w = r.width ?? '?';
+                                    const h = r.height ?? '?';
+                                    const d = r.depth ?? '?';
+                                    return `${w}m × ${h}m × ${d}m`;
+                                }
+                                return null;
+                            }
+                            return r[property] || null;
+                        };
+                        
+                        const values = matching.map(getValue).filter(v => v !== null && v !== undefined && v !== '');
+                        
+                        if (values.length > 0) {
+                            if (isPlural) {
+                                // Plural: return all unique values
+                                const unique = [...new Set(values)];
+                                const pluralForm = type + 's';
+                                
+                                if (unique.length === 1) {
+                                    return {
+                                        content: [{ type: "text", text: `All ${pluralForm} have ${property}: ${unique[0]}` }],
+                                        isError: false,
+                                    };
+                                } else {
+                                    return {
+                                        content: [{ type: "text", text: `The ${property} of the ${pluralForm} are: ${unique.join(', ')}` }],
+                                        isError: false,
+                                    };
+                                }
+                            } else {
+                                // Singular: return first value
+                                return {
+                                    content: [{ type: "text", text: `The ${property} of ${type} is: ${values[0]}` }],
+                                    isError: false,
+                                };
+                            }
                         }
                     }
                 } else if (property) {
-                    // Get property from first result
-                    const firstResult = results[0];
-                    if (firstResult) {
-                        const value = getPropertyValue(firstResult, property);
+                    // Property but no object type - use first result
+                    const first = results[0];
+                    if (first) {
+                        let value = first[property];
+                        if (property === 'dimensions' && (first.width !== undefined || first.height !== undefined || first.depth !== undefined)) {
+                            const w = first.width ?? '?';
+                            const h = first.height ?? '?';
+                            const d = first.depth ?? '?';
+                            value = `${w}m × ${h}m × ${d}m`;
+                        }
                         if (value) {
                             return {
-                                content: [
-                                    {
-                                        type: "text",
-                                        text: `${property.charAt(0).toUpperCase() + property.slice(1)}: ${value}`,
-                                    },
-                                ],
+                                content: [{ type: "text", text: `${property.charAt(0).toUpperCase() + property.slice(1)}: ${value}` }],
                                 isError: false,
                             };
                         }

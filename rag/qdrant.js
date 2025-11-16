@@ -28,6 +28,90 @@ const obj = {
     "frame_index": 123
   }
 
+const obj2 = {
+    "id": 2,
+    "name": "table",
+    "dimensions": { "width": 1.2, "height": 0.75, "depth": 0.8 },
+    "material": "glass",
+    "color": "transparent",
+    "room": "dining room",
+    "extra": "center of the room",
+    "source": "video1.mp4",
+    "frame_index": 245
+  }
+
+const obj3 = {
+    "id": 3,
+    "name": "sofa",
+    "dimensions": { "width": 2.0, "height": 0.85, "depth": 0.9 },
+    "material": "fabric",
+    "color": "gray",
+    "room": "living room",
+    "extra": "against the wall",
+    "source": "video2.mp4",
+    "frame_index": 67
+  }
+
+const obj4 = {
+    "id": 4,
+    "name": "lamp",
+    "dimensions": { "width": 0.3, "height": 1.5, "depth": 0.3 },
+    "material": "metal",
+    "color": "black",
+    "room": "bedroom",
+    "extra": "on the nightstand",
+    "source": "video2.mp4",
+    "frame_index": 189
+  }
+
+const obj5 = {
+    "id": 5,
+    "name": "bookshelf",
+    "dimensions": { "width": 1.0, "height": 1.8, "depth": 0.4 },
+    "material": "wood",
+    "color": "white",
+    "room": "study",
+    "extra": "filled with books",
+    "source": "video3.mp4",
+    "frame_index": 312
+  }
+
+const obj6 = {
+    "id": 6,
+    "name": "sofa",
+    "dimensions": { "width": 1.8, "height": 0.9, "depth": 0.85 },
+    "material": "leather",
+    "color": "brown",
+    "room": "office",
+    "extra": "facing the desk",
+    "source": "video3.mp4",
+    "frame_index": 156
+  }
+
+const obj7 = {
+    "id": 7,
+    "name": "chair",
+    "dimensions": { "width": 0.55, "height": 1.0, "depth": 0.55 },
+    "material": "plastic",
+    "color": "white",
+    "room": "kitchen",
+    "extra": "around the kitchen table",
+    "source": "video1.mp4",
+    "frame_index": 378
+  }
+
+const obj8 = {
+    "id": 8,
+    "name": "chair",
+    "dimensions": { "width": 0.6, "height": 1.1, "depth": 0.6 },
+    "material": "metal",
+    "color": "silver",
+    "room": "dining room",
+    "extra": "next to the table",
+    "source": "video1.mp4",
+    "frame_index": 289
+  }
+
 async function uploadObject(obj) {
     try {
         // Ensure collection exists
@@ -67,10 +151,13 @@ async function uploadObject(obj) {
 // Main execution
 (async () => {
     try {
-        await uploadObject(obj);
+        const objects = [obj, obj2, obj3, obj4, obj5, obj6, obj7, obj8];
+        for (const objToUpload of objects) {
+            await uploadObject(objToUpload);
+        }
         await listCollection();
     } catch (err) {
-        console.error('Failed to upload object:', err);
+        console.error('Failed to upload objects:', err);
         process.exit(1);
     }
 })();
