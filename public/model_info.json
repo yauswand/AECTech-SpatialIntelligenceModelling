@@ -38,6 +38,8 @@
       "name": "Living Room",
       "floorArea": "23.4 m²",
       "wallArea": "34.0 m²",
+      "wallAreaInclOpenings": "46.2 m²",
+      "wallAreaExclOpenings": "34.0 m²",
       "ceilingHeight": "2.4 - 2.7 m",
       "dimensions": {
         "width": "6.8 m",

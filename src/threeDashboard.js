@@ -9,7 +9,6 @@ let controls = null;
 let animationId = null;
 let containerEl = null;
 let panelEl = null;
-let toggleBtn = null;
 let currentModel = null;
 let dropOverlay = null;
 let defaultFloorplanBase = '11_15_2025.Floorplan'; // can be overridden via setFloorplanBaseName
@@ -17,6 +16,7 @@ let floorplanViewer = null;
 let bottomDockEl = null;
 let charts = { usage: null, openings: null };
 let echartsLib = null;
+let lastReport = null;
 
 function createRenderer(target) {
 	const r = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -131,106 +131,14 @@ function setupDragAndDrop(target) {
 	target.addEventListener('drop', onDrop);
 }
 
-function createDashboardPanel(target) {
-	const panel = document.createElement('div');
-	panel.className = 'dashboard-panel';
-	panel.innerHTML = `
-		<div class="dashboard-header">
-			<h4>3D Dashboard</h4>
-			<button class="dashboard-close" title="Collapse">×</button>
-		</div>
-		<div class="dashboard-body">
-			<div class="kpi-row">
-				<div class="kpi"><div class="kpi-l">Vertices</div><div class="kpi-v" id="kpi-vertices">—</div></div>
-				<div class="kpi"><div class="kpi-l">Faces</div><div class="kpi-v" id="kpi-faces">—</div></div>
-				<div class="kpi"><div class="kpi-l">Rooms</div><div class="kpi-v" id="kpi-rooms">—</div></div>
-			</div>
-			<div class="kpi-row">
-				<div class="kpi"><div class="kpi-l">Extents (W×D×H)</div><div class="kpi-v" id="kpi-extents">—</div></div>
-				<div class="kpi"><div class="kpi-l">Gross Area</div><div class="kpi-v" id="kpi-gross-area">—</div></div>
-				<div class="kpi"><div class="kpi-l">Used vs Unused</div><div class="kpi-v" id="kpi-used-unused">—</div></div>
-			</div>
-
-			<div class="dash-section">
-				<h5>Room Dimensions</h5>
-				<div class="dash-kv">
-					<div class="k">Width</div><div class="v" id="dim-width">—</div>
-					<div class="k">Depth</div><div class="v" id="dim-depth">—</div>
-					<div class="k">Height</div><div class="v" id="dim-height">—</div>
-				</div>
-			</div>
-
-			<div class="dash-section">
-				<h5>Architectural Details</h5>
-				<div class="dash-kv">
-					<div class="k">Wall Area</div><div class="v" id="arch-wall-area">—</div>
-					<div class="k">Window Area</div><div class="v" id="arch-window-area">—</div>
-					<div class="k">Ceiling Height</div><div class="v" id="arch-ceiling-height">—</div>
-					<div class="k">Floor Area (Livable)</div><div class="v" id="arch-livable-area">—</div>
-				</div>
-			</div>
-
-			<div class="dash-section">
-				<h5>Furniture</h5>
-				<table class="table" id="furniture-table">
-					<thead><tr><th>Type</th><th>Count</th><th>Notes</th></tr></thead>
-					<tbody><tr><td>—</td><td>—</td><td>—</td></tr></tbody>
-				</table>
-			</div>
-
-			<div class="dash-section">
-				<h5>Floor Plan</h5>
-				<div class="dash-floorplan" id="floorplan-box"><span>Floor plan preview</span></div>
-			</div>
-		</div>
-	`;
-	const closeBtn = panel.querySelector('.dashboard-close');
-	closeBtn.addEventListener('click', () => {
-		panel.classList.toggle('collapsed');
-		updateToggleBtnState();
-	});
-	target.appendChild(panel);
-	return panel;
-}
-
-function createToggleButton(target) {
-	const btn = document.createElement('button');
-	btn.className = 'dashboard-toggle-btn';
-	btn.title = 'Toggle properties';
-	btn.setAttribute('aria-label', 'Toggle properties');
-	btn.innerHTML = `
-		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-			<path d="M3 12h18"></path>
-			<path d="M3 6h18"></path>
-			<path d="M3 18h18"></path>
-		</svg>
-	`;
-	btn.addEventListener('click', () => {
-		if (!panelEl) return;
-		panelEl.classList.toggle('collapsed');
-		updateToggleBtnState();
-	});
-	target.appendChild(btn);
-	return btn;
-}
-
-function updateToggleBtnState() {
-	if (!toggleBtn || !panelEl) return;
-	if (panelEl.classList.contains('collapsed')) {
-		toggleBtn.classList.add('active');
-		toggleBtn.title = 'Open properties';
-	} else {
-		toggleBtn.classList.remove('active');
-		toggleBtn.title = 'Close properties';
-	}
-}
-
 function setText(id, value) {
+	if (!panelEl) return;
 	const el = panelEl.querySelector(id);
 	if (el) el.textContent = value != null ? String(value) : '—';
 }
 
 function setFurniture(rows) {
+	if (!panelEl) return;
 	const tbody = panelEl.querySelector('#furniture-table tbody');
 	if (!tbody) return;
 	tbody.innerHTML = '';
@@ -248,12 +156,14 @@ function setFurniture(rows) {
 }
 
 function setFloorPlan(url) {
-	const box = panelEl.querySelector('#floorplan-box');
-	if (!box) return;
-	if (!floorplanViewer) {
-		floorplanViewer = initFloorplanViewer(box);
+	// When details card is removed, we still keep a floorplan card in the dock
+	const containerInDock = document.getElementById('floorplan-box');
+	if (containerInDock) {
+		if (!floorplanViewer) {
+			floorplanViewer = initFloorplanViewer(containerInDock);
+		}
+		floorplanViewer.setSource(url);
 	}
-	floorplanViewer.setSource(url);
 }
 
 // --------- Floorplan Image Viewer (zoom/pan/fullscreen) ----------
@@ -353,60 +263,51 @@ function initFloorplanViewer(container) {
 }
 
 async function tryLoadFloorplanAssets() {
-	// Try generic model info first (user-editable), then floorplan-specific assets
-	try {
-		const infoUrl = `/model_info.json`;
-		const resp = await fetch(infoUrl, { cache: 'no-store' });
-		if (resp.ok) {
-			const report = await resp.json();
-			// Apply high-level info
+	const infoUrl = `/model_info.json`;
+	const jsonUrl = `/${defaultFloorplanBase}.json`;
+	const pngUrl = `/floorplan.png`;
+	const pdfUrl = `/${defaultFloorplanBase}.pdf`;
+
+	const [infoRes, jsonRes, pngHead, pdfHead] = await Promise.allSettled([
+		fetch(infoUrl, { cache: 'no-store' }),
+		fetch(jsonUrl, { cache: 'no-store' }),
+		fetch(pngUrl, { method: 'HEAD', cache: 'no-store' }),
+		fetch(pdfUrl, { method: 'HEAD', cache: 'no-store' }),
+	]);
+
+	// model_info.json
+	let imageSet = false;
+	if (infoRes.status === 'fulfilled' && infoRes.value.ok) {
+		try {
+			const report = await infoRes.value.json();
 			applyFloorplanReport(report);
-			// Floorplan image override
-			if (report.floorplanImage) {
-				setFloorPlan(report.floorplanImage);
-			}
-			// Update charts using info
+			if (report.floorplanImage) { setFloorPlan(report.floorplanImage); imageSet = true; }
 			if (report.overview) {
 				updateUsageChart({ usedArea: report.overview.usedArea, unusedArea: report.overview.unusedArea });
-				updateOpeningsChart({
-					wallArea: report.overview.totalWallArea,
-					windowArea: report.overview.totalWindowArea
-				});
+				updateOpeningsChart({ wallArea: report.overview.totalWallArea, windowArea: report.overview.totalWindowArea });
 			}
-			// No room bar chart anymore
-		}
-	} catch (_) {}
-	// Try JSON first for structured metrics, then PDF for preview
-	try {
-		const jsonUrl = `/${defaultFloorplanBase}.json`;
-		const resp = await fetch(jsonUrl, { cache: 'no-store' });
-		if (resp.ok) {
-			const report = await resp.json();
+		} catch (_) {}
+	}
+	// fallback JSON report
+	if (jsonRes.status === 'fulfilled' && jsonRes.value.ok) {
+		try {
+			const report = await jsonRes.value.json();
 			applyFloorplanReport(report);
-		}
-	} catch (_) {}
-	// Prefer explicit floorplan.png if present (user-supplied preview image)
-	try {
-		const pngUrl = `/floorplan.png`;
-		const resp = await fetch(pngUrl, { method: 'HEAD', cache: 'no-store' });
-		if (resp.ok) {
-			setFloorPlan(pngUrl);
-		}
-	} catch (_) {}
-	// Always try to show PDF if available
-	try {
-		const pdfUrl = `/${defaultFloorplanBase}.pdf`;
-		const resp = await fetch(pdfUrl, { method: 'HEAD', cache: 'no-store' });
-		if (resp.ok) {
-			// Do not embed PDF viewer; only parse text for metrics
-			setFloorPlan(null);
-			// Parse text from the PDF and map into dashboard fields (no viewer)
-			tryParseFloorplanPdf(pdfUrl);
-		}
-	} catch (_) {}
+		} catch (_) {}
+	}
+	// prefer explicit png if present
+	if (!imageSet && pngHead.status === 'fulfilled' && pngHead.value.ok) {
+		setFloorPlan(pngUrl); imageSet = true;
+	}
+	// PDF present → show no image but parse text
+	if (!imageSet && pdfHead.status === 'fulfilled' && pdfHead.value.ok) {
+		setFloorPlan(null);
+		tryParseFloorplanPdf(pdfUrl);
+	}
 }
 
 function applyFloorplanReport(report) {
+	lastReport = report;
 	// Top-level overview numbers
 	if (report?.overview) {
 		const o = report.overview;
@@ -414,44 +315,20 @@ function applyFloorplanReport(report) {
 		setText('#arch-livable-area', o.totalLivableFloorArea ?? o.total_livable_floor_area);
 		setText('#arch-wall-area', o.totalWallArea ?? o.total_wall_area);
 		setText('#arch-window-area', o.totalWindowArea ?? o.total_window_area);
-		setText('#kpi-rooms', o.rooms ?? report.rooms?.length);
 		// used / unused can be derived if provided
 		if (o.usedArea || o.unusedArea) {
 			setText('#kpi-used-unused', `${o.usedArea ?? '—'} / ${o.unusedArea ?? '—'}`);
 		}
-		if (o.totalVolume || o.volume) {
-			setText('#kpi-faces', document.querySelector('#kpi-faces')?.textContent || '—'); // keep existing
-		}
+		setText('#kpi-total-volume', o.totalVolume ?? o.total_volume ?? '—');
 	}
 	// Rooms: choose primary room (e.g., Living Room) for dimensions
 	if (Array.isArray(report?.rooms) && report.rooms.length > 0) {
 		const primary = report.rooms.find(r => /living/i.test(r.name)) || report.rooms[0];
 		const dims = primary?.dimensions || primary?.boundingBox;
-		if (dims?.width && dims?.depth && (dims?.height || primary?.ceilingHeight)) {
-			setText('#dim-width', dims.width);
-			setText('#dim-depth', dims.depth);
-			setText('#dim-height', dims.height ?? primary.ceilingHeight);
-			setText('#kpi-extents', `${dims.width} × ${dims.depth} × ${dims.height ?? primary.ceilingHeight}`);
-		}
-		if (primary?.floorArea) {
-			setText('#kpi-gross-area', primary.floorArea);
-		}
-		if (primary?.ceilingHeight) {
-			setText('#arch-ceiling-height', primary.ceilingHeight);
-		}
-		if (primary?.wallArea) {
-			setText('#arch-wall-area', primary.wallArea);
-		}
+		// Only stored for modal; totals card shows building totals
 	}
 	// Furniture list if provided
-	if (Array.isArray(report?.furniture)) {
-		const rows = report.furniture.map(item => ({
-			type: item.type || item.name,
-			count: item.count ?? 1,
-			notes: item.notes || ''
-		}));
-		setFurniture(rows);
-	}
+	// (Used in modal rendering on demand)
 }
 
 // (PDF parsing removed)
@@ -476,10 +353,10 @@ export function initThreeDashboard(container) {
 	// Side panel removed; details live in bottom dock
 	// drag & drop for GLB
 	setupDragAndDrop(container);
-	// Attempt to load default floorplan report and preview if present
-	tryLoadFloorplanAssets();
-	// Bottom dock
+	// Create dock first so floorplan container exists
 	createBottomDock();
+	// Attempt to load default floorplan report and preview if present (after dock)
+	tryLoadFloorplanAssets();
 
 	window.addEventListener('resize', onResize);
 	onResize();
@@ -630,49 +507,28 @@ function createBottomDock() {
 	bottomDockEl = document.createElement('div');
 	bottomDockEl.className = 'dashboard-bottom';
 	bottomDockEl.innerHTML = `
-		<div class="chart-card">
-			<div class="chart-title">Used vs Unused Area</div>
+		<div class="chart-card card-square">
+			<div class="chart-title">Used vs Unused</div>
 			<div class="chart-canvas" id="chart-usage"></div>
 		</div>
-		<div class="chart-card">
+		<div class="chart-card card-square">
 			<div class="chart-title">Openings</div>
 			<div class="chart-canvas" id="chart-openings"></div>
 		</div>
-		<div class="chart-card" id="details-card">
-			<div class="chart-title">Details</div>
-			<div class="details-wrap">
-				<div class="kpi-row">
-					<div class="kpi"><div class="kpi-l">Vertices</div><div class="kpi-v" id="kpi-vertices">—</div></div>
-					<div class="kpi"><div class="kpi-l">Faces</div><div class="kpi-v" id="kpi-faces">—</div></div>
-					<div class="kpi"><div class="kpi-l">Rooms</div><div class="kpi-v" id="kpi-rooms">—</div></div>
+		<div class="chart-card card-totals" id="totals-card">
+			<div class="chart-title">Building Totals</div>
+			<div class="totals-wrap">
+				<div class="totals-grid">
+					<div class="kv"><div class="k">Exterior Floor Area</div><div class="v" id="kpi-gross-area">—</div></div>
+					<div class="kv"><div class="k">Livable Floor Area</div><div class="v" id="arch-livable-area">—</div></div>
+					<div class="kv"><div class="k">Wall Area</div><div class="v" id="arch-wall-area">—</div></div>
+					<div class="kv"><div class="k">Window Area</div><div class="v" id="arch-window-area">—</div></div>
+					<div class="kv"><div class="k">Total Volume</div><div class="v" id="kpi-total-volume">—</div></div>
 				</div>
-				<div class="kpi-row" style="margin-top:6px">
-					<div class="kpi"><div class="kpi-l">Extents (W×D×H)</div><div class="kpi-v" id="kpi-extents">—</div></div>
-					<div class="kpi"><div class="kpi-l">Gross Area</div><div class="kpi-v" id="kpi-gross-area">—</div></div>
-					<div class="kpi"><div class="kpi-l">Used vs Unused</div><div class="kpi-v" id="kpi-used-unused">—</div></div>
-				</div>
-				<div class="details-grid">
-					<div class="dash-section">
-						<h5>Room Dimensions</h5>
-						<div class="dash-kv">
-							<div class="k">Width</div><div class="v" id="dim-width">—</div>
-							<div class="k">Depth</div><div class="v" id="dim-depth">—</div>
-							<div class="k">Height</div><div class="v" id="dim-height">—</div>
-						</div>
-					</div>
-					<div class="dash-section">
-						<h5>Architectural</h5>
-						<div class="dash-kv">
-							<div class="k">Wall Area</div><div class="v" id="arch-wall-area">—</div>
-							<div class="k">Window Area</div><div class="v" id="arch-window-area">—</div>
-							<div class="k">Ceiling</div><div class="v" id="arch-ceiling-height">—</div>
-							<div class="k">Livable Area</div><div class="v" id="arch-livable-area">—</div>
-						</div>
-					</div>
-				</div>
+				<div class="totals-footer"><button id="view-more-details" class="view-btn">View details</button></div>
 			</div>
 		</div>
-		<div class="chart-card">
+		<div class="chart-card card-square card-floorplan">
 			<div class="chart-title">Floor Plan</div>
 			<div class="chart-canvas" style="padding:6px">
 				<div id="floorplan-box" style="width:100%;height:100%"></div>
@@ -680,11 +536,93 @@ function createBottomDock() {
 		</div>
 	`;
 	document.body.appendChild(bottomDockEl);
-	// Redirect panelEl queries to details card
-	panelEl = document.getElementById('details-card');
+	// Point bindings to totals card so setText() fills values
+	panelEl = document.getElementById('totals-card');
 	initCharts();
+
+	// Modal setup
+	ensureDetailsModal();
+	const viewBtn = document.getElementById('view-more-details');
+	viewBtn?.addEventListener('click', () => {
+		openDetailsModal();
+	});
 }
 
+function ensureDetailsModal() {
+	if (document.getElementById('details-modal')) return;
+	const modal = document.createElement('div');
+	modal.id = 'details-modal';
+	modal.className = 'details-modal hidden';
+	modal.innerHTML = `
+		<div class="details-modal-content">
+			<div class="details-modal-header">
+				<h3>Detailed Room & Architectural Info</h3>
+				<button class="close-btn" id="details-modal-close" title="Close">×</button>
+			</div>
+			<div class="details-modal-body" id="details-modal-body"></div>
+		</div>
+	`;
+	document.body.appendChild(modal);
+	modal.addEventListener('click', (e) => {
+		if (e.target === modal) closeDetailsModal();
+	});
+	document.getElementById('details-modal-close')?.addEventListener('click', closeDetailsModal);
+}
+
+function openDetailsModal() {
+	const modal = document.getElementById('details-modal');
+	const body = document.getElementById('details-modal-body');
+	if (!modal || !body) return;
+
+	const overview = lastReport?.overview ?? {};
+	const primary = (Array.isArray(lastReport?.rooms) && lastReport.rooms.length > 0)
+		? (lastReport.rooms.find(r => /living/i.test(r.name)) || lastReport.rooms[0])
+		: null;
+	const dims = primary?.dimensions || primary?.boundingBox || {};
+	const inscribed = primary?.inscribed || {};
+
+	const furnitureRows = Array.isArray(lastReport?.furniture) ? lastReport.furniture.map(f =>
+		`<tr><td>${f.type || f.name || '—'}</td><td>${f.count ?? 1}</td><td>${f.notes || ''}</td></tr>`
+	).join('') : '<tr><td>—</td><td>—</td><td>—</td></tr>';
+
+	body.innerHTML = `
+		<div class="details-sections">
+			<div class="details-group">
+				<h4>Building Totals</h4>
+				<div class="kv"><div class="k">Exterior Floor Area</div><div class="v">${overview.totalExteriorFloorArea ?? '—'}</div></div>
+				<div class="kv"><div class="k">Livable Floor Area</div><div class="v">${overview.totalLivableFloorArea ?? '—'}</div></div>
+				<div class="kv"><div class="k">Wall Area</div><div class="v">${overview.totalWallArea ?? '—'}</div></div>
+				<div class="kv"><div class="k">Window Area</div><div class="v">${overview.totalWindowArea ?? '—'}</div></div>
+				<div class="kv"><div class="k">Total Volume</div><div class="v">${overview.totalVolume ?? '—'}</div></div>
+			</div>
+			<div class="details-group">
+				<h4>Primary Room</h4>
+				<div class="kv"><div class="k">Name</div><div class="v">${primary?.name ?? '—'}</div></div>
+				<div class="kv"><div class="k">Floor Area</div><div class="v">${primary?.floorArea ?? '—'}</div></div>
+				<div class="kv"><div class="k">Dimensions (B)</div><div class="v">${dims.width ?? '—'} × ${dims.depth ?? '—'} ${dims.height ? '× ' + dims.height : ''}</div></div>
+				<div class="kv"><div class="k">Dimensions (I)</div><div class="v">${inscribed.width ?? '—'} × ${inscribed.depth ?? '—'}</div></div>
+				<div class="kv"><div class="k">Wall Area (incl.)</div><div class="v">${primary?.wallAreaInclOpenings ?? '—'}</div></div>
+				<div class="kv"><div class="k">Wall Area (excl.)</div><div class="v">${primary?.wallArea ?? '—'}</div></div>
+				<div class="kv"><div class="k">Perimeter</div><div class="v">${primary?.perimeter ?? '—'}</div></div>
+				<div class="kv"><div class="k">Ceiling Height</div><div class="v">${primary?.ceilingHeight ?? '—'}</div></div>
+				<div class="kv"><div class="k">Room Volume</div><div class="v">${primary?.volume ?? '—'}</div></div>
+			</div>
+			<div class="details-group">
+				<h4>Furniture</h4>
+				<table class="table">
+					<thead><tr><th>Type</th><th>Count</th><th>Notes</th></tr></thead>
+					<tbody>${furnitureRows}</tbody>
+				</table>
+			</div>
+		</div>
+	`;
+
+	modal.classList.remove('hidden');
+}
+
+function closeDetailsModal() {
+	document.getElementById('details-modal')?.classList.add('hidden');
+}
 // Public: ensure bottom dock exists and is visible (for PLY tab too)
 export async function ensureBottomDock() {
 	if (!bottomDockEl) {
@@ -693,6 +631,11 @@ export async function ensureBottomDock() {
 		await tryLoadFloorplanAssets();
 	}
 	bottomDockEl.style.display = 'grid';
+}
+
+// Public: refresh data bindings from sources (model_info.json, floorplan.png)
+export async function refreshDashboardData() {
+	await tryLoadFloorplanAssets();
 }
 
 async function importECharts() {
