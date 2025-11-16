@@ -290,7 +290,7 @@ function handleKeyboardMovement() {
 }
 
 // Load and render PLY file
-function loadPLYFile(file) {
+function loadPLYFile(file, skipAutoLoad = false) {
     // Show loading indicator
     const loading = document.getElementById('loading');
     const info = document.getElementById('info');
@@ -449,11 +449,14 @@ function loadPLYFile(file) {
             // Smooth camera animation to view
             animateCameraToView();
             
-            // Try to auto-load trajectory first, then labels (order matters!)
-            tryAutoLoadTrajectory(file.name).then(() => {
-                // After trajectory loads, try to load labels
-                tryAutoLoadLabels(file.name);
-            });
+            // Only auto-load if not using folder picker (skipAutoLoad flag)
+            if (!skipAutoLoad) {
+                // Try to auto-load trajectory first, then labels (order matters!)
+                tryAutoLoadTrajectory(file.name).then(() => {
+                    // After trajectory loads, try to load labels
+                    tryAutoLoadLabels(file.name);
+                });
+            }
 
         } catch (error) {
             console.error('Error loading PLY file:', error);
@@ -629,14 +632,17 @@ async function loadDataFromFolder() {
         instructions.classList.add('hidden');
         loading.classList.remove('hidden');
         
-        // 1. Load PLY file
+        // 1. Load PLY file (skip auto-loading trajectory/labels since we're using folder)
         console.log('\n1️⃣ Loading PLY file...');
         const plyFileHandle = folderFileHandles.plyFile;
         const plyFile = await plyFileHandle.getFile();
-        await loadPLYFile(plyFile);
+        await loadPLYFile(plyFile, true); // Pass true to skip auto-load
         
-        // 2. Load trajectory file
-        console.log('\n2️⃣ Loading camera trajectory...');
+        // Wait a moment for PLY to fully process
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // 2. Load trajectory file from folder
+        console.log('\n2️⃣ Loading camera trajectory from folder...');
         const trajectoryFileHandle = folderFileHandles.trajectoryFile;
         const trajectoryFile = await trajectoryFileHandle.getFile();
         await loadAndProcessTrajectory(trajectoryFile);
@@ -644,13 +650,25 @@ async function loadDataFromFolder() {
         // 3. Set scan folder path for frame viewer
         // Store relative path that will be used to load images from folder handle
         scanFolderPath = 'folder-handle'; // Special marker to use folder handle
+        console.log('\n3️⃣ Setting up frame viewer...');
+        console.log('📁 scanFolderPath set to: folder-handle (will load images from uploaded folder)');
+        
+        // 4. Enable trajectory visualization
+        console.log('\n4️⃣ Enabling trajectory visualization...');
+        document.getElementById('trajectory-toggle').checked = true;
+        toggleCameraTrajectory(true);
         
         console.log('\n✅ ALL DATA LOADED SUCCESSFULLY!');
+        console.log('📊 Summary:');
+        console.log(`   - Point cloud: ${plyFileHandle.name}`);
+        console.log(`   - Trajectory: ${trajectoryFileHandle.name}`);
+        console.log(`   - Camera poses: ${trajectoryData ? trajectoryData.length : 0}`);
         if (folderFileHandles.correctedImagesFolder) {
-            console.log('📷 Frame viewer is now connected to keyframes/corrected_images/');
+            console.log('   - Frame images: keyframes/corrected_images/');
         } else if (folderFileHandles.imagesFolder) {
-            console.log('📷 Frame viewer is now connected to keyframes/images/ (fallback)');
+            console.log('   - Frame images: keyframes/images/');
         }
+        console.log('💡 Click on any camera icon to view its captured frames!\n');
         
     } catch (error) {
         console.error('❌ Error loading data from folder:', error);
@@ -1031,13 +1049,14 @@ async function loadCameraTrajectoryFromFile(trajectoryFile) {
                     console.log(`   - Has "poses" array: ${trajectoryJson.poses ? 'YES' : 'NO'}`);
                     
                     // Store scan folder path for loading frames
+                    // Note: When using folder upload, scanFolderPath will be overridden to 'folder-handle'
                     if (trajectoryJson.scan_folder) {
                         // Check if it's the new Polycam format
                         if (trajectoryJson.scan_folder.includes('11_15_2025')) {
                             // Polycam format: images and depth maps use timestamp filenames
                             scanFolderPath = `/${trajectoryJson.scan_folder}`;
                             console.log('\n✅ POLYCAM FORMAT DETECTED!');
-                            console.log('📁 Polycam scan folder path set to:', scanFolderPath);
+                            console.log('📁 Scan folder from JSON:', trajectoryJson.scan_folder);
                             console.log('📷 Frame format: {timestamp}.jpg (e.g., 435456552349.jpg)');
                             console.log('🗺️ Depth format: {timestamp}.png');
                         } else {
@@ -1049,19 +1068,30 @@ async function loadCameraTrajectoryFromFile(trajectoryFile) {
                         }
                     } else {
                         console.warn('\n❌ NO scan_folder found in trajectory JSON!');
-                        // Try default path
-                        scanFolderPath = '/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21';
-                        console.log('📁 Using default scan folder path:', scanFolderPath);
-                    }
-                    
-                    // Initialize timestamp mapping for Polycam data
-                    const isPolycamData = trajectoryJson.scan_folder && trajectoryJson.scan_folder.includes('11_15_2025');
-                    if (isPolycamData) {
-                        frameTimestampMap = new Map();
+                        // Don't set a default when using folder upload - will be set to 'folder-handle'
+                        console.log('📁 Scan folder will be determined by upload method');
                     }
                     
                     // Check if new Polycam format (cameras array) or old ARKit format (poses array)
                     const cameraArray = trajectoryJson.cameras || trajectoryJson.poses;
+                    
+                    // Initialize timestamp mapping for Polycam data
+                    // Check if poses have timestamp field (indicates Polycam format)
+                    const firstPose = cameraArray && cameraArray.length > 0 ? cameraArray[0] : null;
+                    const hasTimestamps = firstPose && ('timestamp' in firstPose);
+                    
+                    console.log('\n🔍 TIMESTAMP MAPPING DETECTION:');
+                    console.log('   - scan_folder:', trajectoryJson.scan_folder);
+                    console.log('   - First pose has timestamp?', hasTimestamps);
+                    console.log('   - First pose structure:', firstPose ? Object.keys(firstPose).join(', ') : 'N/A');
+                    
+                    if (hasTimestamps) {
+                        frameTimestampMap = new Map();
+                        console.log('   ✓ frameTimestampMap initialized (Polycam format detected)');
+                    } else {
+                        frameTimestampMap = null;
+                        console.log('   ✗ frameTimestampMap NOT initialized (no timestamps in poses)');
+                    }
                     
                     if (!cameraArray) {
                         throw new Error('No camera data found in trajectory JSON');
@@ -1141,8 +1171,13 @@ async function loadCameraTrajectoryFromFile(trajectoryFile) {
                                 });
                                 
                                 // Store timestamp mapping for Polycam data
-                                if (isPolycamData && poseData.timestamp) {
+                                if (hasTimestamps && poseData.timestamp && frameTimestampMap) {
                                     frameTimestampMap.set(poseData.frame_index, poseData.timestamp);
+                                    if (i < 3) {
+                                        console.log(`   ✓ Mapped frame ${poseData.frame_index} → timestamp ${poseData.timestamp}`);
+                                    }
+                                } else if (i < 3) {
+                                    console.log(`   ✗ NOT mapping frame ${poseData.frame_index} (hasTimestamps: ${hasTimestamps}, pose has timestamp: ${!!poseData.timestamp}, map exists: ${!!frameTimestampMap})`);
                                 }
                             }
                         }
@@ -1151,8 +1186,12 @@ async function loadCameraTrajectoryFromFile(trajectoryFile) {
                     console.log(`Loaded ${cameraPoses.length} camera poses`);
                     
                     // Debug: Log timestamp mapping
+                    console.log('\n📸 TIMESTAMP MAPPING RESULT:');
+                    console.log('   - frameTimestampMap exists:', !!frameTimestampMap);
+                    console.log('   - frameTimestampMap size:', frameTimestampMap ? frameTimestampMap.size : 0);
+                    
                     if (frameTimestampMap && frameTimestampMap.size > 0) {
-                        console.log(`📸 Frame-to-Timestamp mapping created: ${frameTimestampMap.size} entries`);
+                        console.log(`   ✓ Frame-to-Timestamp mapping created: ${frameTimestampMap.size} entries`);
                         console.log(`   Sample mappings (first 5):`);
                         let count = 0;
                         for (const [frameIdx, timestamp] of frameTimestampMap) {
@@ -1161,7 +1200,8 @@ async function loadCameraTrajectoryFromFile(trajectoryFile) {
                             }
                         }
                     } else {
-                        console.warn(`⚠️ No timestamp mapping created!`);
+                        console.error(`   ✗ No timestamp mapping created!`);
+                        console.log(`   This will prevent frame images from loading.`);
                     }
                     
                     resolve(cameraPoses);
@@ -2658,11 +2698,11 @@ async function loadCameraFrames(cameraIndex) {
     const selectedCamera = trajectoryData[cameraIndex];
     const frameIndex = selectedCamera.index;
     
-    console.log('📷 Loading frames for camera:', {
-        cameraIndex,
-        frameIndex,
-        scanFolderPath
-    });
+    console.log('\n📷 LOADING FRAMES FOR CAMERA:');
+    console.log('   - cameraIndex in trajectoryData:', cameraIndex);
+    console.log('   - frameIndex:', frameIndex);
+    console.log('   - scanFolderPath:', scanFolderPath);
+    console.log('   - trajectoryData length:', trajectoryData.length);
     
     // Find the previous and next available cameras (not frame numbers)
     const framesToLoad = [];
@@ -2670,6 +2710,7 @@ async function loadCameraFrames(cameraIndex) {
     // Previous camera (if exists)
     if (cameraIndex > 0) {
         const prevCamera = trajectoryData[cameraIndex - 1];
+        console.log('   - Previous camera:', { arrayIndex: cameraIndex - 1, frameIndex: prevCamera.index, timestamp: prevCamera.timestamp });
         framesToLoad.push({
             frameNumber: prevCamera.index,
             isCurrent: false,
@@ -2678,6 +2719,7 @@ async function loadCameraFrames(cameraIndex) {
     }
     
     // Current camera
+    console.log('   - Current camera:', { arrayIndex: cameraIndex, frameIndex: frameIndex, timestamp: selectedCamera.timestamp });
     framesToLoad.push({
         frameNumber: frameIndex,
         isCurrent: true,
@@ -2687,6 +2729,7 @@ async function loadCameraFrames(cameraIndex) {
     // Next camera (if exists)
     if (cameraIndex < trajectoryData.length - 1) {
         const nextCamera = trajectoryData[cameraIndex + 1];
+        console.log('   - Next camera:', { arrayIndex: cameraIndex + 1, frameIndex: nextCamera.index, timestamp: nextCamera.timestamp });
         framesToLoad.push({
             frameNumber: nextCamera.index,
             isCurrent: false,
@@ -2694,7 +2737,7 @@ async function loadCameraFrames(cameraIndex) {
         });
     }
     
-    console.log('📋 Frames to load:', framesToLoad.map(f => `Frame ${f.frameNumber} (${f.label})`));
+    console.log('\n📋 Frames to load:', framesToLoad.map(f => `Frame ${f.frameNumber} (${f.label})`));
     
     // Display frames in viewer
     displayFrameViewer(framesToLoad, frameIndex);
@@ -2738,90 +2781,48 @@ function displayFrameViewer(frames, currentFrameIndex) {
         img.style.display = 'none'; // Hide until loaded
         img.style.transform = 'rotate(90deg)'; // Rotate images to display upright
         
-        // Check if using folder handle or URL paths
-        if (scanFolderPath === 'folder-handle' && frameTimestampMap && frameTimestampMap.has(frameInfo.frameNumber)) {
-            // Load from folder handle
-            const timestamp = frameTimestampMap.get(frameInfo.frameNumber);
-            console.log(`  - Loading from folder handle, timestamp: ${timestamp}`);
+        // ALWAYS use folder handle when available (no hardcoded fallbacks)
+        if (scanFolderPath === 'folder-handle') {
+            console.log(`\n[FRAME ${frameInfo.frameNumber}] Loading from uploaded folder...`);
             
-            // Try to load image from folder
-            (async () => {
-                try {
-                    const url = await loadImageFromFolder(`${timestamp}.jpg`);
-                    if (url) {
-                        img.src = url;
-                        img.onload = () => {
-                            console.log(`✓ Successfully loaded from folder: ${timestamp}.jpg`);
-                            loader.remove();
-                            img.style.display = 'block';
-                        };
-                        img.onerror = () => {
-                            console.error(`✗ Failed to load from folder: ${timestamp}.jpg`);
-                            loader.innerHTML = `<div class="frame-error">❌<br>Frame not found</div>`;
-                        };
-                    } else {
-                        loader.innerHTML = `<div class="frame-error">❌<br>Frame not found</div>`;
-                    }
-                } catch (error) {
-                    console.error(`Error loading frame from folder:`, error);
-                    loader.innerHTML = `<div class="frame-error">❌<br>Frame not found</div>`;
-                }
-            })();
-        } else {
-            // Original URL-based loading
-            let possiblePaths = [];
-            
+            // Check if we have timestamp mapping for this frame
             if (frameTimestampMap && frameTimestampMap.has(frameInfo.frameNumber)) {
-                // Polycam format: use timestamp
                 const timestamp = frameTimestampMap.get(frameInfo.frameNumber);
-                console.log(`  - Timestamp for frame ${frameInfo.frameNumber}:`, timestamp);
+                console.log(`  ✓ Timestamp mapping found: ${frameInfo.frameNumber} → ${timestamp}`);
                 
-                possiblePaths = [
-                    `${scanFolderPath}/corrected_images/${timestamp}.jpg`,
-                    `${scanFolderPath}/images/${timestamp}.jpg`,
-                ];
+                // Load image from folder handle (keyframes/images/)
+                (async () => {
+                    try {
+                        const url = await loadImageFromFolder(`${timestamp}.jpg`);
+                        if (url) {
+                            img.src = url;
+                            img.onload = () => {
+                                console.log(`  ✓ Loaded: ${timestamp}.jpg`);
+                                loader.remove();
+                                img.style.display = 'block';
+                            };
+                            img.onerror = () => {
+                                console.error(`  ✗ Failed to display: ${timestamp}.jpg`);
+                                loader.innerHTML = `<div class="frame-error">❌<br>Image error</div>`;
+                            };
+                        } else {
+                            console.error(`  ✗ File not found in folder: ${timestamp}.jpg`);
+                            loader.innerHTML = `<div class="frame-error">❌<br>Not found</div>`;
+                        }
+                    } catch (error) {
+                        console.error(`  ✗ Error:`, error.message);
+                        loader.innerHTML = `<div class="frame-error">❌<br>Load error</div>`;
+                    }
+                })();
             } else {
-                // Old ARKit format: use padded frame number
-                console.log(`  - Using ARKit format (no timestamp found)`);
-                const frameNumberPadded = String(frameInfo.frameNumber).padStart(5, '0');
-                possiblePaths = [
-                    `${scanFolderPath}/frame_${frameNumberPadded}.jpg`,
-                    `${scanFolderPath}/frame_${frameNumberPadded}.png`,
-                    `/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21/frame_${frameNumberPadded}.jpg`,
-                    `/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21/frame_${frameNumberPadded}.png`,
-                ];
+                console.error(`  ✗ No timestamp mapping for frame ${frameInfo.frameNumber}`);
+                console.log(`  - Available frames: ${frameTimestampMap ? frameTimestampMap.size : 0}`);
+                loader.innerHTML = `<div class="frame-error">❌<br>No mapping</div>`;
             }
-            
-            console.log(`  - Trying paths:`, possiblePaths);
-            
-            let pathIndex = 0;
-            
-            const tryNextPath = () => {
-                if (pathIndex < possiblePaths.length) {
-                    const path = possiblePaths[pathIndex];
-                    console.log(`Attempting path: ${path}`);
-                    img.src = path;
-                    pathIndex++;
-                } else {
-                    // All paths failed, show error
-                    loader.innerHTML = `<div class="frame-error">❌<br>Frame not found</div>`;
-                    console.error(`Failed to load frame ${frameInfo.frameNumber}`);
-                }
-            };
-            
-            img.onload = () => {
-                console.log(`✓ Successfully loaded: ${img.src}`);
-                loader.remove();
-                img.style.display = 'block';
-            };
-            
-            img.onerror = () => {
-                console.log(`✗ Failed: ${img.src}`);
-                tryNextPath();
-            };
-            
-            // Start loading
-            tryNextPath();
+        } else {
+            // URL-based loading (only when NOT using folder upload)
+            console.error(`  ✗ scanFolderPath is not 'folder-handle': ${scanFolderPath}`);
+            loader.innerHTML = `<div class="frame-error">❌<br>Wrong mode</div>`;
         }
         
         const label = document.createElement('div');
