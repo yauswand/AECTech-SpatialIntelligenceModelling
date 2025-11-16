@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PLY Point Cloud Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/src/style.css">
     <link rel="stylesheet" href="/src/threeDashboard.css">
 </head>
@@ -12,6 +15,9 @@
     <div id="canvas-container"></div>
     <!-- 3D Dashboard container -->
     <div id="three-tab-container" style="display: none;"></div>
+
+    <!-- SIMON Logo -->
+    <div class="simon-logo" aria-label="SIMON">SIMON</div>
 
     <!-- Instructions overlay -->
     <div id="instructions" class="instructions">
@@ -49,6 +55,12 @@
         <button class="mode-btn" data-mode="frames">Frames</button>
     </div>
 
+    <!-- Render Filters (for 3D mode - loads pre-baked GLB models) -->
+    <div id="render-filters" class="render-filters">
+        <button class="filter-btn" data-filter="mesh">Mesh</button>
+        <button class="filter-btn active" data-filter="solid">Solid</button>
+    </div>
+
     <!-- Control Toolbar -->
     <div id="controls" class="controls hidden">
         <div class="controls-header">
@@ -81,7 +93,14 @@
             
             <div class="control-group">
                 <label>
-                    <input type="checkbox" id="debug-lines-toggle" checked>
+                    <input type="checkbox" id="backup-labels-toggle">
+                    Backup Labels (Camera-Based)
+                </label>
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="debug-lines-toggle">
                     Debug Lines (Camera → Label)
                 </label>
             </div>
@@ -121,11 +140,12 @@
     <button id="chat-toggle-btn" class="chat-toggle-btn" title="Open Chat">
         💬
     </button>
+    <div class="chat-toggle-label" aria-hidden="true">Ask Simon</div>
 
     <!-- Chat Interface -->
     <div id="chat-container" class="chat-container">
         <div class="chat-header">
-            <h3>AI Assistant</h3>
+            <h3>SIMON</h3>
             <button id="toggle-chat" class="toggle-btn">×</button>
         </div>
         <div id="chat-messages" class="chat-messages"></div>
@@ -134,6 +154,18 @@
             <button id="chat-send-btn" class="chat-send-btn">Send</button>
         </div>
     </div>
+
+    <!-- Label Analysis Modal -->
+    <div id="label-analysis-modal" class="label-analysis-modal">
+        <div class="label-analysis-header">
+            <h2 id="label-analysis-title">Object Analysis</h2>
+            <button id="label-analysis-close" class="close-btn">×</button>
+        </div>
+        <div id="label-analysis-content" class="label-analysis-content">
+            <!-- Dynamic content will be inserted here -->
+        </div>
+    </div>
+    <div id="label-analysis-backdrop" class="label-analysis-backdrop"></div>
 
     <script type="module" src="/src/main.js"></script>
 </body>

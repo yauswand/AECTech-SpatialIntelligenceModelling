@@ -58,6 +58,7 @@ let trajectoryPath = null;
 let trajectoryTube = null;
 let cameraFrustums = null;
 let trajectoryData = null;
+let originalCameraCentroid = null; // Store original camera centroid (before alignment)
 let pointCloudTransform = null; // Store transform applied to point cloud
 let scanFolderPath = null; // Store scan folder path for loading frames
 let frameTimestampMap = null; // Map frame_index to timestamp for Polycam data
@@ -72,21 +73,36 @@ let folderFileHandles = {
     correctedCamerasFolder: null,
     imagesFolder: null, // Fallback regular images folder
     camerasFolder: null,  // Fallback regular cameras folder
-    yoloDetectionFolder: null  // YOLO detection frames folder
+    yoloDetectionFolder: null,  // YOLO detection frames folder
+    depthFolder: null, // Depth images folder
+    outputFolder: null, // Semantic labeling output folder
+    uniqueObjectsFile: null, // unique_objects_final.json
+    labelPositionsFile: null, // label_positions.json (original)
+    labelPositionsRefinedFile: null, // label_positions_refined.json (refined)
+    qwenAnalysisFolder: null // qwen_analysis/individual_analyses folder
 };
 
 // Semantic labels
 let labelsVisible = false;
 let labelData = null;
+let labelPositionData = null; // Transformed label positions from label_positions.json (for NEW method)
+let labelPositionDataRefined = null; // Transformed label positions from label_positions_refined.json (for BACKUP method)
 let labelSprites = [];
 let hoveredLabel = null; // Track currently hovered label for highlighting
 let bestViewFrameIds = new Set(); // Track which frames have best views
+let labelFrameIds = new Set(); // Track which frames have labels (from label_positions.json)
 let debugLines = null; // Visual debug lines from cameras to labels
-let debugLinesVisible = true; // Separate toggle for debug lines
+let debugLinesVisible = false; // Separate toggle for debug lines
+
+// Backup label rendering (places labels at camera positions)
+let backupLabelsVisible = false;
+let backupLabelSprites = [];
+const BACKUP_LABEL_OFFSET = 0.5; // meters in front of camera
 
 // Camera visualization colors
 const DEFAULT_CAMERA_COLOR = 0x4a64d2;     // Deep blue
-const BEST_VIEW_CAMERA_COLOR = 0xffff00;   // Bright yellow
+const BEST_VIEW_CAMERA_COLOR = 0xffff00;   // Bright yellow (for best view cameras from unique_objects)
+const LABEL_CAMERA_COLOR = 0xffff00;       // Bright yellow (for cameras with labels from label_positions.json)
 const SELECTED_CAMERA_COLOR = 0x00ffff;    // Cyan
 const HOVER_CAMERA_COLOR = 0xffaa00;       // Bright orange (highly visible)
 
@@ -105,6 +121,8 @@ const keyboard = {
     a: false,
     s: false,
     d: false,
+    q: false,
+    e: false,
     shift: false,
     space: false
 };
@@ -190,10 +208,26 @@ function init() {
     
     // Setup camera selection
     setupCameraSelection();
+    
+    // Setup label analysis modal
+    setupLabelAnalysisModal();
 
     // Start animation loop
     animate();
 }
+
+// Make "Ask Simon" label open chat like the toggle button
+window.addEventListener('DOMContentLoaded', () => {
+    try {
+        const labelEl = document.querySelector('.chat-toggle-label');
+        const toggleBtn = document.getElementById('chat-toggle-btn');
+        if (labelEl && toggleBtn) {
+            labelEl.addEventListener('click', () => {
+                toggleBtn.click();
+            });
+        }
+    } catch (_) {}
+});
 
 // Animation loop
 function animate() {
@@ -229,6 +263,8 @@ function setupKeyboardControls() {
         if (key === 'a') keyboard.a = true;
         if (key === 's') keyboard.s = true;
         if (key === 'd') keyboard.d = true;
+        if (key === 'q') keyboard.q = true;
+        if (key === 'e') keyboard.e = true;
         if (key === 'shift') keyboard.shift = true;
         if (key === ' ') keyboard.space = true;
         
@@ -244,6 +280,8 @@ function setupKeyboardControls() {
         if (key === 'a') keyboard.a = false;
         if (key === 's') keyboard.s = false;
         if (key === 'd') keyboard.d = false;
+        if (key === 'q') keyboard.q = false;
+        if (key === 'e') keyboard.e = false;
         if (key === 'shift') keyboard.shift = false;
         if (key === ' ') keyboard.space = false;
     });
@@ -279,12 +317,12 @@ function handleKeyboardMovement() {
         controls.target.addScaledVector(right, -speed);
     }
     
-    // Up/Down movement
-    if (keyboard.space) {
+    // Up/Down movement - E for up, Q for down
+    if (keyboard.e || keyboard.space) {
         camera.position.y += speed;
         controls.target.y += speed;
     }
-    if (keyboard.shift && !keyboard.w && !keyboard.s && !keyboard.a && !keyboard.d) {
+    if (keyboard.q || (keyboard.shift && !keyboard.w && !keyboard.s && !keyboard.a && !keyboard.d)) {
         camera.position.y -= speed;
         controls.target.y -= speed;
     }
@@ -308,6 +346,7 @@ function loadPLYFile(file, skipAutoLoad = false) {
     
     // Clean up previous labels AND debug lines if exists
     cleanupLabels(true);
+    cleanupBackupLabels(); // Also cleanup backup labels
     labelData = null;
 
     const loader = new PLYLoader();
@@ -511,6 +550,9 @@ async function selectDataFolder() {
         console.log('   - PLY file found:', validation.handles.plyFile.name);
         console.log('   - Trajectory file found:', validation.handles.trajectoryFile.name);
         console.log('   - Keyframes folder found');
+        if (validation.handles.uniqueObjectsFile) {
+            console.log('   - Semantic labels found: ✓ (will load automatically)');
+        }
         
         // Log camera folder status
         if (validation.handles.correctedCamerasFolder) {
@@ -553,7 +595,13 @@ async function validateFolderStructure(dirHandle) {
         correctedCamerasFolder: null,
         imagesFolder: null,
         camerasFolder: null,
-        yoloDetectionFolder: null
+        yoloDetectionFolder: null,
+        depthFolder: null,
+        outputFolder: null,
+        uniqueObjectsFile: null,
+        labelPositionsFile: null,
+        labelPositionsRefinedFile: null,
+        qwenAnalysisFolder: null
     };
     
     try {
@@ -607,6 +655,14 @@ async function validateFolderStructure(dirHandle) {
                 }
             }
             
+            // Check for depth subfolder (optional but recommended for semantic labels)
+            try {
+                handles.depthFolder = await handles.keyframesFolder.getDirectoryHandle('depth');
+                console.log('✅ Found depth folder: keyframes/depth/');
+            } catch {
+                console.log('⚠️ keyframes/depth/ folder not found (semantic labels will not work without it)');
+            }
+            
         } catch {
             errors.push('❌ keyframes/ folder not found');
         }
@@ -618,6 +674,51 @@ async function validateFolderStructure(dirHandle) {
         } catch {
             // yolo_detection folder is optional, so don't add to errors
             console.log('ℹ️ yolo_detection folder not found (optional)');
+        }
+        
+        // Check for output/unique_objects folder (optional - for semantic labels)
+        try {
+            handles.outputFolder = await dirHandle.getDirectoryHandle('output');
+            
+            // Add qwen_analysis folder detection
+            try {
+                const qwenFolder = await handles.outputFolder.getDirectoryHandle('qwen_analysis');
+                handles.qwenAnalysisFolder = await qwenFolder.getDirectoryHandle('individual_analyses');
+                console.log('✅ Found analysis folder: output/qwen_analysis/individual_analyses/');
+            } catch {
+                console.log('⚠️ output/qwen_analysis/individual_analyses/ not found (analysis optional)');
+            }
+            
+            try {
+                const uniqueObjectsFolder = await handles.outputFolder.getDirectoryHandle('unique_objects');
+                // Try to find unique_objects_final.json
+                try {
+                    handles.uniqueObjectsFile = await uniqueObjectsFolder.getFileHandle('unique_objects_final.json');
+                    console.log('✅ Found semantic labels: output/unique_objects/unique_objects_final.json');
+                } catch {
+                    console.log('⚠️ output/unique_objects/unique_objects_final.json not found (labels optional)');
+                }
+            } catch {
+                console.log('⚠️ output/unique_objects/ folder not found (labels optional)');
+            }
+        } catch {
+            console.log('⚠️ output/ folder not found (labels optional)');
+        }
+        
+        // Check for label_positions.json in root (optional - for semantic label positioning - NEW method)
+        try {
+            handles.labelPositionsFile = await dirHandle.getFileHandle('label_positions.json');
+            console.log('✅ Found label positions: label_positions.json (for NEW method)');
+        } catch {
+            console.log('⚠️ label_positions.json not found in root (NEW method labels optional)');
+        }
+        
+        // Check for label_positions_refined.json in root (optional - for BACKUP method)
+        try {
+            handles.labelPositionsRefinedFile = await dirHandle.getFileHandle('label_positions_refined.json');
+            console.log('✅ Found refined label positions: label_positions_refined.json (for BACKUP method)');
+        } catch {
+            console.log('⚠️ label_positions_refined.json not found in root (BACKUP method labels optional)');
         }
         
     } catch (error) {
@@ -658,14 +759,51 @@ async function loadDataFromFolder() {
         const trajectoryFile = await trajectoryFileHandle.getFile();
         await loadAndProcessTrajectory(trajectoryFile);
         
-        // 3. Set scan folder path for frame viewer
+        // 3. Try to load label position files
+        // ===== ENABLED: DUAL LABEL POSITIONING SYSTEM =====
+        console.log('\n3️⃣ Loading label positions from folder...');
+        
+        // 3a. Load label_positions.json for NEW method
+        if (folderFileHandles.labelPositionsFile) {
+            console.log('   📄 File: label_positions.json (for NEW method)');
+            await loadLabelPositionsFile(folderFileHandles.labelPositionsFile, false);
+            
+            // Auto-render labels if they were loaded successfully
+            if (labelPositionData) {
+                console.log('   🏷️  Auto-rendering semantic position labels (NEW method)...');
+                // Clear any old label data to prevent confusion
+                labelData = null;
+                console.log('   🧹 Cleared old labelData to prevent conflicts');
+                renderSemanticPositionLabels();
+            } else {
+                console.error('   ❌ Failed to load/transform label positions (NEW method)');
+            }
+        } else {
+            console.log('   ⚠️ label_positions.json not found (NEW method will not work)');
+        }
+        
+        // 3b. Load label_positions_refined.json for BACKUP method
+        if (folderFileHandles.labelPositionsRefinedFile) {
+            console.log('   📄 File: label_positions_refined.json (for BACKUP method)');
+            await loadLabelPositionsFile(folderFileHandles.labelPositionsRefinedFile, true);
+            
+            if (labelPositionDataRefined) {
+                console.log('   ✅ Refined labels loaded (BACKUP method ready)');
+            } else {
+                console.error('   ❌ Failed to load/transform refined label positions (BACKUP method)');
+            }
+        } else {
+            console.log('   ⚠️ label_positions_refined.json not found (BACKUP method will not work)');
+        }
+        
+        // 4. Set scan folder path for frame viewer
         // Store relative path that will be used to load images from folder handle
         scanFolderPath = 'folder-handle'; // Special marker to use folder handle
-        console.log('\n3️⃣ Setting up frame viewer...');
+        console.log('\n4️⃣ Setting up frame viewer...');
         console.log('📁 scanFolderPath set to: folder-handle (will load images from uploaded folder)');
         
-        // 4. Enable trajectory visualization
-        console.log('\n4️⃣ Enabling trajectory visualization...');
+        // 5. Enable trajectory visualization
+        console.log('\n5️⃣ Enabling trajectory visualization...');
         document.getElementById('trajectory-toggle').checked = true;
         toggleCameraTrajectory(true);
         
@@ -680,6 +818,27 @@ async function loadDataFromFolder() {
             console.log('   - Frame images: keyframes/images/');
         }
         console.log('💡 Click on any camera icon to view its captured frames!\n');
+        
+        // 6. Load semantic labels (DEPTH-BASED SYSTEM - DISABLED)
+        // Using NEW label_positions.json system instead (loaded in step 3)
+        /*
+        if (folderFileHandles.uniqueObjectsFile) {
+            console.log('\n6️⃣ ==========================================');
+            console.log('   🔄 USING REFACTORED DEPTH-BASED SYSTEM');
+            console.log('   ==========================================');
+            console.log('   📄 Source: unique_objects_final.json');
+            console.log('   🎯 Method: Camera-based position calculation');
+            console.log('   📐 Process: 2D bbox + depth + intrinsics → 3D position');
+            console.log('   ✅ Fixed: 1024x768 resolution, 4.0x scale factor');
+            console.log('   ==========================================\n');
+            await loadLabelsFromFolder();
+            console.log('✅ Semantic labels loaded successfully!');
+        } else {
+            console.log('\n⚠️ No semantic labels found in folder (optional)');
+            console.log('   To add labels, run the semantic labeling pipeline and place output/ folder in the scan folder');
+        }
+        */
+        console.log('\n6️⃣ Skipping depth-based label system (using NEW label_positions.json instead)');
         
     } catch (error) {
         console.error('❌ Error loading data from folder:', error);
@@ -711,6 +870,106 @@ async function loadImageFromFolder(filename) {
     } catch (error) {
         console.warn(`⚠️ Could not load image ${filename}:`, error.message);
         return null;
+    }
+}
+
+// Load depth image from folder handle
+async function loadDepthImageFromFolder(filename) {
+    try {
+        const depthFolder = folderFileHandles.depthFolder;
+        
+        if (!depthFolder) {
+            console.error('❌ No depth folder available');
+            return null;
+        }
+        
+        // Get depth file from folder
+        const fileHandle = await depthFolder.getFileHandle(filename);
+        const file = await fileHandle.getFile();
+        
+        // Load as image bitmap
+        const blob = await file;
+        const img = await createImageBitmap(blob);
+        
+        // Use canvas to read pixel data
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;   // 256
+        canvas.height = img.height; // 192
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, img.width, img.height);
+        
+        return {
+            data: imageData.data,
+            width: img.width,
+            height: img.height
+        };
+        
+    } catch (error) {
+        console.warn(`⚠️ Could not load depth image ${filename}:`, error.message);
+        return null;
+    }
+}
+
+// Load semantic labels from uploaded folder
+async function loadLabelsFromFolder() {
+    try {
+        if (!folderFileHandles.uniqueObjectsFile) {
+            console.warn('❌ No unique objects file available');
+            return false;
+        }
+        
+        // Check if depth folder is available (required for 3D calculation)
+        if (!folderFileHandles.depthFolder) {
+            console.error('❌ Cannot load semantic labels: depth folder not found!');
+            console.error('   Semantic labels require depth images to calculate 3D positions.');
+            console.error('   Please ensure keyframes/depth/ folder exists in your upload.');
+            alert('Cannot load semantic labels: depth folder (keyframes/depth/) is missing.\n\nDepth images are required to calculate 3D label positions.');
+            return false;
+        }
+        
+        console.log('📦 Loading unique_objects_final.json from folder...');
+        
+        // Get the file from folder handle
+        const file = await folderFileHandles.uniqueObjectsFile.getFile();
+        const text = await file.text();
+        let labelsJson = JSON.parse(text);
+        
+        // Normalize structure: unique_objects_final.json uses 'unique_objects' instead of 'labeled_objects'
+        if (labelsJson.unique_objects && !labelsJson.labeled_objects) {
+            console.log('📦 Detected unique_objects_final.json format - normalizing structure...');
+            labelsJson.labeled_objects = labelsJson.unique_objects;
+            delete labelsJson.unique_objects;
+        }
+        
+        console.log(`   Found ${labelsJson.labeled_objects.length} unique objects`);
+        
+        // ALWAYS calculate positions in webapp (ignore any pre-calculated Python positions)
+        console.log('🎯 Using WEBAPP-ONLY position calculation (ignoring Python positions)');
+        
+        // Load the labels with webapp-based 3D calculation
+        const success = await loadLabelsDataWithWebappCalculation(labelsJson);
+        
+        if (success) {
+            console.log('✨ Semantic labels loaded and calculated in webapp!');
+            console.log(`📊 Loaded ${labelData.labeled_objects.length} unique objects`);
+            
+            // Auto-enable labels visualization
+            document.getElementById('labels-toggle').checked = true;
+            toggleSemanticLabels(true);
+            
+            // Auto-enable debug lines
+            document.getElementById('debug-lines-toggle').checked = true;
+            toggleDebugLines(true);
+            
+            return true;
+        }
+        
+        return false;
+        
+    } catch (error) {
+        console.error('❌ Error loading labels from folder:', error);
+        return false;
     }
 }
 
@@ -926,6 +1185,63 @@ function setupUI() {
     
     // Setup view mode selector
     setupViewModeSelector();
+    
+    // Setup render filters
+    setupRenderFilters();
+}
+
+// Setup render filters for 3D tab
+function setupRenderFilters() {
+    const renderFilters = document.getElementById('render-filters');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    
+    if (!renderFilters || filterBtns.length === 0) return;
+    
+    // Handle filter button clicks
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const filterType = btn.dataset.filter;
+            
+            // Update active state
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Load the appropriate GLB model
+            let glbPath = '';
+            if (filterType === 'mesh') {
+                glbPath = '/ConferenceRoom02/11_16_2025_mesh.glb';
+                console.log('Loading Mesh GLB model...');
+            } else if (filterType === 'solid') {
+                glbPath = '/ConferenceRoom02/11_16_2025_solid.glb';
+                console.log('Loading Solid GLB model...');
+            }
+            
+            if (glbPath) {
+                try {
+                    // Load GLB file into 3D dashboard
+                    const response = await fetch(glbPath);
+                    if (!response.ok) {
+                        throw new Error(`GLB file not found: ${glbPath}`);
+                    }
+                    const blob = await response.blob();
+                    const file = new File([blob], glbPath.split('/').pop(), { type: 'model/gltf-binary' });
+                    
+                    // Import and load into 3D dashboard
+                    const dash = await import('./threeDashboard.js');
+                    await dash.loadGLBFile(file);
+                    console.log(`✓ Loaded ${filterType} model: ${glbPath}`);
+                } catch (error) {
+                    console.error(`Failed to load ${filterType} model:`, error);
+                    alert(`Failed to load ${filterType} model. Make sure ${glbPath} exists in the public folder.`);
+                    // Revert active state
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    // Find previously active button or default to solid
+                    const defaultBtn = document.querySelector('[data-filter="solid"]');
+                    if (defaultBtn) defaultBtn.classList.add('active');
+                }
+            }
+        });
+    });
 }
 
 // Setup view picker for render mode selection
@@ -992,6 +1308,7 @@ function setupViewPicker() {
 function setupViewModeSelector() {
     const modeButtons = document.querySelectorAll('.mode-btn');
     const canvasContainer = document.getElementById('canvas-container');
+    const renderFilters = document.getElementById('render-filters');
     
     modeButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -1004,10 +1321,25 @@ function setupViewModeSelector() {
             const selectedMode = button.getAttribute('data-mode');
             console.log('View mode selected:', selectedMode);
             
+            // Show/hide render filters based on mode
+            if (renderFilters) {
+                if (selectedMode === '3d') {
+                    renderFilters.classList.add('visible');
+                } else {
+                    renderFilters.classList.remove('visible');
+                }
+            }
+            
             // Switch views based on mode
             switchViewMode(selectedMode);
         });
     });
+    
+    // Show render filters initially if in 3D mode
+    const activeBtn = document.querySelector('.mode-btn.active');
+    if (activeBtn && activeBtn.dataset.mode === '3d' && renderFilters) {
+        renderFilters.classList.add('visible');
+    }
 }
 
 // Switch between different view modes
@@ -1063,6 +1395,19 @@ function switchViewMode(mode) {
                     if (!window.__threeDashInit) {
                         dash.initThreeDashboard(threeContainer);
                         window.__threeDashInit = true;
+                        
+                        // Auto-load default solid model
+                        try {
+                            const response = await fetch('/ConferenceRoom02/11_16_2025_solid.glb');
+                            if (response.ok) {
+                                const blob = await response.blob();
+                                const file = new File([blob], '11_16_2025_solid.glb', { type: 'model/gltf-binary' });
+                                await dash.loadGLBFile(file);
+                                console.log('✓ Auto-loaded default solid model');
+                            }
+                        } catch (err) {
+                            console.warn('Could not auto-load default solid model:', err);
+                        }
                     }
                     await dash.refreshDashboardData?.();
                     dash.show?.();
@@ -1198,6 +1543,11 @@ function setupControlPanel() {
     // Semantic labels toggle
     document.getElementById('labels-toggle').addEventListener('change', (e) => {
         toggleSemanticLabels(e.target.checked);
+    });
+    
+    // Backup labels toggle (camera-based rendering)
+    document.getElementById('backup-labels-toggle').addEventListener('change', (e) => {
+        toggleBackupLabels(e.target.checked);
     });
     
     // Debug lines toggle (separate from labels)
@@ -1514,6 +1864,9 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
     });
     const cameraCenter = cameraCenterSum.divideScalar(cameraPoses.length);
     
+    // Store original camera centroid globally for label positioning
+    originalCameraCentroid = cameraCenter.clone();
+    
     console.log(`\n   📍 PLY Centroid:    [${plyCenter.x.toFixed(3)}, ${plyCenter.y.toFixed(3)}, ${plyCenter.z.toFixed(3)}]`);
     console.log(`   📷 Camera Centroid: [${cameraCenter.x.toFixed(3)}, ${cameraCenter.y.toFixed(3)}, ${cameraCenter.z.toFixed(3)}]`);
     
@@ -1537,19 +1890,18 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
         }));
     }
     
-    // Step 3: Apply translation and 180° Y-axis rotation around centroid
-    console.log(`\n   🔄 Applying translation + 180° Y-axis rotation to ${cameraPoses.length} camera poses...`);
-    console.log(`   ⚠️ NOTE: Translation + 180° rotation around Y-axis at centroid`);
+    // Step 3: Apply translation and -45° Y-axis rotation around centroid
+    console.log(`\n   🔄 Applying translation + -45° Y-axis rotation to ${cameraPoses.length} camera poses...`);
+    console.log(`   ⚠️ NOTE: Translation + -45° rotation (-π/4) around Y-axis at centroid`);
     
-    // Create a 180-degree rotation around Y-axis
+    // Create a -45 degree rotation around Y-axis
     const yAxisRotation = new THREE.Quaternion();
-    yAxisRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
-    
+    yAxisRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), 5 * Math.PI / 4);   
     const alignedPoses = cameraPoses.map(pose => {
         // First translate to align centroids
         const alignedPos = pose.position.clone().add(translation);
         
-        // Then rotate 180° around Y-axis at the PLY centroid
+        // Then rotate -45° around Y-axis at the PLY centroid
         // 1. Move to origin (relative to PLY center)
         const posRelativeToPly = alignedPos.clone().sub(plyCenter);
         
@@ -1563,11 +1915,16 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
         const quaternion = pose.quaternion.clone();
         quaternion.premultiply(yAxisRotation);
         
+        // ✅ FIX: Build NEW matrix from transformed position + quaternion
+        // The old matrix doesn't match the transformed camera pose!
+        const transformedMatrix = new THREE.Matrix4();
+        transformedMatrix.compose(finalPos, quaternion, new THREE.Vector3(1, 1, 1));
+        
         return {
             index: pose.index,
             position: finalPos,
             quaternion: quaternion,
-            matrix: pose.matrix,  // Keep original matrix for reference
+            matrix: transformedMatrix,  // Use NEW transformed matrix, not original
             timestamp: pose.timestamp,
             intrinsics: pose.intrinsics
         };
@@ -1588,6 +1945,74 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
     console.log(`   🎯 Cameras are now aligned with PLY centroid!\n`);
     
     return alignedPoses;
+}
+
+// Transform label positions to align with PLY coordinate system
+// Applies the SAME transformations as camera trajectory (translation + Y-axis rotation)
+function transformLabelPositions(labelPositions, plyCenter, cameraCenter) {
+    console.log('\n🏷️  TRANSFORMING LABEL POSITIONS...');
+    console.log(`   Label count: ${Object.keys(labelPositions).length}`);
+    console.log(`   📍 PLY Centroid:    [${plyCenter.x.toFixed(3)}, ${plyCenter.y.toFixed(3)}, ${plyCenter.z.toFixed(3)}]`);
+    console.log(`   📷 Camera Centroid: [${cameraCenter.x.toFixed(3)}, ${cameraCenter.y.toFixed(3)}, ${cameraCenter.z.toFixed(3)}]`);
+    
+    // Calculate translation (same as camera trajectory)
+    const translation = plyCenter.clone().sub(cameraCenter);
+    console.log(`   🔀 Translation: [${translation.x.toFixed(3)}, ${translation.y.toFixed(3)}, ${translation.z.toFixed(3)}]`);
+    
+    // Create Y-axis rotation (same as camera trajectory)
+    const yAxisRotation = new THREE.Quaternion();
+    yAxisRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI / 4);
+    console.log(`   🔄 Y-axis Rotation: -45° (-π/4 radians)`);
+    
+    const transformedLabels = {};
+    
+    // Get first label for debug example
+    const firstLabelId = Object.keys(labelPositions)[0];
+    const firstLabel = labelPositions[firstLabelId];
+    
+    // Transform each label position
+    let exampleShown = false;
+    for (const [labelId, labelInfo] of Object.entries(labelPositions)) {
+        const originalPos = new THREE.Vector3(
+            labelInfo.location[0],
+            labelInfo.location[1],
+            labelInfo.location[2]
+        );
+        
+        // Step 1: Apply translation to align with PLY centroid
+        const translatedPos = originalPos.clone().add(translation);
+        
+        // Step 2: Apply Y-axis rotation around PLY centroid
+        // Move to origin (relative to PLY center)
+        const posRelativeToPly = translatedPos.clone().sub(plyCenter);
+        
+        // Apply rotation
+        posRelativeToPly.applyQuaternion(yAxisRotation);
+        
+        // Move back from origin
+        const finalPos = posRelativeToPly.add(plyCenter);
+        
+        transformedLabels[labelId] = {
+            label: labelInfo.label,
+            confidence: labelInfo.confidence,
+            originalPosition: labelInfo.location,
+            position: [finalPos.x, finalPos.y, finalPos.z]
+        };
+        
+        // Show example transformation for first label
+        if (!exampleShown && labelId === firstLabelId) {
+            console.log(`\n   📊 EXAMPLE TRANSFORMATION (${labelInfo.label}):`);
+            console.log(`      Original:    [${originalPos.x.toFixed(3)}, ${originalPos.y.toFixed(3)}, ${originalPos.z.toFixed(3)}]`);
+            console.log(`      Translated:  [${translatedPos.x.toFixed(3)}, ${translatedPos.y.toFixed(3)}, ${translatedPos.z.toFixed(3)}]`);
+            console.log(`      Final:       [${finalPos.x.toFixed(3)}, ${finalPos.y.toFixed(3)}, ${finalPos.z.toFixed(3)}]`);
+            exampleShown = true;
+        }
+    }
+    
+    console.log(`\n   ✅ Transformed ${Object.keys(transformedLabels).length} label positions`);
+    console.log(`   🎯 Labels aligned with PLY coordinate system!\n`);
+    
+    return transformedLabels;
 }
 
 // Create smooth spline trajectory tube
@@ -1677,20 +2102,29 @@ function createCameraFrustums(cameraPoses) {
         }
     });
     
-    // Count how many are best view cameras
+    // Count how many cameras have best views or labels
     const bestViewCount = renderPoses.filter(pose => bestViewFrameIds.has(pose.index)).length;
+    const labelCameraCount = renderPoses.filter(pose => labelFrameIds.has(pose.index)).length;
+    const yellowCount = renderPoses.filter(pose => bestViewFrameIds.has(pose.index) || labelFrameIds.has(pose.index)).length;
     
     console.log(`\n📷 CREATING CAMERA FRUSTUMS:`);
     console.log(`   - Total in trajectory: ${cameraPoses.length}`);
     console.log(`   - Sampling: Every 3rd camera`);
     console.log(`   - Rendering: ${renderPoses.length} cameras`);
-    console.log(`   - Regular cameras: ${renderPoses.length - bestViewCount} (BLUE)`);
+    console.log(`   - Regular cameras: ${renderPoses.length - yellowCount} (BLUE)`);
     console.log(`   - Best view cameras: ${bestViewCount} (BRIGHT YELLOW ⚠️)`);
+    console.log(`   - Label cameras: ${labelCameraCount} (BRIGHT YELLOW 🏷️)`);
+    console.log(`   - Total yellow: ${yellowCount} cameras`);
     console.log(`   - Mapping: instanceId → trajectoryIndex stored for ${renderPosesMapping.length} cameras`);
     
     if (bestViewCount === 0 && bestViewFrameIds.size > 0) {
         console.warn(`⚠️ WARNING: ${bestViewFrameIds.size} best view IDs exist but 0 matched in renderPoses!`);
         console.log(`   This means frame IDs don't align between labels and trajectory.`);
+    }
+    
+    if (labelCameraCount === 0 && labelFrameIds.size > 0) {
+        console.warn(`⚠️ WARNING: ${labelFrameIds.size} label frame IDs exist but 0 matched in renderPoses!`);
+        console.log(`   This means frame IDs don't align between label_positions.json and trajectory.`);
     }
     
     // Create a group to hold all camera components
@@ -1750,15 +2184,10 @@ function createCameraFrustums(cameraPoses) {
     const matrix = new THREE.Matrix4();
     const scale = new THREE.Vector3(1, 1, 1);
     
-    let yellowCount = 0;
-    
     renderPoses.forEach((pose, index) => {
         const isBestView = bestViewFrameIds.has(pose.index);
-        const baseColor = isBestView ? BEST_VIEW_CAMERA_COLOR : DEFAULT_CAMERA_COLOR;
-        
-        if (isBestView) {
-            yellowCount++;
-        }
+        const hasLabel = labelFrameIds.has(pose.index);
+        const baseColor = (isBestView || hasLabel) ? LABEL_CAMERA_COLOR : DEFAULT_CAMERA_COLOR;
         
         // Compose transformation matrix from position and quaternion
         // All cameras same size (no scaling difference between best-view and regular)
@@ -1855,34 +2284,39 @@ function toggleCameraTrajectory(visible) {
     
     if (visible) {
         if (!trajectoryData) {
-            console.log('Trajectory data not loaded yet');
+            console.log('⚠️ Trajectory data not loaded yet');
             return;
         }
         
-        console.log('Creating camera frustums...');
+        console.log('👁️ Showing camera trajectory...');
         
-        // Create camera frustums (no trajectory tube)
+        // Create camera frustums if they don't exist
         if (!cameraFrustums) {
+            console.log('   Creating camera frustums...');
             const result = createCameraFrustums(trajectoryData);
             if (result) {
                 cameraFrustums = result.group;
                 scene.add(cameraFrustums);
-                console.log('Camera frustums added to scene');
+                console.log('   ✅ Camera frustums added to scene');
             } else {
-                console.error('Failed to create camera frustums');
+                console.error('   ❌ Failed to create camera frustums');
+                return;
             }
         }
         
         // Show camera frustums
         if (cameraFrustums) {
             cameraFrustums.visible = true;
-            console.log('Camera frustums visible');
+            console.log('   ✓ Camera frustums visible');
         }
         
     } else {
-        console.log('Hiding camera frustums');
+        console.log('👁️‍🗨️ Hiding camera trajectory...');
         // Hide camera frustums
-        if (cameraFrustums) cameraFrustums.visible = false;
+        if (cameraFrustums) {
+            cameraFrustums.visible = false;
+            console.log('   ✓ Camera frustums hidden');
+        }
     }
 }
 
@@ -1984,6 +2418,7 @@ async function loadLabelsDataWithWebappCalculation(labelsJson) {
     try {
         // Clean up old labels AND debug lines when loading new data
         cleanupLabels(true);
+        cleanupBackupLabels(); // Also cleanup backup labels
         
         if (!labelsJson.labeled_objects || labelsJson.labeled_objects.length === 0) {
             console.warn('No labeled objects found in JSON');
@@ -2189,57 +2624,71 @@ async function calculate3DPositionFromBestView(frameId, bbox, cameraPose) {
             return null;
         }
         
-        // Calculate bbox center in RGB coordinates (1920x1440)
+        // Calculate bbox center in image coordinates (1024x768)
+        // Bbox is already in 1024x768 space (matches intrinsics from corrected_cameras/*.json)
         const [x, y, w, h] = bbox;
-        const centerX_rgb = x + w / 2;
-        const centerY_rgb = y + h / 2;
+        const centerX_img = x + w / 2;
+        const centerY_img = y + h / 2;
         
-        // Scale to depth resolution (1920x1440 → 256x192)
-        const RGB_WIDTH = 1920;
+        // Scale to depth map resolution (1024x768 → 256x192)
+        // Image dimensions match intrinsics from corrected_cameras/*.json
+        const IMAGE_WIDTH = 1024;
+        const IMAGE_HEIGHT = 768;
         const DEPTH_WIDTH = 256;
-        const SCALE_FACTOR = RGB_WIDTH / DEPTH_WIDTH;  // 7.5
-        const centerX_depth = centerX_rgb / SCALE_FACTOR;
-        const centerY_depth = centerY_rgb / SCALE_FACTOR;
+        const DEPTH_HEIGHT = 192;
+        const SCALE_FACTOR = IMAGE_WIDTH / DEPTH_WIDTH;  // 4.0
+        const centerX_depth = centerX_img / SCALE_FACTOR;
+        const centerY_depth = centerY_img / SCALE_FACTOR;
         
         // Get depth value at scaled coordinates
         const depth = getDepthAtPixel(depthData, centerX_depth, centerY_depth);
         if (!depth || depth <= 0 || depth > 10.0) {
-            // console.warn(`Invalid depth ${depth?.toFixed(3)}m at RGB(${centerX_rgb.toFixed(1)}, ${centerY_rgb.toFixed(1)}) → Depth(${centerX_depth.toFixed(1)}, ${centerY_depth.toFixed(1)})`);
+            console.warn(`[LABEL ${frameId}] Invalid depth ${depth?.toFixed(3)}m at Image(${centerX_img.toFixed(1)}, ${centerY_img.toFixed(1)}) → Depth(${centerX_depth.toFixed(1)}, ${centerY_depth.toFixed(1)})`);
             return null;
         }
         
-        // console.log(`Frame ${frameId}: RGB center (${centerX_rgb.toFixed(1)}, ${centerY_rgb.toFixed(1)}) → Depth (${centerX_depth.toFixed(1)}, ${centerY_depth.toFixed(1)}), depth: ${depth.toFixed(3)}m`);
+        console.log(`[LABEL ${frameId}] Bbox center: (${centerX_img.toFixed(1)}, ${centerY_img.toFixed(1)}) in ${IMAGE_WIDTH}x${IMAGE_HEIGHT}`);
+        console.log(`[LABEL ${frameId}] Depth coords: (${centerX_depth.toFixed(1)}, ${centerY_depth.toFixed(1)}) in ${DEPTH_WIDTH}x${DEPTH_HEIGHT}`);
+        console.log(`[LABEL ${frameId}] Depth value: ${depth.toFixed(3)}m`);
+        console.log(`[LABEL ${frameId}] Camera pos: [${cameraPose.position.x.toFixed(2)}, ${cameraPose.position.y.toFixed(2)}, ${cameraPose.position.z.toFixed(2)}]`);
         
         // Unproject to 3D using ARKit convention (camera looks at -Z)
-        // Use RGB coordinates for unprojection (intrinsics are for RGB resolution)
+        // Use IMAGE coordinates (1024x768) with matching intrinsics
         const point3D = unprojectTo3D(
-            centerX_rgb,
-            centerY_rgb,
+            centerX_img,
+            centerY_img,
             depth,
             intrinsics,
             cameraPose.matrix
         );
         
-        // Apply same transformation as point cloud (center + scale)
-        if (pointCloudTransform) {
-            point3D.sub(pointCloudTransform.center);
-            point3D.multiplyScalar(pointCloudTransform.scale);
-            
-            // Check if position is within point cloud bounds
+        console.log(`[LABEL ${frameId}] 3D point (before rotation): [${point3D.x.toFixed(2)}, ${point3D.y.toFixed(2)}, ${point3D.z.toFixed(2)}]`);
+        
+        // ✅ CRITICAL FIX: Apply same -90° X-axis rotation as point cloud!
+        // Point cloud vertices are rotated (line 347-350): X' = X, Y' = Z, Z' = -Y
+        // Must apply same rotation to labels to match coordinate system
+        const rotatedPoint = new THREE.Vector3(
+            point3D.x,     // X stays the same
+            point3D.z,     // Y becomes Z
+            -point3D.y     // Z becomes -Y
+        );
+        
+        console.log(`[LABEL ${frameId}] 3D point (after rotation): [${rotatedPoint.x.toFixed(2)}, ${rotatedPoint.y.toFixed(2)}, ${rotatedPoint.z.toFixed(2)}]`);
+        
+        // Optional: Sanity check if position is reasonable
+        if (pointCloudTransform && pointCloudTransform.bounds) {
             const bounds = pointCloudTransform.bounds;
-            if (bounds) {
-                const margin = 0.1; // 10cm margin for tolerance
-                if (point3D.x < bounds.min.x - margin || point3D.x > bounds.max.x + margin ||
-                    point3D.y < bounds.min.y - margin || point3D.y > bounds.max.y + margin ||
-                    point3D.z < bounds.min.z - margin || point3D.z > bounds.max.z + margin) {
-                    // console.warn(`✗ Position [${point3D.x.toFixed(2)}, ${point3D.y.toFixed(2)}, ${point3D.z.toFixed(2)}] outside bounds`);
-                    // console.warn(`  Bounds: X=[${bounds.min.x.toFixed(2)}, ${bounds.max.x.toFixed(2)}], Y=[${bounds.min.y.toFixed(2)}, ${bounds.max.y.toFixed(2)}], Z=[${bounds.min.z.toFixed(2)}, ${bounds.max.z.toFixed(2)}]`);
-                    return null; // Reject labels outside point cloud
-                }
+            const margin = 2.0; // 2 meter margin for tolerance (increased for flexibility)
+            if (rotatedPoint.x < bounds.min.x - margin || rotatedPoint.x > bounds.max.x + margin ||
+                rotatedPoint.y < bounds.min.y - margin || rotatedPoint.y > bounds.max.y + margin ||
+                rotatedPoint.z < bounds.min.z - margin || rotatedPoint.z > bounds.max.z + margin) {
+                console.warn(`⚠️ Label position [${rotatedPoint.x.toFixed(2)}, ${rotatedPoint.y.toFixed(2)}, ${rotatedPoint.z.toFixed(2)}] outside bounds (but allowing it)`);
+                console.warn(`   Bounds: X=[${bounds.min.x.toFixed(2)}, ${bounds.max.x.toFixed(2)}], Y=[${bounds.min.y.toFixed(2)}, ${bounds.max.y.toFixed(2)}], Z=[${bounds.min.z.toFixed(2)}, ${bounds.max.z.toFixed(2)}]`);
+                // Don't reject - just warn
             }
         }
         
-        return point3D;
+        return rotatedPoint;
         
     } catch (error) {
         console.error(`Error calculating 3D position for frame ${frameId}:`, error);
@@ -2278,19 +2727,29 @@ async function loadDepthImage(frameId) {
     }
     
     // Determine the correct filename based on data format
-    let depthPath;
+    let depthFilename;
     if (frameTimestampMap && frameTimestampMap.has(frameId)) {
         // Polycam format: use timestamp
         const timestamp = frameTimestampMap.get(frameId);
-        depthPath = `${scanFolderPath}/depth/${timestamp}.png`;
+        depthFilename = `${timestamp}.png`;
     } else {
         // Old ARKit format: use padded frame number
         const frameNumberPadded = String(frameId).padStart(5, '0');
-        depthPath = `${scanFolderPath}/depth_${frameNumberPadded}.png`;
+        depthFilename = `depth_${frameNumberPadded}.png`;
     }
     
+    // Use folder handle if in folder upload mode
+    if (scanFolderPath === 'folder-handle') {
+        return await loadDepthImageFromFolder(depthFilename);
+    }
+    
+    // Otherwise use URL-based loading (legacy)
+    const depthPath = frameTimestampMap ? 
+        `${scanFolderPath}/depth/${depthFilename}` : 
+        `${scanFolderPath}/${depthFilename}`;
+    
     try {
-        // Load 16-bit depth image
+        // Load 16-bit depth image via URL
         const response = await fetch(depthPath);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         
@@ -2328,7 +2787,7 @@ function loadImage(src) {
     });
 }
 
-// Get depth value at specific pixel from depth image (16-bit depth in millimeters)
+// Get depth value at specific pixel from depth image (16-bit depth)
 function getDepthAtPixel(depthData, x, y) {
     const ix = Math.floor(x);
     const iy = Math.floor(y);
@@ -2339,41 +2798,72 @@ function getDepthAtPixel(depthData, x, y) {
     
     const idx = (iy * depthData.width + ix) * 4;
     
-    // Depth is 16-bit stored in RGBA channels
-    // When canvas reads 16-bit PNG, it may downsample to 8-bit
-    // For ARKit depth: original values are in millimeters (uint16)
-    // After canvas downsampling, we need to reconstruct the value
-    
-    // Try to reconstruct 16-bit value from RGBA channels
-    // R and G channels may contain high and low bytes
+    // For 16-bit grayscale depth PNG:
+    // Canvas reads as RGBA where R and G contain the depth value
     const r = depthData.data[idx];
     const g = depthData.data[idx + 1];
     
-    // Reconstruct 16-bit value (try both byte orders)
-    const depthMM_v1 = (r << 8) | g;  // Big-endian
-    const depthMM_v2 = (g << 8) | r;  // Little-endian
+    // Reconstruct 16-bit value (big-endian: R is high byte, G is low byte)
+    const depthValue16 = (r << 8) | g;
     
-    // Use the version that gives reasonable depth (0.5m - 10m)
-    let depthMM = depthMM_v1;
-    if (depthMM < 500 || depthMM > 10000) {
-        depthMM = depthMM_v2;
+    // Convert to meters (assuming millimeters in source)
+    // Depth range: 0-10m = 0-10000mm
+    const depthMeters = depthValue16 / 1000.0;
+    
+    // Validate range (typical indoor: 0.01m to 10m)
+    if (depthMeters < 0.01 || depthMeters > 10.0) {
+        return null;
     }
     
-    // If still unreasonable, might be downsampled - use R channel scaled
-    if (depthMM < 500 || depthMM > 10000) {
-        // Assume max depth 10m = 10000mm, scaled to 0-255
-        depthMM = (r / 255.0) * 10000;
-    }
-    
-    // Convert millimeters to meters
-    const depth = depthMM / 1000.0;
-    
-    return depth;
+    return depthMeters;
 }
 
 // Load camera intrinsics for a frame
 async function loadFrameIntrinsics(frameId) {
-    // For Polycam data, intrinsics are in the trajectory - extract from trajectoryData
+    // Priority 1: Load from corrected_cameras/*.json (has width/height metadata)
+    if (scanFolderPath === 'folder-handle' && folderFileHandles.correctedCamerasFolder) {
+        try {
+            const timestamp = frameId; // Frame IDs are timestamps in Polycam data
+            const fileHandle = await folderFileHandles.correctedCamerasFolder.getFileHandle(`${timestamp}.json`);
+            const file = await fileHandle.getFile();
+            const data = JSON.parse(await file.text());
+            
+            return {
+                fx: data.fx,
+                fy: data.fy,
+                cx: data.cx,
+                cy: data.cy,
+                width: data.width,   // 1024
+                height: data.height  // 768
+            };
+        } catch (error) {
+            // Not found in corrected_cameras, try fallback
+            console.warn(`Could not load corrected_cameras/${frameId}.json:`, error.message);
+        }
+    }
+    
+    // Priority 2: Try regular cameras folder from uploaded folder
+    if (scanFolderPath === 'folder-handle' && folderFileHandles.camerasFolder) {
+        try {
+            const timestamp = frameId;
+            const fileHandle = await folderFileHandles.camerasFolder.getFileHandle(`${timestamp}.json`);
+            const file = await fileHandle.getFile();
+            const data = JSON.parse(await file.text());
+            
+            return {
+                fx: data.fx,
+                fy: data.fy,
+                cx: data.cx,
+                cy: data.cy,
+                width: data.width,
+                height: data.height
+            };
+        } catch (error) {
+            console.warn(`Could not load cameras/${frameId}.json:`, error.message);
+        }
+    }
+    
+    // Priority 3: Use trajectory intrinsics (no width/height metadata)
     if (frameTimestampMap && trajectoryData) {
         const cameraPose = trajectoryData.find(pose => pose.index === frameId);
         if (cameraPose && cameraPose.intrinsics) {
@@ -2387,34 +2877,34 @@ async function loadFrameIntrinsics(frameId) {
         }
     }
     
-    // For old ARKit format, load from separate JSON file
-    if (!scanFolderPath) {
-        return null;
-    }
-    
-    const frameNumberPadded = String(frameId).padStart(5, '0');
-    const jsonPath = `${scanFolderPath}/frame_${frameNumberPadded}.json`;
-    
-    try {
-        const response = await fetch(jsonPath);
-        if (!response.ok) return null;
+    // Priority 4: For old ARKit format, load from separate JSON file (legacy)
+    if (scanFolderPath && scanFolderPath !== 'folder-handle') {
+        const frameNumberPadded = String(frameId).padStart(5, '0');
+        const jsonPath = `${scanFolderPath}/frame_${frameNumberPadded}.json`;
         
-        const data = await response.json();
-        if (!data.intrinsics || data.intrinsics.length !== 9) {
+        try {
+            const response = await fetch(jsonPath);
+            if (!response.ok) return null;
+            
+            const data = await response.json();
+            if (!data.intrinsics || data.intrinsics.length !== 9) {
+                return null;
+            }
+            
+            // Intrinsics are in flattened 3x3 format: [fx, 0, cx, 0, fy, cy, 0, 0, 1]
+            return {
+                fx: data.intrinsics[0],
+                fy: data.intrinsics[4],
+                cx: data.intrinsics[2],
+                cy: data.intrinsics[5]
+            };
+        } catch (error) {
+            console.warn(`Failed to load intrinsics for frame ${frameId}`);
             return null;
         }
-        
-        // Intrinsics are in flattened 3x3 format: [fx, 0, cx, 0, fy, cy, 0, 0, 1]
-        return {
-            fx: data.intrinsics[0],
-            fy: data.intrinsics[4],
-            cx: data.intrinsics[2],
-            cy: data.intrinsics[5]
-        };
-    } catch (error) {
-        console.warn(`Failed to load intrinsics for frame ${frameId}`);
-        return null;
     }
+    
+    return null;
 }
 
 // Create a sleek, modern label sprite (black & white design)
@@ -2484,8 +2974,9 @@ function createLabelSprite(text, color) {
     // Create sprite
     const sprite = new THREE.Sprite(spriteMaterial);
     
-    // Compact size with proper aspect ratio (1024:192 ≈ 5.3:1)
-    sprite.scale.set(0.35, 0.065, 1);
+    // Label size with proper aspect ratio (1024:192 ≈ 5.3:1)
+    // Increased from 0.35/0.065 to 0.7/0.13 for better visibility
+    sprite.scale.set(0.7, 0.13, 1);
     
     // Render labels on top
     sprite.renderOrder = 999;
@@ -2493,7 +2984,7 @@ function createLabelSprite(text, color) {
     // Store data for hover effects
     sprite.userData.text = text;
     sprite.userData.color = color;
-    sprite.userData.defaultScale = { x: 0.35, y: 0.065 };
+    sprite.userData.defaultScale = { x: 0.7, y: 0.13 };
     
     return sprite;
 }
@@ -2554,27 +3045,117 @@ function renderLabels() {
     console.log(`   🎯 Each label is at the exact 3D position calculated from camera + depth`);
 }
 
+// Render semantic labels from label_positions.json (NEW PRIMARY RENDERER)
+function renderSemanticPositionLabels() {
+    if (!labelPositionData) {
+        console.warn('Cannot render labels: missing label position data');
+        return;
+    }
+    
+    console.log(`\n🏷️  RENDERING SEMANTIC POSITION LABELS (NEW SYSTEM)...`);
+    console.log(`   📊 Total labels to render: ${Object.keys(labelPositionData).length}`);
+    console.log(`   📏 Sprite scale: 1.0 x 0.19 (larger than old system)`);
+    console.log(`   🎨 Using: renderSemanticPositionLabels() function\n`);
+    
+    // Clean up existing labels first
+    cleanupLabels();
+    
+    let renderedCount = 0;
+    let skippedCount = 0;
+    const samplePositions = [];
+    
+    // Create sprite for each labeled object
+    for (const [labelId, labelInfo] of Object.entries(labelPositionData)) {
+        if (!labelInfo.position) {
+            console.warn(`⚠️ Skipping label ${labelId}: No position data`);
+            skippedCount++;
+            continue;
+        }
+        
+        const text = labelInfo.label;
+        const position = labelInfo.position; // [x, y, z]
+        const confidence = labelInfo.confidence;
+        
+        // Store first 3 for debug sample
+        if (samplePositions.length < 3) {
+            samplePositions.push({ text, position });
+        }
+        
+        // Create sprite with LARGER scale (1.0 x 0.19 instead of 0.7 x 0.13)
+        const sprite = createLabelSprite(text, '#ffffff');
+        
+        // Use larger scale for better visibility
+        sprite.scale.set(1.0, 0.19, 1);
+        sprite.userData.defaultScale = { x: 1.0, y: 0.19 };
+        
+        // Position the sprite directly using transformed coordinates
+        sprite.position.set(position[0], position[1], position[2]);
+        
+        // Store additional data
+        sprite.userData.labelId = labelId;
+        sprite.userData.confidence = confidence;
+        sprite.userData.source = 'label_positions.json'; // Mark source for debugging
+        
+        // Store reference
+        labelSprites.push(sprite);
+        
+        // Add to scene (initially hidden if toggle is off)
+        sprite.visible = labelsVisible;
+        scene.add(sprite);
+        
+        renderedCount++;
+    }
+    
+    console.log(`   ✅ RENDERING COMPLETE!`);
+    console.log(`   📊 Rendered: ${renderedCount} sprites (skipped: ${skippedCount})`);
+    console.log(`   📍 Source: label_positions.json (NEW SYSTEM)`);
+    console.log(`   🎯 Positions: Transformed and aligned with PLY coordinate system`);
+    console.log(`   🔍 Sprite visibility: ${labelsVisible ? 'VISIBLE' : 'HIDDEN'}\n`);
+    
+    // Show sample rendered positions
+    console.log(`   📋 Sample Rendered Positions:`);
+    samplePositions.forEach(({ text, position }) => {
+        console.log(`      - "${text}" → [${position[0].toFixed(2)}, ${position[1].toFixed(2)}, ${position[2].toFixed(2)}]`);
+    });
+    console.log('');
+}
+
 // Toggle semantic labels visibility
 function toggleSemanticLabels(visible) {
     labelsVisible = visible;
     
     if (visible) {
-        if (!labelData) {
+        // Prioritize NEW label_positions.json system
+        if (labelPositionData) {
+            // Render labels if not already rendered
+            if (labelSprites.length === 0) {
+                console.log('🔧 Toggle: Using NEW label_positions.json system (renderSemanticPositionLabels)');
+                renderSemanticPositionLabels();
+            } else {
+                // Just show existing sprites
+                labelSprites.forEach(sprite => {
+                    sprite.visible = true;
+                });
+            }
+            console.log(`Showing ${labelSprites.length} semantic labels (NEW system)`);
+        }
+        // Fallback to depth-based system if NEW system not available
+        else if (labelData) {
+            if (labelSprites.length === 0) {
+                console.log('🔧 Toggle: Fallback to depth-based system (renderLabels)');
+                renderLabels();
+            } else {
+                labelSprites.forEach(sprite => {
+                    sprite.visible = true;
+                });
+            }
+            console.log(`Showing ${labelSprites.length} semantic labels (depth-based fallback)`);
+        }
+        // No label data available
+        else {
             console.log('Label data not loaded yet');
             return;
         }
-        
-        // Render labels if not already rendered
-        if (labelSprites.length === 0) {
-            renderLabels();
-        } else {
-            // Just show existing sprites
-            labelSprites.forEach(sprite => {
-                sprite.visible = true;
-            });
-        }
-        
-        console.log(`Showing ${labelSprites.length} semantic labels`);
     } else {
         // Hide labels
         labelSprites.forEach(sprite => {
@@ -2601,6 +3182,189 @@ function toggleDebugLines(visible) {
         if (visible) {
             console.log('⚠️ Debug lines not created yet (load labels first)');
         }
+    }
+}
+
+// ============================================================================
+// BACKUP LABEL RENDERING SYSTEM
+// Renders labels at camera positions (with forward offset) when normal 
+// positioning system isn't working well
+// ============================================================================
+
+// Render labels at camera positions (backup mode)
+function renderBackupLabels() {
+    if (!labelPositionDataRefined) {
+        console.warn('Cannot render backup labels: missing refined label position data');
+        console.warn('Make sure label_positions_refined.json is loaded');
+        return;
+    }
+    
+    if (!trajectoryData || trajectoryData.length === 0) {
+        console.warn('Cannot render backup labels: missing trajectory data');
+        return;
+    }
+    
+    console.log(`\n🔧 RENDERING BACKUP LABELS (CAMERA-BASED)...`);
+    console.log(`   📊 Total label entries: ${Object.keys(labelPositionDataRefined).length}`);
+    console.log(`   📷 Total cameras: ${trajectoryData.length}`);
+    console.log(`   📏 Forward offset: ${BACKUP_LABEL_OFFSET}m from camera`);
+    console.log(`   📁 Using: label_positions_refined.json`);
+    
+    // Clean up existing backup labels first
+    cleanupBackupLabels();
+    
+    // Group labels by frame ID to handle multiple labels per camera
+    const labelsByFrame = {};
+    for (const [labelId, labelInfo] of Object.entries(labelPositionDataRefined)) {
+        const frameId = labelId;
+        if (!labelsByFrame[frameId]) {
+            labelsByFrame[frameId] = [];
+        }
+        labelsByFrame[frameId].push({ labelId, labelInfo });
+    }
+    
+    let renderedCount = 0;
+    let skippedCount = 0;
+    const samplePositions = [];
+    
+    // Process each frame
+    for (const [frameId, labels] of Object.entries(labelsByFrame)) {
+        // Find matching camera in trajectory data
+        const cameraIndex = trajectoryData.findIndex(cam => 
+            cam.timestamp === frameId || cam.index.toString() === frameId
+        );
+        
+        if (cameraIndex === -1) {
+            console.warn(`⚠️ No camera found for frame ${frameId}`);
+            skippedCount += labels.length;
+            continue;
+        }
+        
+        const camera = trajectoryData[cameraIndex];
+        const cameraPos = camera.position;
+        const cameraQuat = camera.quaternion;
+        
+        // Calculate forward direction from camera quaternion
+        // In Three.js, camera looks down negative Z by default
+        const forwardDir = new THREE.Vector3(0, 0, -1);
+        forwardDir.applyQuaternion(cameraQuat);
+        forwardDir.normalize();
+        
+        // Calculate base position (camera position + forward offset)
+        const basePos = cameraPos.clone().add(forwardDir.multiplyScalar(BACKUP_LABEL_OFFSET));
+        
+        // If multiple labels at this camera, spread them vertically
+        const labelCount = labels.length;
+        const verticalSpacing = 0.25; // meters between labels
+        
+        labels.forEach((labelEntry, index) => {
+            const { labelId, labelInfo } = labelEntry;
+            const text = labelInfo.label;
+            const confidence = labelInfo.confidence;
+            
+            // Calculate position with vertical offset for multiple labels
+            const position = basePos.clone();
+            if (labelCount > 1) {
+                // Center the stack by offsetting from middle
+                const offsetFromCenter = (index - (labelCount - 1) / 2) * verticalSpacing;
+                position.y += offsetFromCenter;
+            }
+            
+            // Store first 3 for debug sample
+            if (samplePositions.length < 3) {
+                samplePositions.push({ text, position: [position.x, position.y, position.z], frameId });
+            }
+            
+            // Create sprite
+            const sprite = createLabelSprite(text, '#ffffff');
+            
+            // Use same scale as normal labels
+            sprite.scale.set(1.0, 0.19, 1);
+            sprite.userData.defaultScale = { x: 1.0, y: 0.19 };
+            
+            // Position the sprite
+            sprite.position.copy(position);
+            
+            // Store additional data
+            sprite.userData.labelId = labelId;
+            sprite.userData.confidence = confidence;
+            sprite.userData.source = 'backup_mode'; // Mark as backup for debugging
+            sprite.userData.frameId = frameId;
+            sprite.userData.cameraIndex = cameraIndex;
+            
+            // Store reference
+            backupLabelSprites.push(sprite);
+            
+            // Add to scene
+            sprite.visible = backupLabelsVisible;
+            scene.add(sprite);
+            
+            renderedCount++;
+        });
+    }
+    
+    console.log(`   ✅ BACKUP RENDERING COMPLETE!`);
+    console.log(`   📊 Rendered: ${renderedCount} sprites (skipped: ${skippedCount})`);
+    console.log(`   📍 Method: Camera position + forward direction`);
+    console.log(`   🔍 Sprite visibility: ${backupLabelsVisible ? 'VISIBLE' : 'HIDDEN'}\n`);
+    
+    // Show sample rendered positions
+    console.log(`   📋 Sample Backup Label Positions:`);
+    samplePositions.forEach(({ text, position, frameId }) => {
+        console.log(`      - "${text}" (frame ${frameId}) → [${position[0].toFixed(2)}, ${position[1].toFixed(2)}, ${position[2].toFixed(2)}]`);
+    });
+    console.log('');
+}
+
+// Clean up backup label sprites
+function cleanupBackupLabels() {
+    backupLabelSprites.forEach(sprite => {
+        scene.remove(sprite);
+        if (sprite.material.map) {
+            sprite.material.map.dispose();
+        }
+        sprite.material.dispose();
+    });
+    
+    backupLabelSprites = [];
+}
+
+// Toggle backup labels visibility
+function toggleBackupLabels(visible) {
+    backupLabelsVisible = visible;
+    
+    if (visible) {
+        if (!labelPositionDataRefined) {
+            console.log('⚠️ Backup labels: Refined label data not loaded yet');
+            console.log('   Make sure label_positions_refined.json is in the folder');
+            return;
+        }
+        
+        if (!trajectoryData || trajectoryData.length === 0) {
+            console.log('⚠️ Backup labels: Trajectory data not loaded yet');
+            return;
+        }
+        
+        // Render backup labels if not already rendered
+        if (backupLabelSprites.length === 0) {
+            console.log('🔧 Rendering backup labels at camera positions...');
+            console.log('   Using label_positions_refined.json');
+            renderBackupLabels();
+        } else {
+            // Just show existing sprites
+            backupLabelSprites.forEach(sprite => {
+                sprite.visible = true;
+            });
+        }
+        
+        console.log(`✓ Showing ${backupLabelSprites.length} backup labels`);
+    } else {
+        // Hide backup labels
+        backupLabelSprites.forEach(sprite => {
+            sprite.visible = false;
+        });
+        
+        console.log('✗ Hiding backup labels');
     }
 }
 
@@ -2713,6 +3477,200 @@ function createDebugLines() {
     })).toFixed(2)}m\n`);
 }
 
+// Create debug lines from label cameras to their label positions
+function createLabelDebugLines() {
+    console.log('\n📏 CREATING LABEL DEBUG LINES...');
+    
+    // Remove existing debug lines
+    if (debugLines) {
+        scene.remove(debugLines);
+        debugLines.geometry.dispose();
+        debugLines.material.dispose();
+        debugLines = null;
+    }
+    
+    if (!labelPositionData || Object.keys(labelPositionData).length === 0) {
+        console.log('   No label position data available');
+        return;
+    }
+    
+    // Collect line vertices and colors
+    const positions = [];
+    const colors = [];
+    
+    let totalDistance = 0;
+    let lineCount = 0;
+    
+    for (const [frameId, labelInfo] of Object.entries(labelPositionData)) {
+        const camPos = labelInfo.cameraPosition; // [x, y, z]
+        const labelPos = labelInfo.position; // [x, y, z]
+        
+        // Calculate distance
+        const dx = labelPos[0] - camPos[0];
+        const dy = labelPos[1] - camPos[1];
+        const dz = labelPos[2] - camPos[2];
+        const distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
+        totalDistance += distance;
+        lineCount++;
+        
+        // Add line vertices (from camera to label)
+        positions.push(camPos[0], camPos[1], camPos[2]); // Camera position
+        positions.push(labelPos[0], labelPos[1], labelPos[2]); // Label position
+        
+        // Yellow to white gradient (yellow at camera, white at label)
+        colors.push(1.0, 1.0, 0.0); // Yellow at camera
+        colors.push(1.0, 1.0, 1.0); // White at label
+    }
+    
+    if (positions.length === 0) {
+        console.log('   No valid camera-label pairs found');
+        return;
+    }
+    
+    // Create geometry
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    
+    // Create material with vertex colors
+    const material = new THREE.LineBasicMaterial({
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.7,
+        linewidth: 2
+    });
+    
+    // Create line segments
+    debugLines = new THREE.LineSegments(geometry, material);
+    debugLines.visible = debugLinesVisible; // Respect current toggle state
+    scene.add(debugLines);
+    
+    const avgDistance = totalDistance / lineCount;
+    console.log(`   ✓ Created ${lineCount} debug lines (yellow → white)`);
+    console.log(`   Lines show: Label camera center → Label position`);
+    console.log(`   Average distance: ${avgDistance.toFixed(2)}m\n`);
+}
+
+// Load and calculate label positions from JSON file
+// Format: frameId -> { direction: 4x4 matrix, label: string, confidence: float }
+// Direction matrix last column contains offset from camera position
+// isRefined: if true, stores in labelPositionDataRefined (for BACKUP), else in labelPositionData (for NEW)
+async function loadLabelPositionsFile(labelFile, isRefined = false) {
+    try {
+        const methodName = isRefined ? 'BACKUP' : 'NEW';
+        console.log(`\n📥 LOADING LABEL POSITIONS (${methodName} method)...`);
+        
+        // Read the label positions JSON file
+        const file = await labelFile.getFile();
+        const text = await file.text();
+        const labelPositions = JSON.parse(text);
+        
+        console.log(`   Loaded ${Object.keys(labelPositions).length} label entries from file`);
+        
+        // Check if we have trajectory data
+        if (!trajectoryData || trajectoryData.length === 0) {
+            console.error('❌ Cannot calculate labels: Camera trajectory not loaded yet');
+            console.log('   Load the camera trajectory first, then reload labels');
+            return null;
+        }
+        
+        console.log('\n   🔍 LABEL FORMAT DETECTED:');
+        console.log('      Format: frameId → { direction: 4x4 matrix, label, confidence }');
+        console.log('      Method: camera_position + direction_vector = label_position');
+        console.log(`      Trajectory available: ✅ (${trajectoryData.length} poses)\n`);
+        
+        // Calculate label positions by adding direction to camera position
+        const calculatedLabels = {};
+        let successCount = 0;
+        let failCount = 0;
+        
+        // Clear previous label frame IDs only for NEW method
+        if (!isRefined) {
+            labelFrameIds.clear();
+        }
+        
+        for (const [frameId, labelInfo] of Object.entries(labelPositions)) {
+            // Find the camera pose for this frame
+            const frameIdInt = parseInt(frameId);
+            const cameraPose = trajectoryData.find(pose => pose.index === frameIdInt);
+            
+            if (!cameraPose) {
+                console.warn(`   ⚠️ Frame ${frameId} (${labelInfo.label}): Camera not found in trajectory`);
+                failCount++;
+                continue;
+            }
+            
+            // Extract direction vector from 4x4 matrix (last column, first 3 rows)
+            const directionMatrix = labelInfo.direction;
+            const directionVector = new THREE.Vector3(
+                directionMatrix[0][3],  // Row 1, Column 4
+                directionMatrix[1][3],  // Row 2, Column 4
+                directionMatrix[2][3]   // Row 3, Column 4
+            );
+            
+            // Calculate final position: camera position + direction vector
+            const labelPosition = cameraPose.position.clone().add(directionVector);
+            
+            calculatedLabels[frameId] = {
+                label: labelInfo.label,
+                confidence: labelInfo.confidence,
+                frameId: frameIdInt,
+                cameraPosition: [cameraPose.position.x, cameraPose.position.y, cameraPose.position.z],
+                directionVector: [directionVector.x, directionVector.y, directionVector.z],
+                position: [labelPosition.x, labelPosition.y, labelPosition.z]
+            };
+            
+            // Track frame IDs that have labels for camera highlighting (only for NEW method)
+            if (!isRefined) {
+                labelFrameIds.add(frameIdInt);
+            }
+            
+            successCount++;
+        }
+        
+        // Store globally in the appropriate variable
+        if (isRefined) {
+            labelPositionDataRefined = calculatedLabels;
+        } else {
+            labelPositionData = calculatedLabels;
+        }
+        
+        console.log(`\n✅ LABEL POSITIONS CALCULATED SUCCESSFULLY!`);
+        console.log(`   ✓ Success: ${successCount} labels`);
+        console.log(`   ✗ Failed: ${failCount} labels`);
+        console.log(`   📊 Total: ${Object.keys(calculatedLabels).length} labels`);
+        console.log(`   🎥 Cameras with labels: ${labelFrameIds.size} cameras (will be highlighted in YELLOW)`);
+        console.log(`   💾 Stored in: labelPositionData (global variable)`);
+        console.log(`   🎨 Ready to render with renderSemanticPositionLabels()\n`);
+        
+        // Show sample calculations
+        const sampleLabels = Object.entries(calculatedLabels).slice(0, 3);
+        console.log(`   📋 Sample Calculations:`);
+        sampleLabels.forEach(([id, info]) => {
+            console.log(`      - ${info.label}:`);
+            console.log(`        Camera: [${info.cameraPosition[0].toFixed(2)}, ${info.cameraPosition[1].toFixed(2)}, ${info.cameraPosition[2].toFixed(2)}]`);
+            console.log(`        + Direction: [${info.directionVector[0].toFixed(2)}, ${info.directionVector[1].toFixed(2)}, ${info.directionVector[2].toFixed(2)}]`);
+            console.log(`        = Position: [${info.position[0].toFixed(2)}, ${info.position[1].toFixed(2)}, ${info.position[2].toFixed(2)}]`);
+        });
+        console.log('');
+        
+        // Recreate camera frustums to highlight cameras with labels
+        if (trajectoryData && trajectoryData.length > 0) {
+            console.log('   🎨 Recreating camera frustums to highlight label cameras in YELLOW...');
+            recreateCameraFrustums();
+        }
+        
+        // Create debug lines from cameras to labels
+        createLabelDebugLines();
+        
+        return calculatedLabels;
+        
+    } catch (error) {
+        console.error('❌ Error loading label positions:', error);
+        return null;
+    }
+}
+
 // Setup camera selection with raycasting
 function setupCameraSelection() {
     renderer.domElement.addEventListener('click', onCameraClick);
@@ -2733,7 +3691,7 @@ function onCameraHover(event) {
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     
-    // Check for label hover first (labels have higher priority)
+    // Check for label hover first (labels have higher priority) - ONLY if labels are visible
     raycaster.setFromCamera(mouse, camera);
     if (labelsVisible && labelSprites.length > 0) {
         const labelIntersects = raycaster.intersectObjects(labelSprites);
@@ -2760,6 +3718,40 @@ function onCameraHover(event) {
             }
             hoveredLabel = null;
         }
+    }
+    
+    // Check backup labels hover - ONLY if backup labels are visible
+    if (backupLabelsVisible && backupLabelSprites.length > 0) {
+        const backupIntersects = raycaster.intersectObjects(backupLabelSprites);
+        if (backupIntersects.length > 0) {
+            const newHoveredLabel = backupIntersects[0].object;
+            if (hoveredLabel !== newHoveredLabel) {
+                // Reset previous hovered label
+                if (hoveredLabel && hoveredLabel.userData.defaultScale) {
+                    const ds = hoveredLabel.userData.defaultScale;
+                    hoveredLabel.scale.set(ds.x, ds.y, 1);
+                }
+                // Highlight new hovered label (scale up 15%)
+                hoveredLabel = newHoveredLabel;
+                const ds = hoveredLabel.userData.defaultScale;
+                hoveredLabel.scale.set(ds.x * 1.15, ds.y * 1.15, 1);
+            }
+            renderer.domElement.style.cursor = 'pointer';
+            return; // Don't check cameras if hovering backup label
+        } else if (hoveredLabel) {
+            // Reset if no longer hovering any label
+            if (hoveredLabel.userData.defaultScale) {
+                const ds = hoveredLabel.userData.defaultScale;
+                hoveredLabel.scale.set(ds.x, ds.y, 1);
+            }
+            hoveredLabel = null;
+        }
+    }
+    
+    // Only check camera intersections if trajectory is visible
+    if (!trajectoryVisible || !cameraFrustums || !cameraFrustums.visible) {
+        renderer.domElement.style.cursor = 'default';
+        return;
     }
     
     // Check for camera intersections against individual body meshes
@@ -2797,6 +3789,7 @@ function onCameraHover(event) {
                 const trajIndex = renderPosesMapping[i];
                 const pose = trajectoryData[trajIndex];
                 const isBestView = pose && bestViewFrameIds.has(pose.index);
+                const hasLabel = pose && labelFrameIds.has(pose.index);
                 
                 if (i === selectedCameraIndex) {
                     tempColor.setHex(SELECTED_CAMERA_COLOR); // Keep selected cyan
@@ -2804,7 +3797,7 @@ function onCameraHover(event) {
                     tempColor.setHex(HOVER_CAMERA_COLOR); // Hover: orange
                     console.log(`[HOVER DEBUG] - Setting camera ${i} to HOVER color (0x${HOVER_CAMERA_COLOR.toString(16)})`);
                 } else {
-                    tempColor.setHex(isBestView ? BEST_VIEW_CAMERA_COLOR : DEFAULT_CAMERA_COLOR);
+                    tempColor.setHex((isBestView || hasLabel) ? LABEL_CAMERA_COLOR : DEFAULT_CAMERA_COLOR);
                 }
                 cameraBodyInstances[i].material.color.setHex(tempColor.getHex());
                 cameraLensInstances[i].material.color.setHex(tempColor.getHex()); // Update lens too!
@@ -2821,18 +3814,19 @@ function onCameraHover(event) {
     } else {
         renderer.domElement.style.cursor = 'default';
         
-        // Reset all non-selected cameras to default (preserving best view colors)
+        // Reset all non-selected cameras to default (preserving best view and label camera colors)
         const tempColor = new THREE.Color();
         
         for (let i = 0; i < cameraBodyInstances.length; i++) {
             const trajIndex = renderPosesMapping[i];
             const pose = trajectoryData[trajIndex];
             const isBestView = pose && bestViewFrameIds.has(pose.index);
+            const hasLabel = pose && labelFrameIds.has(pose.index);
             
             if (i === selectedCameraIndex) {
                 tempColor.setHex(SELECTED_CAMERA_COLOR); // Keep selected cyan
             } else {
-                tempColor.setHex(isBestView ? BEST_VIEW_CAMERA_COLOR : DEFAULT_CAMERA_COLOR);
+                tempColor.setHex((isBestView || hasLabel) ? LABEL_CAMERA_COLOR : DEFAULT_CAMERA_COLOR);
             }
             cameraBodyInstances[i].material.color.setHex(tempColor.getHex());
             cameraLensInstances[i].material.color.setHex(tempColor.getHex()); // Update lens too!
@@ -2853,6 +3847,31 @@ function onCameraClick(event) {
     
     // Update the picking ray with the camera and mouse position
     raycaster.setFromCamera(mouse, camera);
+    
+    // First, handle clicks on semantic labels (primary system) - ONLY if labels are visible
+    if (labelsVisible && labelSprites.length > 0) {
+        const labelIntersects = raycaster.intersectObjects(labelSprites);
+        if (labelIntersects.length > 0) {
+            const clickedLabel = labelIntersects[0].object;
+            handleLabelClick(clickedLabel);
+            return; // Do not process camera click when label clicked
+        }
+    }
+    // Then, handle clicks on backup labels (camera-based) - ONLY if backup labels are visible
+    if (backupLabelsVisible && backupLabelSprites.length > 0) {
+        const backupIntersects = raycaster.intersectObjects(backupLabelSprites);
+        if (backupIntersects.length > 0) {
+            const clickedBackupLabel = backupIntersects[0].object;
+            handleLabelClick(clickedBackupLabel);
+            return;
+        }
+    }
+    
+    // Only check for camera intersections if trajectory is visible
+    if (!trajectoryVisible || !cameraFrustums || !cameraFrustums.visible) {
+        console.log('[CLICK DEBUG] ✗ Camera trajectory not visible - skipping camera click check');
+        return;
+    }
     
     // Check for intersections with camera body meshes
     const intersects = raycaster.intersectObjects(cameraBodyInstances);
@@ -2885,25 +3904,208 @@ function onCameraClick(event) {
 function highlightSelectedCamera(instanceId) {
     if (!cameraBodyInstances || cameraBodyInstances.length === 0) return;
     
-    // Reset all camera colors first (preserving best view yellow colors)
+    // Reset all camera colors first (preserving best view and label camera yellow colors)
     const tempColor = new THREE.Color();
     const defaultColor = new THREE.Color(DEFAULT_CAMERA_COLOR);
-    const bestViewColor = new THREE.Color(BEST_VIEW_CAMERA_COLOR); // Yellow
+    const yellowColor = new THREE.Color(LABEL_CAMERA_COLOR); // Yellow
     
     // Use stored mapping instead of rebuilding
     for (let i = 0; i < cameraBodyInstances.length; i++) {
         const trajIndex = renderPosesMapping[i];
         const pose = trajectoryData[trajIndex];
         const isBestView = pose && bestViewFrameIds.has(pose.index);
+        const hasLabel = pose && labelFrameIds.has(pose.index);
         
         if (i === instanceId) {
             tempColor.setHex(SELECTED_CAMERA_COLOR); // Selected: bright cyan
         } else {
-            tempColor.copy(isBestView ? bestViewColor : defaultColor);
+            tempColor.copy((isBestView || hasLabel) ? yellowColor : defaultColor);
         }
         cameraBodyInstances[i].material.color.setHex(tempColor.getHex());
         cameraLensInstances[i].material.color.setHex(tempColor.getHex()); // Update lens too!
     }
+}
+
+// Handle clicks on label sprites (primary and backup)
+async function handleLabelClick(sprite) {
+    // Extract known metadata
+    const { labelId, confidence, source, frameId, cameraIndex, text, color } = sprite.userData || {};
+    console.log('🏷️ Label clicked:', {
+        text: text || '(unknown)',
+        labelId,
+        confidence,
+        source,
+        frameId,
+        cameraIndex
+    });
+    
+    // Emit a custom DOM event for other UI modules to react (e.g., dashboard)
+    try {
+        window.dispatchEvent(new CustomEvent('semantic-label-click', {
+            detail: {
+                text: text || '',
+                labelId: labelId || null,
+                confidence: confidence ?? null,
+                source: source || 'unknown',
+                frameId: frameId ?? null,
+                cameraIndex: cameraIndex ?? null,
+                color: color || null,
+                position: sprite.position ? [sprite.position.x, sprite.position.y, sprite.position.z] : null
+            }
+        }));
+    } catch (e) {
+        console.warn('Could not dispatch semantic-label-click event:', e);
+    }
+    
+    // Open the analysis modal
+    await openLabelAnalysisModal(labelId, text, confidence);
+    
+    // If this label is associated with a specific camera (backup mode), select and load it
+    // BUT ONLY if the camera trajectory is actually visible
+    if (typeof cameraIndex === 'number' && trajectoryData && trajectoryData.length > 0 && trajectoryVisible) {
+        // Map trajectory index to instanceId via renderPosesMapping
+        const instanceId = renderPosesMapping.findIndex(idx => idx === cameraIndex);
+        if (instanceId !== -1) {
+            selectedCameraIndex = instanceId;
+            highlightSelectedCamera(instanceId);
+            loadCameraFrames(cameraIndex);
+            return;
+        }
+    }
+    
+    // Otherwise, briefly pulse the label to give click feedback
+    if (sprite.userData && sprite.userData.defaultScale) {
+        const ds = sprite.userData.defaultScale;
+        sprite.scale.set(ds.x * 1.25, ds.y * 1.25, 1);
+        setTimeout(() => {
+            sprite.scale.set(ds.x, ds.y, 1);
+        }, 150);
+    }
+}
+
+// Open label analysis modal and load analysis data
+async function openLabelAnalysisModal(labelId, labelText, confidence) {
+    const modal = document.getElementById('label-analysis-modal');
+    const backdrop = document.getElementById('label-analysis-backdrop');
+    const title = document.getElementById('label-analysis-title');
+    const content = document.getElementById('label-analysis-content');
+    
+    if (!modal || !backdrop || !title || !content) {
+        console.error('Modal elements not found');
+        return;
+    }
+    
+    // Set title
+    title.textContent = labelText || 'Object Analysis';
+    
+    // Show loading state
+    content.innerHTML = '<div class="analysis-no-data"><div class="analysis-no-data-emoji">⏳</div><div class="analysis-no-data-text">Loading analysis...</div></div>';
+    
+    // Show modal
+    modal.classList.add('visible');
+    backdrop.classList.add('visible');
+    
+    // Load analysis data
+    const analysisData = await loadAnalysisData(labelId);
+    
+    if (analysisData) {
+        renderAnalysisContent(analysisData, content, labelText, confidence);
+    } else {
+        // Show "Simon hasn't analyzed" message
+        content.innerHTML = `
+            <div class="analysis-no-data">
+                <div class="analysis-no-data-emoji">🤖</div>
+                <div class="analysis-no-data-text">Simon is yet to analyse this object.</div>
+            </div>
+        `;
+    }
+}
+
+// Close label analysis modal
+function closeLabelAnalysisModal() {
+    const modal = document.getElementById('label-analysis-modal');
+    const backdrop = document.getElementById('label-analysis-backdrop');
+    
+    if (modal && backdrop) {
+        modal.classList.remove('visible');
+        backdrop.classList.remove('visible');
+    }
+}
+
+// Setup modal close handlers
+function setupLabelAnalysisModal() {
+    const closeBtn = document.getElementById('label-analysis-close');
+    const backdrop = document.getElementById('label-analysis-backdrop');
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeLabelAnalysisModal);
+    }
+    
+    if (backdrop) {
+        backdrop.addEventListener('click', closeLabelAnalysisModal);
+    }
+}
+
+// Load analysis JSON for a specific label ID
+async function loadAnalysisData(labelId) {
+    if (!folderFileHandles.qwenAnalysisFolder) {
+        console.warn('No qwen analysis folder available');
+        return null;
+    }
+    
+    try {
+        const fileName = `${labelId}_analysis.json`;
+        const fileHandle = await folderFileHandles.qwenAnalysisFolder.getFileHandle(fileName);
+        const file = await fileHandle.getFile();
+        const text = await file.text();
+        const data = JSON.parse(text);
+        
+        console.log('[ANALYSIS] Loaded analysis for', labelId, data);
+        return data;
+    } catch (error) {
+        console.warn(`[ANALYSIS] No analysis file found for ${labelId}:`, error.message);
+        return null;
+    }
+}
+
+// Render analysis data in structured format
+function renderAnalysisContent(data, contentEl, labelText, confidence) {
+    let html = '';
+    
+    // Helper to format section titles
+    const formatTitle = (key) => key.replace(/_/g, ' ');
+    
+    // Helper to render field value
+    const renderValue = (value) => {
+        if (Array.isArray(value)) {
+            return `<div class="analysis-field-value list">
+                ${value.map(v => `<span class="analysis-tag">${v}</span>`).join('')}
+            </div>`;
+        } else if (typeof value === 'object' && value !== null) {
+            return `<div class="analysis-field-value">${JSON.stringify(value, null, 2)}</div>`;
+        } else {
+            return `<div class="analysis-field-value">${value}</div>`;
+        }
+    };
+    
+    // Render each section
+    for (const [sectionKey, sectionData] of Object.entries(data)) {
+        if (typeof sectionData === 'object' && sectionData !== null && !Array.isArray(sectionData)) {
+            html += `<div class="analysis-section">
+                <div class="analysis-section-title">${formatTitle(sectionKey)}</div>`;
+            
+            for (const [fieldKey, fieldValue] of Object.entries(sectionData)) {
+                html += `<div class="analysis-field">
+                    <div class="analysis-field-label">${formatTitle(fieldKey)}</div>
+                    ${renderValue(fieldValue)}
+                </div>`;
+            }
+            
+            html += `</div>`;
+        }
+    }
+    
+    contentEl.innerHTML = html;
 }
 
 
@@ -3033,9 +4235,9 @@ function displayFrameViewer(frames, currentFrameIndex) {
         console.log(`  - Has this frame:`, frameTimestampMap ? frameTimestampMap.has(frameInfo.frameNumber) : false);
         console.log(`  - scanFolderPath:`, scanFolderPath);
         
-        img.alt = `Frame ${frameInfo.frameNumber}`;
-        img.style.display = 'none'; // Hide until loaded
-        img.style.transform = 'rotate(90deg)'; // Rotate images to display upright
+		img.alt = `Frame ${frameInfo.frameNumber}`;
+		img.style.display = 'none'; // Hide until loaded
+		img.style.transform = 'rotate(90deg)'; // Rotate images to display upright
         img.draggable = true; // Make image draggable
         img.style.cursor = 'grab'; // Show grab cursor
         
@@ -3124,10 +4326,16 @@ function displayFrameViewer(frames, currentFrameIndex) {
         const labelText = frameInfo.label || (frameInfo.isCurrent ? 'Selected' : '');
         label.textContent = `Frame ${frameInfo.frameNumber}${labelText ? ` (${labelText})` : ''}`;
         
-        frameContainer.appendChild(loader);
-        frameContainer.appendChild(img);
-        frameContainer.appendChild(label);
-        gallery.appendChild(frameContainer);
+		// Click to preview (opens lightbox)
+		img.addEventListener('click', () => {
+			const rotation = img.style.transform || '';
+			openImageLightbox(img.src, label.textContent, rotation);
+		});
+		
+		frameContainer.appendChild(loader);
+		frameContainer.appendChild(img);
+		frameContainer.appendChild(label);
+		gallery.appendChild(frameContainer);
     });
     
     // Show the viewer
@@ -3148,6 +4356,7 @@ function createFrameViewerUI() {
     `;
     
     document.body.appendChild(viewer);
+	ensureImageLightbox();
     
     // Close button handler (only for camera selection mode, not frames mode)
     document.getElementById('close-frame-viewer').addEventListener('click', () => {
@@ -3160,18 +4369,19 @@ function createFrameViewerUI() {
         // Just hide the viewer (for camera selection mode)
         viewer.classList.add('hidden');
         
-        // Deselect camera (restore original colors including best view yellow)
+        // Deselect camera (restore original colors including best view and label camera yellow)
         if (cameraBodyInstances && cameraBodyInstances.length > 0 && trajectoryData) {
             const tempColor = new THREE.Color();
             const defaultColor = new THREE.Color(DEFAULT_CAMERA_COLOR);
-            const bestViewColor = new THREE.Color(BEST_VIEW_CAMERA_COLOR); // Yellow
+            const yellowColor = new THREE.Color(LABEL_CAMERA_COLOR); // Yellow
             
             // Use stored mapping instead of rebuilding
             for (let i = 0; i < cameraBodyInstances.length; i++) {
                 const trajIndex = renderPosesMapping[i];
                 const pose = trajectoryData[trajIndex];
                 const isBestView = pose && bestViewFrameIds.has(pose.index);
-                tempColor.copy(isBestView ? bestViewColor : defaultColor);
+                const hasLabel = pose && labelFrameIds.has(pose.index);
+                tempColor.copy((isBestView || hasLabel) ? yellowColor : defaultColor);
                 cameraBodyInstances[i].material.color.setHex(tempColor.getHex());
                 cameraLensInstances[i].material.color.setHex(tempColor.getHex());
             }
@@ -3180,6 +4390,35 @@ function createFrameViewerUI() {
     });
     
     return viewer;
+}
+
+// Image lightbox for previewing a single frame
+function ensureImageLightbox() {
+	if (document.getElementById('image-lightbox')) return;
+	const overlay = document.createElement('div');
+	overlay.id = 'image-lightbox';
+	overlay.className = 'image-lightbox';
+	overlay.innerHTML = `<img alt=""><div class="lightbox-caption"></div>`;
+	document.body.appendChild(overlay);
+	
+	const close = () => overlay.classList.remove('visible');
+	overlay.addEventListener('click', (e) => {
+		// allow clicking on backdrop or image to close
+		close();
+	});
+	window.addEventListener('keydown', (e) => {
+		if (e.key === 'Escape') close();
+	});
+}
+function openImageLightbox(src, caption, rotation) {
+	const overlay = document.getElementById('image-lightbox');
+	if (!overlay) return;
+	const img = overlay.querySelector('img');
+	const cap = overlay.querySelector('.lightbox-caption');
+	img.src = src || '';
+	img.style.transform = rotation || '';
+	cap.textContent = caption || '';
+	overlay.classList.add('visible');
 }
 
 // Chat interface state

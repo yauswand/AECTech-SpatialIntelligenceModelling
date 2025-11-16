@@ -13,6 +13,48 @@
 	gap: 10px;
 	padding: 10px 12px;
 	z-index: 28;
+	transition: transform 0.28s ease, height 0.28s ease;
+	will-change: transform;
+}
+
+.dashboard-bottom.collapsed {
+	transform: translateY(100%);
+	border-top: none;
+}
+
+.dashboard-toggle {
+	position: fixed;
+	left: 50%;
+	transform: translateX(-50%);
+	bottom: var(--dock-handle-bottom, 0px);
+	height: 28px;
+	min-width: 96px;
+	padding: 0 12px;
+	border-radius: 12px 12px 0 0;
+	background: rgba(0, 0, 0, 0.82);
+	border: 1px solid rgba(255,255,255,0.12);
+	border-bottom: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	color: rgba(255,255,255,0.9);
+	cursor: pointer;
+	user-select: none;
+	box-shadow: 0 -6px 16px rgba(0,0,0,0.3);
+	z-index: 40;
+}
+
+.dashboard-toggle .toggle-grip {
+	width: 36px;
+	height: 4px;
+	border-radius: 4px;
+	background: rgba(255,255,255,0.35);
+}
+
+.dashboard-toggle .toggle-icon {
+	font-size: 12px;
+	opacity: 0.9;
 }
 
 .chart-card {
@@ -70,9 +112,9 @@
 /* Totals card layout */
 .totals-wrap { height: 100%; padding: 28px 10px 10px 10px; overflow: hidden; }
 .totals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.totals-footer { display: flex; justify-content: flex-end; margin-top: 10px; }
-.view-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none; border-radius: 6px; padding: 8px 12px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(102,126,234,0.4); }
-.view-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.6); }
+.totals-footer { display: flex; justify-content: flex-end; margin-top: 4px; }
+.view-btn { background: linear-gradient(135deg, #b0b0b0 0%, #5e5e5e 100%); color: #fff; border: none; border-radius: 6px; padding: 8px 12px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(160,160,160,0.4); }
+.view-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(160,160,160,0.6); }
 .kv { display: flex; justify-content: space-between; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px 8px; }
 .kv .k { font-size: 12px; color: rgba(255,255,255,0.7); }
 .kv .v { font-size: 13px; color: rgba(255,255,255,0.98); font-weight: 600; }
@@ -82,8 +124,12 @@
 .details-modal.hidden { display: none; }
 .details-modal-content { width: min(920px, 92vw); max-height: 85vh; background: rgba(0,0,0,0.92); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.8); display: flex; flex-direction: column; }
 .details-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.12); }
-.details-modal-header h3 { margin: 0; font-size: 16px; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.details-modal-header h3 { margin: 0; font-size: 16px; font-weight: 600; background: linear-gradient(135deg, #b0b0b0 0%, #5e5e5e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .details-modal-body { padding: 16px; overflow: auto; }
+.details-modal-body::-webkit-scrollbar { width: 8px; }
+.details-modal-body::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); border-radius: 4px; }
+.details-modal-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; border: 2px solid transparent; background-clip: padding-box; }
+.details-modal-body::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); background-clip: padding-box; }
 .details-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .details-group { background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 14px; }
 .details-group h4 { margin: 0 0 10px 0; font-size: 14px; letter-spacing: 0.2px; color: rgba(255,255,255,0.95); }
@@ -119,7 +165,7 @@
 /* Responsive tweaks for compact dashboard layout */
 @media (max-width: 1200px) {
 	.dashboard-bottom {
-		grid-template-columns: 1.6fr 1fr;
+		grid-template-columns: 1.2fr 1fr;
 		height: 260px;
 	}
 }
