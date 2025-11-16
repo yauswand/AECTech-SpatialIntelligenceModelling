@@ -69,7 +69,9 @@ let folderFileHandles = {
     trajectoryFile: null,
     keyframesFolder: null,
     correctedImagesFolder: null,
-    correctedCamerasFolder: null
+    correctedCamerasFolder: null,
+    imagesFolder: null, // Fallback regular images folder
+    camerasFolder: null  // Fallback regular cameras folder
 };
 
 // Semantic labels
@@ -505,8 +507,20 @@ async function selectDataFolder() {
         console.log('   - PLY file found:', validation.handles.plyFile.name);
         console.log('   - Trajectory file found:', validation.handles.trajectoryFile.name);
         console.log('   - Keyframes folder found');
-        console.log('   - Corrected cameras folder found');
-        console.log('   - Corrected images folder found');
+        
+        // Log camera folder status
+        if (validation.handles.correctedCamerasFolder) {
+            console.log('   - Using: keyframes/corrected_cameras/');
+        } else if (validation.handles.camerasFolder) {
+            console.log('   - Using: keyframes/cameras/ (fallback)');
+        }
+        
+        // Log images folder status
+        if (validation.handles.correctedImagesFolder) {
+            console.log('   - Using: keyframes/corrected_images/');
+        } else if (validation.handles.imagesFolder) {
+            console.log('   - Using: keyframes/images/ (fallback)');
+        }
         
         // Load the data automatically
         await loadDataFromFolder();
@@ -532,7 +546,9 @@ async function validateFolderStructure(dirHandle) {
         trajectoryFile: null,
         keyframesFolder: null,
         correctedImagesFolder: null,
-        correctedCamerasFolder: null
+        correctedCamerasFolder: null,
+        imagesFolder: null,
+        camerasFolder: null
     };
     
     try {
@@ -560,18 +576,30 @@ async function validateFolderStructure(dirHandle) {
         try {
             handles.keyframesFolder = await dirHandle.getDirectoryHandle('keyframes');
             
-            // Check for corrected_cameras subfolder
+            // Check for corrected_cameras subfolder (optional, fallback to cameras)
             try {
                 handles.correctedCamerasFolder = await handles.keyframesFolder.getDirectoryHandle('corrected_cameras');
             } catch {
-                errors.push('❌ keyframes/corrected_cameras/ folder not found');
+                // Try regular cameras folder as fallback
+                try {
+                    handles.camerasFolder = await handles.keyframesFolder.getDirectoryHandle('cameras');
+                    console.log('⚠️ corrected_cameras not found, using cameras/ folder as fallback');
+                } catch {
+                    errors.push('❌ Neither keyframes/corrected_cameras/ nor keyframes/cameras/ folder found');
+                }
             }
             
-            // Check for corrected_images subfolder
+            // Check for corrected_images subfolder (optional, fallback to images)
             try {
                 handles.correctedImagesFolder = await handles.keyframesFolder.getDirectoryHandle('corrected_images');
             } catch {
-                errors.push('❌ keyframes/corrected_images/ folder not found');
+                // Try regular images folder as fallback
+                try {
+                    handles.imagesFolder = await handles.keyframesFolder.getDirectoryHandle('images');
+                    console.log('⚠️ corrected_images not found, using images/ folder as fallback');
+                } catch {
+                    errors.push('❌ Neither keyframes/corrected_images/ nor keyframes/images/ folder found');
+                }
             }
             
         } catch {
@@ -618,7 +646,11 @@ async function loadDataFromFolder() {
         scanFolderPath = 'folder-handle'; // Special marker to use folder handle
         
         console.log('\n✅ ALL DATA LOADED SUCCESSFULLY!');
-        console.log('📷 Frame viewer is now connected to keyframes/corrected_images/');
+        if (folderFileHandles.correctedImagesFolder) {
+            console.log('📷 Frame viewer is now connected to keyframes/corrected_images/');
+        } else if (folderFileHandles.imagesFolder) {
+            console.log('📷 Frame viewer is now connected to keyframes/images/ (fallback)');
+        }
         
     } catch (error) {
         console.error('❌ Error loading data from folder:', error);
@@ -631,13 +663,16 @@ async function loadDataFromFolder() {
 // Load image from folder handle
 async function loadImageFromFolder(filename) {
     try {
-        if (!folderFileHandles.correctedImagesFolder) {
-            console.error('❌ Corrected images folder not available');
+        // Try corrected_images folder first, then fallback to images folder
+        const imageFolder = folderFileHandles.correctedImagesFolder || folderFileHandles.imagesFolder;
+        
+        if (!imageFolder) {
+            console.error('❌ No images folder available');
             return null;
         }
         
-        // Get file from corrected_images folder
-        const fileHandle = await folderFileHandles.correctedImagesFolder.getFileHandle(filename);
+        // Get file from images folder
+        const fileHandle = await imageFolder.getFileHandle(filename);
         const file = await fileHandle.getFile();
         
         // Create object URL for the image
