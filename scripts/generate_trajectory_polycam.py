@@ -72,7 +72,7 @@ def generate_trajectory_json(keyframes_folder_path, output_path=None):
             ]
             
             poses.append({
-                'frame_index': idx,  # Sequential index
+                'frame_index': int(timestamp),  # Use timestamp as frame index (matches semantic labels!)
                 'cameraPoseARFrame': camera_pose,
                 'intrinsics': intrinsics,
                 'time': float(timestamp),  # Use timestamp as time
