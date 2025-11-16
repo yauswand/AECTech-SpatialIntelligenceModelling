@@ -11,7 +11,11 @@ body {
     color: #ffffff;
 }
 
-#canvas-container {
+:root {
+    --chat-bottom: 230px;
+}
+
+#canvas-container, #three-tab-container {
     width: 100vw;
     height: 100vh;
     position: fixed;
@@ -208,8 +212,8 @@ body {
 /* Control Toolbar */
 .controls {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 320px;
+    left: 20px;
     width: 300px;
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(15px);
@@ -655,8 +659,8 @@ body {
 /* Chat Toggle Button */
 .chat-toggle-btn {
     position: fixed;
-    bottom: 20px;
-    left: 20px;
+    bottom: var(--chat-bottom);
+    right: 20px;
     width: 56px;
     height: 56px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -685,20 +689,21 @@ body {
 /* Chat Container */
 .chat-container {
     position: fixed;
-    bottom: 20px;
-    left: 20px;
+    bottom: var(--chat-bottom);
+    right: 20px;
     width: 400px;
     max-height: 600px;
     background: rgba(0, 0, 0, 0.9);
-    backdrop-filter: blur(15px);
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    transition: all 0.3s ease;
+	backdrop-filter: blur(15px);
+	border-radius: 12px;
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	z-index: 100;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+	transition: all 0.3s ease;
 }
+
 
 .chat-container.hidden {
     display: none;
@@ -1143,14 +1148,37 @@ body {
     .chat-container {
         width: calc(100% - 40px);
         max-height: calc(100vh - 100px);
+        right: 10px;
+        left: auto;
     }
     
     .chat-toggle-btn {
         bottom: 10px;
-        left: 10px;
+        right: 10px;
+        left: auto;
         width: 48px;
         height: 48px;
         font-size: 20px;
     }
+}
+
+
+/* Controls dock offset relative to compact dashboard */
+.controls {
+	bottom: 220px;
+}
+
+@media (max-width: 1200px) {
+	.controls {
+		bottom: 280px;
+	}
+    :root { --chat-bottom: 290px; }
+}
+
+@media (max-width: 768px) {
+	.controls {
+		bottom: 340px;
+	}
+    :root { --chat-bottom: 350px; }
 }
 

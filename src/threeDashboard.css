@@ -1,0 +1,135 @@
+/* Bottom docked dashboard (properties panel) */
+.dashboard-bottom {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 200px;
+	background: rgba(0, 0, 0, 0.82);
+	backdrop-filter: blur(10px);
+	border-top: 1px solid rgba(255, 255, 255, 0.12);
+	display: grid;
+	grid-template-columns: 1fr 1fr 3fr 1fr;
+	gap: 10px;
+	padding: 10px 12px;
+	z-index: 28;
+}
+
+.chart-card {
+	position: relative;
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid rgba(255, 255, 255, 0.14);
+	border-radius: 10px;
+	overflow: hidden;
+	box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+
+.chart-title {
+	position: absolute;
+	top: 8px;
+	left: 10px;
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0.2px;
+	color: rgba(255, 255, 255, 0.9);
+	z-index: 1;
+	text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.chart-canvas { width: 100%; height: 100%; padding-top: 28px; }
+
+/* Combined metrics dual layout */
+/* No metrics-dual now; two separate square cards */
+
+/* Card-specific tweaks for compact layout */
+.card-details .details-wrap { padding: 6px 8px 8px 8px; }
+.card-metrics .chart-canvas { padding-top: 0; }
+.card-floorplan .chart-canvas { padding: 6px; }
+
+/* Square card behavior */
+.card-square .chart-canvas {
+	aspect-ratio: 1 / 1;
+	width: 100%;
+	height: 100%;
+	padding-top: 0;
+}
+
+/* Details card */
+.details-wrap { height: 100%; padding: 6px 8px 8px 8px; overflow: hidden; }
+.kpi-row { gap: 10px; }
+.kpi { padding: 8px; }
+.kpi-l { font-size: 12px; color: rgba(255,255,255,0.75); }
+.kpi-v { font-size: 16px; color: rgba(255,255,255,0.98); }
+.dash-section { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px; }
+.dash-section h5 { margin: 0 0 6px 0; font-size: 13px; letter-spacing: 0.2px; color: rgba(255,255,255,0.92); }
+.dash-kv { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 8px; }
+.dash-kv .k { font-size: 12px; color: rgba(255,255,255,0.75); }
+.dash-kv .v { font-size: 13px; color: rgba(255,255,255,0.98); }
+.details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+
+/* Totals card layout */
+.totals-wrap { height: 100%; padding: 28px 10px 10px 10px; overflow: hidden; }
+.totals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.totals-footer { display: flex; justify-content: flex-end; margin-top: 10px; }
+.view-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none; border-radius: 6px; padding: 8px 12px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(102,126,234,0.4); }
+.view-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.6); }
+.kv { display: flex; justify-content: space-between; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px 8px; }
+.kv .k { font-size: 12px; color: rgba(255,255,255,0.7); }
+.kv .v { font-size: 13px; color: rgba(255,255,255,0.98); font-weight: 600; }
+
+/* Details modal */
+.details-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 500; }
+.details-modal.hidden { display: none; }
+.details-modal-content { width: min(920px, 92vw); max-height: 85vh; background: rgba(0,0,0,0.92); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.8); display: flex; flex-direction: column; }
+.details-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+.details-modal-header h3 { margin: 0; font-size: 16px; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.details-modal-body { padding: 16px; overflow: auto; }
+.details-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.details-group { background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 14px; }
+.details-group h4 { margin: 0 0 10px 0; font-size: 14px; letter-spacing: 0.2px; color: rgba(255,255,255,0.95); }
+.details-group .kv { margin-bottom: 6px; }
+
+/* Nice table styling in modal */
+.details-group .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.details-group .table thead th { position: sticky; top: 0; background: rgba(255,255,255,0.06); backdrop-filter: blur(2px); text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+.details-group .table tbody td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
+.details-group .table tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+/* Key-Value pills */
+.details-group .kv { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 10px; }
+.details-group .kv .k { color: rgba(255,255,255,0.7); }
+.details-group .kv .v { color: rgba(255,255,255,0.98); font-weight: 600; }
+
+/* Scroll shadow hint */
+.details-modal-body::after { content: ''; position: sticky; bottom: -1px; display: block; height: 14px; background: linear-gradient(to top, rgba(0,0,0,0.92), rgba(0,0,0,0)); pointer-events: none; }
+
+/* Responsive */
+@media (max-width: 920px) {
+	.details-sections { grid-template-columns: 1fr; }
+}
+
+/* Floorplan viewer */
+.fp-viewer { position: relative; width: 100%; height: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; }
+.fp-toolbar { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; z-index: 1; }
+.fp-btn { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 12px; }
+.fp-btn:hover { background: rgba(0,0,0,0.8); }
+.fp-stage { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.fp-image { max-width: 100%; max-height: 100%; transform-origin: 0 0; user-select: none; pointer-events: none; }
+
+/* Responsive tweaks for compact dashboard layout */
+@media (max-width: 1200px) {
+	.dashboard-bottom {
+		grid-template-columns: 1.6fr 1fr;
+		height: 260px;
+	}
+}
+
+@media (max-width: 768px) {
+	.dashboard-bottom {
+		grid-template-columns: 1fr;
+		height: 320px;
+		overflow-y: auto;
+	}
+}
+
+

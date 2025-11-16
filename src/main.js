@@ -1002,6 +1002,7 @@ function setupViewModeSelector() {
 // Switch between different view modes
 function switchViewMode(mode) {
     const canvasContainer = document.getElementById('canvas-container');
+    const threeContainer = document.getElementById('three-tab-container');
     let frameViewer = document.getElementById('frame-viewer');
     const chatContainer = document.getElementById('chat-container');
     const chatToggleBtn = document.getElementById('chat-toggle-btn');
@@ -1035,14 +1036,43 @@ function switchViewMode(mode) {
         // Show frame viewer with all frames
         showAllFrames();
     } else {
-        // Show canvas for PLY and 3D modes
-        if (canvasContainer) {
-            canvasContainer.style.display = 'block';
-        }
-        
         // Hide frame viewer
         if (frameViewer) {
             frameViewer.classList.add('hidden');
+        }
+
+        if (mode === '3d') {
+            // Show 3D dashboard container
+            if (threeContainer) threeContainer.style.display = 'block';
+            if (canvasContainer) canvasContainer.style.display = 'none';
+            // Lazy-init dashboard
+            (async () => {
+                try {
+                    const dash = await import('./threeDashboard.js');
+                    if (!window.__threeDashInit) {
+                        dash.initThreeDashboard(threeContainer);
+                        window.__threeDashInit = true;
+                    }
+                    await dash.refreshDashboardData?.();
+                    dash.show?.();
+                } catch (e) {
+                    console.error('Failed to init 3D dashboard:', e);
+                }
+            })();
+        } else {
+            // PLY mode
+            if (canvasContainer) canvasContainer.style.display = 'block';
+            if (threeContainer) threeContainer.style.display = 'none';
+            // Keep bottom dock in sync in PLY too
+            (async () => {
+                try {
+                    const dash = await import('./threeDashboard.js');
+                    await dash.ensureBottomDock?.();
+                    await dash.refreshDashboardData?.();
+                } catch (e) {
+                    console.warn('Bottom dock refresh skipped:', e);
+                }
+            })();
         }
     }
 }
@@ -4401,5 +4431,16 @@ Be helpful, concise, and technical when appropriate.`
 document.addEventListener('DOMContentLoaded', () => {
     init();
     setupUI();
+    // Ensure bottom dock (properties panel) is available even in PLY tab
+    (async () => {
+        try {
+            const dash = await import('./threeDashboard.js');
+            if (dash.ensureBottomDock) {
+                await dash.ensureBottomDock();
+            }
+        } catch (e) {
+            console.warn('Bottom dock init skipped:', e);
+        }
+    })();
 });
 

@@ -1,0 +1,107 @@
+{
+  "overview": {
+    "projectName": "1407 Broadway - Living Space",
+    "totalExteriorFloorArea": "33.6 m²",
+    "totalLivableFloorArea": "30.3 m²",
+    "totalWallArea": "60.8 m²",
+    "totalWindowArea": "3.0 m²",
+    "totalVolume": "78.10 m³",
+    "usedArea": "31.4 m²",
+    "unusedArea": "20.7 m²",
+    "units": "metric",
+    "notes": "Values sourced from floorplan report; editable for future models."
+  },
+  "dimensions": {
+    "width": "6.8 m",
+    "depth": "3.9 m",
+    "height": "2.4 - 2.7 m"
+  },
+  "extents": {
+    "boundingBox": {
+      "width": "—",
+      "depth": "—",
+      "height": "—"
+    },
+    "inscribed": {
+      "width": "—",
+      "depth": "—"
+    }
+  },
+  "geolocation": {
+    "latitude": "40.688851 N",
+    "longitude": "-73.920504 W",
+    "altitude": "21 m",
+    "address": "1407 Broadway, New York, NY"
+  },
+  "rooms": [
+    {
+      "name": "Living Room",
+      "floorArea": "23.4 m²",
+      "wallArea": "34.0 m²",
+      "wallAreaInclOpenings": "46.2 m²",
+      "wallAreaExclOpenings": "34.0 m²",
+      "ceilingHeight": "2.4 - 2.7 m",
+      "dimensions": {
+        "width": "6.8 m",
+        "depth": "3.9 m",
+        "height": "2.4 - 2.7 m"
+      },
+      "perimeter": "21.5 m",
+      "volume": "61.48 m³",
+      "boundingBox": { "width": "6.8 m", "depth": "3.9 m", "height": "2.4 - 2.7 m" },
+      "inscribed": { "width": "4.8 m", "depth": "3.8 m" }
+    },
+    {
+      "name": "Other 1",
+      "floorArea": "3.5 m²",
+      "wallArea": "9.6 m²",
+      "ceilingHeight": "2.4 m",
+      "dimensions": { "width": "2.3 m", "depth": "1.5 m", "height": "2.4 m" },
+      "perimeter": "7.6 m",
+      "volume": "8.16 m³"
+    },
+    {
+      "name": "Other 2",
+      "floorArea": "2.6 m²",
+      "wallArea": "11.9 m²",
+      "ceilingHeight": "2.4 m",
+      "dimensions": { "width": "2.9 m", "depth": "0.9 m", "height": "2.4 m" },
+      "perimeter": "7.6 m",
+      "volume": "6.18 m³"
+    },
+    {
+      "name": "Other 3",
+      "floorArea": "1.0 m²",
+      "wallArea": "5.3 m²",
+      "ceilingHeight": "2.4 m",
+      "dimensions": { "width": "1.5 m", "depth": "0.6 m", "height": "2.4 m" },
+      "perimeter": "4.3 m",
+      "volume": "2.29 m³"
+    }
+  ],
+  "furniture": [
+    { "type": "Desk", "count": 1, "notes": "Work desk", "dimensions": { "w": "1.3 m", "h": "0.8 m", "d": "0.6 m" } },
+    { "type": "Dining table", "count": 2, "notes": "", "dimensions": { "w": "1.1 m", "h": "0.5 m", "d": "1.0 m" } },
+    { "type": "Sofa (double)", "count": 1, "notes": "" },
+    { "type": "Sofa (extension)", "count": 1, "notes": "" },
+    { "type": "Task chair", "count": 1, "notes": "" }
+  ],
+  "materials": [
+    {
+      "name": "WallPaint",
+      "color": "#f2f2f2",
+      "usage": "Walls"
+    }
+  ],
+  "assets": {
+    "model": "",
+    "trajectory": "",
+    "labels": ""
+  },
+  "floorplanImage": "/floorplan.png",
+  "metadata": {
+    "source": "manual",
+    "lastUpdated": ""
+  }
+}
+
