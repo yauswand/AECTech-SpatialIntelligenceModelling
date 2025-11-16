@@ -19,6 +19,24 @@ import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
 // DO NOT CHANGE THESE CONFIGURATIONS EVER AGAIN.
 // ================================================================================
 
+// ================================================================================
+// 📁 DEFAULT FILE PATHS - Auto-Loading Configuration
+// ================================================================================
+// These paths will be automatically loaded when the app starts.
+// Simply place your files in these locations to auto-load them:
+//
+// 1. Point Cloud: Place your .ply file at the path below
+// 2. Camera Trajectory: Already configured (see tryAutoLoadTrajectory function)
+//    - Priority 1: /camera_trajectory.json
+//    - Priority 2: /cloud/<modelname>_trajectory.json
+//    - Priority 3: /cloud/trajectory.json
+//
+// 3. Semantic Labels: Already configured (see tryAutoLoadLabels function)
+//    - Priority 1: /semantic_labeling/output/unique_objects/unique_objects_final.json
+//
+// Auto-loading has been replaced by folder picker interface
+// ================================================================================
+
 // Scene setup
 let scene, camera, renderer, controls;
 let currentPointCloud = null;
@@ -43,6 +61,18 @@ let trajectoryData = null;
 let pointCloudTransform = null; // Store transform applied to point cloud
 let scanFolderPath = null; // Store scan folder path for loading frames
 let frameTimestampMap = null; // Map frame_index to timestamp for Polycam data
+
+// Folder upload handles
+let selectedFolderHandle = null; // FileSystemDirectoryHandle from folder picker
+let folderFileHandles = {
+    plyFile: null,
+    trajectoryFile: null,
+    keyframesFolder: null,
+    correctedImagesFolder: null,
+    correctedCamerasFolder: null,
+    imagesFolder: null, // Fallback regular images folder
+    camerasFolder: null  // Fallback regular cameras folder
+};
 
 // Semantic labels
 let labelsVisible = false;
@@ -74,8 +104,6 @@ const keyboard = {
     a: false,
     s: false,
     d: false,
-    q: false,
-    e: false,
     shift: false,
     space: false
 };
@@ -200,8 +228,6 @@ function setupKeyboardControls() {
         if (key === 'a') keyboard.a = true;
         if (key === 's') keyboard.s = true;
         if (key === 'd') keyboard.d = true;
-        if (key === 'q') keyboard.q = true;
-        if (key === 'e') keyboard.e = true;
         if (key === 'shift') keyboard.shift = true;
         if (key === ' ') keyboard.space = true;
         
@@ -217,8 +243,6 @@ function setupKeyboardControls() {
         if (key === 'a') keyboard.a = false;
         if (key === 's') keyboard.s = false;
         if (key === 'd') keyboard.d = false;
-        if (key === 'q') keyboard.q = false;
-        if (key === 'e') keyboard.e = false;
         if (key === 'shift') keyboard.shift = false;
         if (key === ' ') keyboard.space = false;
     });
@@ -254,55 +278,19 @@ function handleKeyboardMovement() {
         controls.target.addScaledVector(right, -speed);
     }
     
-    // Up/Down movement (Q/E keys - primary controls)
-    if (keyboard.q) {
-        camera.position.y -= speed;
-        controls.target.y -= speed;
-    }
-    if (keyboard.e) {
-        camera.position.y += speed;
-        controls.target.y += speed;
-    }
-    
-    // Alternative up/down controls (Space/Shift for backward compatibility)
+    // Up/Down movement
     if (keyboard.space) {
         camera.position.y += speed;
         controls.target.y += speed;
     }
-    if (keyboard.shift && !keyboard.w && !keyboard.s && !keyboard.a && !keyboard.d && !keyboard.q && !keyboard.e) {
+    if (keyboard.shift && !keyboard.w && !keyboard.s && !keyboard.a && !keyboard.d) {
         camera.position.y -= speed;
         controls.target.y -= speed;
     }
 }
 
-// Auto-load default PLY file from public folder
-async function loadDefaultPLY() {
-    const defaultPLYPath = '/11_15_2025.ply';
-    
-    try {
-        console.log(`📁 Auto-loading default PLY file: ${defaultPLYPath}`);
-        const response = await fetch(defaultPLYPath);
-        
-        if (!response.ok) {
-            console.log(`⚠️ Default PLY file not found: ${defaultPLYPath}`);
-            return false;
-        }
-        
-        const arrayBuffer = await response.arrayBuffer();
-        const blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
-        const file = new File([blob], '11_15_2025.ply', { type: 'application/octet-stream' });
-        
-        console.log('✅ Default PLY file loaded, rendering...');
-        loadPLYFile(file);
-        return true;
-    } catch (error) {
-        console.error('❌ Error loading default PLY file:', error);
-        return false;
-    }
-}
-
 // Load and render PLY file
-function loadPLYFile(file) {
+function loadPLYFile(file, skipAutoLoad = false) {
     // Show loading indicator
     const loading = document.getElementById('loading');
     const info = document.getElementById('info');
@@ -461,11 +449,14 @@ function loadPLYFile(file) {
             // Smooth camera animation to view
             animateCameraToView();
             
-            // Try to auto-load trajectory first, then labels (order matters!)
-            tryAutoLoadTrajectory(file.name).then(() => {
-                // After trajectory loads, try to load labels
-                tryAutoLoadLabels(file.name);
-            });
+            // Only auto-load if not using folder picker (skipAutoLoad flag)
+            if (!skipAutoLoad) {
+                // Try to auto-load trajectory first, then labels (order matters!)
+                tryAutoLoadTrajectory(file.name).then(() => {
+                    // After trajectory loads, try to load labels
+                    tryAutoLoadLabels(file.name);
+                });
+            }
 
         } catch (error) {
             console.error('Error loading PLY file:', error);
@@ -475,6 +466,241 @@ function loadPLYFile(file) {
     };
 
     reader.readAsArrayBuffer(file);
+}
+
+// Auto-load functionality has been removed - use folder picker instead
+
+// ================================================================================
+// FOLDER UPLOAD FUNCTIONALITY
+// ================================================================================
+
+// Select and validate folder structure using File System Access API
+async function selectDataFolder() {
+    try {
+        // Check if File System Access API is supported
+        if (!('showDirectoryPicker' in window)) {
+            alert('Your browser does not support the File System Access API.\n\nPlease use Chrome or Edge browser.');
+            console.error('File System Access API not supported');
+            return false;
+        }
+
+        console.log('\n📁 SELECTING DATA FOLDER...');
+        
+        // Show directory picker
+        const dirHandle = await window.showDirectoryPicker({
+            mode: 'read'
+        });
+        
+        console.log(`✅ Folder selected: ${dirHandle.name}`);
+        
+        // Validate folder structure
+        const validation = await validateFolderStructure(dirHandle);
+        
+        if (!validation.valid) {
+            alert(`Invalid folder structure:\n\n${validation.errors.join('\n')}\n\nPlease select a folder with the correct structure.`);
+            console.error('❌ Folder validation failed:', validation.errors);
+            return false;
+        }
+        
+        // Store folder handle and file handles
+        selectedFolderHandle = dirHandle;
+        folderFileHandles = validation.handles;
+        
+        console.log('✅ Folder structure validated successfully!');
+        console.log('   - PLY file found:', validation.handles.plyFile.name);
+        console.log('   - Trajectory file found:', validation.handles.trajectoryFile.name);
+        console.log('   - Keyframes folder found');
+        
+        // Log camera folder status
+        if (validation.handles.correctedCamerasFolder) {
+            console.log('   - Using: keyframes/corrected_cameras/');
+        } else if (validation.handles.camerasFolder) {
+            console.log('   - Using: keyframes/cameras/ (fallback)');
+        }
+        
+        // Log images folder status
+        if (validation.handles.correctedImagesFolder) {
+            console.log('   - Using: keyframes/corrected_images/');
+        } else if (validation.handles.imagesFolder) {
+            console.log('   - Using: keyframes/images/ (fallback)');
+        }
+        
+        // Load the data automatically
+        await loadDataFromFolder();
+        
+        return true;
+        
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            console.log('📁 Folder selection cancelled by user');
+        } else {
+            console.error('❌ Error selecting folder:', error);
+            alert(`Error selecting folder: ${error.message}`);
+        }
+        return false;
+    }
+}
+
+// Validate folder structure and return file handles
+async function validateFolderStructure(dirHandle) {
+    const errors = [];
+    const handles = {
+        plyFile: null,
+        trajectoryFile: null,
+        keyframesFolder: null,
+        correctedImagesFolder: null,
+        correctedCamerasFolder: null,
+        imagesFolder: null,
+        camerasFolder: null
+    };
+    
+    try {
+        // Check for .ply file in root
+        let plyFound = false;
+        for await (const entry of dirHandle.values()) {
+            if (entry.kind === 'file' && entry.name.toLowerCase().endsWith('.ply')) {
+                handles.plyFile = entry;
+                plyFound = true;
+                break;
+            }
+        }
+        if (!plyFound) {
+            errors.push('❌ No .ply file found in root folder');
+        }
+        
+        // Check for camera_trajectory.json
+        try {
+            handles.trajectoryFile = await dirHandle.getFileHandle('camera_trajectory.json');
+        } catch {
+            errors.push('❌ camera_trajectory.json not found in root folder');
+        }
+        
+        // Check for keyframes folder
+        try {
+            handles.keyframesFolder = await dirHandle.getDirectoryHandle('keyframes');
+            
+            // Check for corrected_cameras subfolder (optional, fallback to cameras)
+            try {
+                handles.correctedCamerasFolder = await handles.keyframesFolder.getDirectoryHandle('corrected_cameras');
+            } catch {
+                // Try regular cameras folder as fallback
+                try {
+                    handles.camerasFolder = await handles.keyframesFolder.getDirectoryHandle('cameras');
+                    console.log('⚠️ corrected_cameras not found, using cameras/ folder as fallback');
+                } catch {
+                    errors.push('❌ Neither keyframes/corrected_cameras/ nor keyframes/cameras/ folder found');
+                }
+            }
+            
+            // Check for corrected_images subfolder (optional, fallback to images)
+            try {
+                handles.correctedImagesFolder = await handles.keyframesFolder.getDirectoryHandle('corrected_images');
+            } catch {
+                // Try regular images folder as fallback
+                try {
+                    handles.imagesFolder = await handles.keyframesFolder.getDirectoryHandle('images');
+                    console.log('⚠️ corrected_images not found, using images/ folder as fallback');
+                } catch {
+                    errors.push('❌ Neither keyframes/corrected_images/ nor keyframes/images/ folder found');
+                }
+            }
+            
+        } catch {
+            errors.push('❌ keyframes/ folder not found');
+        }
+        
+    } catch (error) {
+        errors.push(`❌ Error reading folder: ${error.message}`);
+    }
+    
+    return {
+        valid: errors.length === 0,
+        errors,
+        handles
+    };
+}
+
+// Load data from selected folder
+async function loadDataFromFolder() {
+    console.log('\n📦 LOADING DATA FROM FOLDER...');
+    
+    const loading = document.getElementById('loading');
+    const instructions = document.getElementById('instructions');
+    
+    try {
+        // Hide instructions screen
+        instructions.classList.add('hidden');
+        loading.classList.remove('hidden');
+        
+        // 1. Load PLY file (skip auto-loading trajectory/labels since we're using folder)
+        console.log('\n1️⃣ Loading PLY file...');
+        const plyFileHandle = folderFileHandles.plyFile;
+        const plyFile = await plyFileHandle.getFile();
+        await loadPLYFile(plyFile, true); // Pass true to skip auto-load
+        
+        // Wait a moment for PLY to fully process
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // 2. Load trajectory file from folder
+        console.log('\n2️⃣ Loading camera trajectory from folder...');
+        const trajectoryFileHandle = folderFileHandles.trajectoryFile;
+        const trajectoryFile = await trajectoryFileHandle.getFile();
+        await loadAndProcessTrajectory(trajectoryFile);
+        
+        // 3. Set scan folder path for frame viewer
+        // Store relative path that will be used to load images from folder handle
+        scanFolderPath = 'folder-handle'; // Special marker to use folder handle
+        console.log('\n3️⃣ Setting up frame viewer...');
+        console.log('📁 scanFolderPath set to: folder-handle (will load images from uploaded folder)');
+        
+        // 4. Enable trajectory visualization
+        console.log('\n4️⃣ Enabling trajectory visualization...');
+        document.getElementById('trajectory-toggle').checked = true;
+        toggleCameraTrajectory(true);
+        
+        console.log('\n✅ ALL DATA LOADED SUCCESSFULLY!');
+        console.log('📊 Summary:');
+        console.log(`   - Point cloud: ${plyFileHandle.name}`);
+        console.log(`   - Trajectory: ${trajectoryFileHandle.name}`);
+        console.log(`   - Camera poses: ${trajectoryData ? trajectoryData.length : 0}`);
+        if (folderFileHandles.correctedImagesFolder) {
+            console.log('   - Frame images: keyframes/corrected_images/');
+        } else if (folderFileHandles.imagesFolder) {
+            console.log('   - Frame images: keyframes/images/');
+        }
+        console.log('💡 Click on any camera icon to view its captured frames!\n');
+        
+    } catch (error) {
+        console.error('❌ Error loading data from folder:', error);
+        alert(`Error loading data: ${error.message}`);
+        loading.classList.add('hidden');
+        instructions.classList.remove('hidden');
+    }
+}
+
+// Load image from folder handle
+async function loadImageFromFolder(filename) {
+    try {
+        // Try corrected_images folder first, then fallback to images folder
+        const imageFolder = folderFileHandles.correctedImagesFolder || folderFileHandles.imagesFolder;
+        
+        if (!imageFolder) {
+            console.error('❌ No images folder available');
+            return null;
+        }
+        
+        // Get file from images folder
+        const fileHandle = await imageFolder.getFileHandle(filename);
+        const file = await fileHandle.getFile();
+        
+        // Create object URL for the image
+        const url = URL.createObjectURL(file);
+        return url;
+        
+    } catch (error) {
+        console.warn(`⚠️ Could not load image ${filename}:`, error.message);
+        return null;
+    }
 }
 
 // Try to automatically load trajectory file based on PLY filename
@@ -664,85 +890,219 @@ function easeInOutCubic(t) {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-// Drag and drop handlers
-function setupDragAndDrop() {
-    const dropZone = document.getElementById('drop-zone');
-    const body = document.body;
-
-    // Prevent default drag behaviors
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        body.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-
-    // Show drop zone when dragging files
-    ['dragenter', 'dragover'].forEach(eventName => {
-        body.addEventListener(eventName, () => {
-            dropZone.classList.add('active');
-        });
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        body.addEventListener(eventName, (e) => {
-            // Only hide if we're leaving the body entirely
-            if (eventName === 'dragleave' && e.target === body) {
-                dropZone.classList.remove('active', 'drag-over');
-            }
-            if (eventName === 'drop') {
-                dropZone.classList.remove('active', 'drag-over');
-            }
-        });
-    });
-
-    // Highlight drop zone when hovering over it
-    dropZone.addEventListener('dragenter', () => {
-        dropZone.classList.add('drag-over');
-    });
-
-    dropZone.addEventListener('dragleave', (e) => {
-        if (e.target === dropZone) {
-            dropZone.classList.remove('drag-over');
-        }
-    });
-
-    // Handle dropped files
-    body.addEventListener('drop', handleDrop);
-
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-
-        if (files.length > 0) {
-            const file = files[0];
-            
-            // Validate file extension
-            if (file.name.toLowerCase().endsWith('.ply')) {
-                loadPLYFile(file);
-            } else {
-                alert('Please drop a .ply file');
-            }
-        }
-    }
-}
+// Drag and drop functionality has been removed - use folder picker instead
 
 // UI event handlers
 function setupUI() {
-    const closeButton = document.getElementById('close-instructions');
+    const selectFolderBtn = document.getElementById('select-folder-btn');
     const instructions = document.getElementById('instructions');
 
-    closeButton.addEventListener('click', () => {
-        instructions.classList.add('hidden');
-    });
+    // Connect folder selection button
+    if (selectFolderBtn) {
+        selectFolderBtn.addEventListener('click', async () => {
+            await selectDataFolder();
+        });
+    }
     
     // Setup control panel
     setupControlPanel();
     
+    // Setup chat interface
+    setupChatInterface();
+    
+    // Setup view picker
+    setupViewPicker();
+    
     // Setup view mode selector
     setupViewModeSelector();
+}
+
+// Setup view picker for render mode selection
+function setupViewPicker() {
+    const renderModeSelect = document.getElementById('render-mode-select');
+    if (!renderModeSelect) return;
+    
+    // Set initial value
+    renderModeSelect.value = renderMode;
+    
+    // Handle mode change
+    renderModeSelect.addEventListener('change', (e) => {
+        const newMode = e.target.value;
+        if (!currentGeometry) {
+            console.log('No geometry loaded yet');
+            return;
+        }
+        
+        const hasFaces = currentGeometry.index !== null && currentGeometry.index.count > 0;
+        
+        // Remove current mesh
+        if (currentPointCloud) {
+            scene.remove(currentPointCloud);
+            if (currentPointCloud.material) {
+                currentPointCloud.material.dispose();
+            }
+            currentPointCloud = null;
+        }
+        
+        renderMode = newMode;
+        
+        if (newMode === 'auto') {
+            // Auto mode: use wireframe if faces exist, otherwise points
+            if (hasFaces) {
+                createWireframeMesh(currentGeometry);
+                document.getElementById('controls').classList.add('hidden');
+                console.log('Switched to Auto mode (Wireframe)');
+            } else {
+                createPointCloud(currentGeometry);
+                document.getElementById('controls').classList.remove('hidden');
+                console.log('Switched to Auto mode (Points)');
+            }
+        } else if (newMode === 'wireframe') {
+            if (hasFaces) {
+                createWireframeMesh(currentGeometry);
+                document.getElementById('controls').classList.add('hidden');
+                console.log('Switched to Wireframe mode');
+            } else {
+                alert('No face data available - cannot display wireframe. Switching to points mode.');
+                renderModeSelect.value = 'points';
+                renderMode = 'points';
+                createPointCloud(currentGeometry);
+                document.getElementById('controls').classList.remove('hidden');
+            }
+        } else if (newMode === 'points') {
+            createPointCloud(currentGeometry);
+            document.getElementById('controls').classList.remove('hidden');
+            console.log('Switched to Points mode');
+        }
+    });
+}
+
+// Setup view mode selector
+function setupViewModeSelector() {
+    const modeButtons = document.querySelectorAll('.mode-btn');
+    const canvasContainer = document.getElementById('canvas-container');
+    
+    modeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            modeButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            button.classList.add('active');
+            
+            // Get the selected mode
+            const selectedMode = button.getAttribute('data-mode');
+            console.log('View mode selected:', selectedMode);
+            
+            // Switch views based on mode
+            switchViewMode(selectedMode);
+        });
+    });
+}
+
+// Switch between different view modes
+function switchViewMode(mode) {
+    const canvasContainer = document.getElementById('canvas-container');
+    const threeContainer = document.getElementById('three-tab-container');
+    let frameViewer = document.getElementById('frame-viewer');
+    const chatContainer = document.getElementById('chat-container');
+    const chatToggleBtn = document.getElementById('chat-toggle-btn');
+    const controls = document.getElementById('controls');
+    const toggleControlsBtn = document.getElementById('toggle-controls');
+    
+    if (mode === 'frames') {
+        // Hide canvas
+        if (canvasContainer) {
+            canvasContainer.style.display = 'none';
+        }
+        if (threeContainer) {
+            threeContainer.style.display = 'none';
+        }
+        
+        // Minimize chat if it's open
+        if (chatContainer && !chatContainer.classList.contains('hidden')) {
+            chatContainer.classList.add('hidden');
+            if (chatToggleBtn) {
+                chatToggleBtn.classList.remove('hidden');
+            }
+        }
+        
+        // Collapse controls if they're open and not already collapsed
+        if (controls && !controls.classList.contains('hidden')) {
+            if (!controls.classList.contains('collapsed')) {
+                controls.classList.add('collapsed');
+                if (toggleControlsBtn) {
+                    toggleControlsBtn.textContent = '+';
+                }
+            }
+        }
+        
+        // Show frame viewer with all frames
+        showAllFrames();
+    } else {
+        // Hide frame viewer
+        if (frameViewer) {
+            frameViewer.classList.add('hidden');
+        }
+
+        if (mode === '3d') {
+            if (threeContainer) threeContainer.style.display = 'block';
+            if (canvasContainer) canvasContainer.style.display = 'none';
+            (async () => {
+                // lazy init 3D dashboard
+                if (!window.__threeDashboard) {
+                    const mod = await import('./threeDashboard.js');
+                    window.__threeDashboard = mod;
+                    mod.initThreeDashboard(threeContainer);
+                } else {
+                    window.__threeDashboard.show();
+                }
+            })();
+        } else {
+            // PLY
+            if (canvasContainer) canvasContainer.style.display = 'block';
+            if (threeContainer) threeContainer.style.display = 'none';
+        }
+    }
+}
+
+// Show all frames in gallery
+function showAllFrames() {
+    if (!trajectoryData || trajectoryData.length === 0) {
+        console.warn('No trajectory data available to show frames');
+        // Still show the viewer but with a message
+        let viewer = document.getElementById('frame-viewer');
+        if (!viewer) {
+            viewer = createFrameViewerUI();
+        }
+        const gallery = viewer.querySelector('.frame-gallery');
+        gallery.innerHTML = '<div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.7);">No trajectory data loaded. Please load a trajectory file first.</div>';
+        viewer.classList.remove('hidden');
+        viewer.classList.add('fullscreen-gallery');
+        return;
+    }
+    
+    if (!scanFolderPath) {
+        console.warn('Scan folder path not available');
+        let viewer = document.getElementById('frame-viewer');
+        if (!viewer) {
+            viewer = createFrameViewerUI();
+        }
+        const gallery = viewer.querySelector('.frame-gallery');
+        gallery.innerHTML = '<div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.7);">Scan folder path not available. Please load a trajectory file first.</div>';
+        viewer.classList.remove('hidden');
+        viewer.classList.add('fullscreen-gallery');
+        return;
+    }
+    
+    // Create array of all frames from trajectory data
+    const allFrames = trajectoryData.map((pose, index) => ({
+        frameNumber: pose.index,
+        isCurrent: false,
+        label: `Camera ${index + 1}`
+    }));
+    
+    // Display all frames (this will also show the viewer)
+    displayFrameViewer(allFrames, null);
 }
 
 // Setup control panel handlers
@@ -886,13 +1246,14 @@ async function loadCameraTrajectoryFromFile(trajectoryFile) {
                     console.log(`   - Has "poses" array: ${trajectoryJson.poses ? 'YES' : 'NO'}`);
                     
                     // Store scan folder path for loading frames
+                    // Note: When using folder upload, scanFolderPath will be overridden to 'folder-handle'
                     if (trajectoryJson.scan_folder) {
                         // Check if it's the new Polycam format
                         if (trajectoryJson.scan_folder.includes('11_15_2025')) {
                             // Polycam format: images and depth maps use timestamp filenames
                             scanFolderPath = `/${trajectoryJson.scan_folder}`;
                             console.log('\n✅ POLYCAM FORMAT DETECTED!');
-                            console.log('📁 Polycam scan folder path set to:', scanFolderPath);
+                            console.log('📁 Scan folder from JSON:', trajectoryJson.scan_folder);
                             console.log('📷 Frame format: {timestamp}.jpg (e.g., 435456552349.jpg)');
                             console.log('🗺️ Depth format: {timestamp}.png');
                         } else {
@@ -904,19 +1265,30 @@ async function loadCameraTrajectoryFromFile(trajectoryFile) {
                         }
                     } else {
                         console.warn('\n❌ NO scan_folder found in trajectory JSON!');
-                        // Try default path
-                        scanFolderPath = '/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21';
-                        console.log('📁 Using default scan folder path:', scanFolderPath);
-                    }
-                    
-                    // Initialize timestamp mapping for Polycam data
-                    const isPolycamData = trajectoryJson.scan_folder && trajectoryJson.scan_folder.includes('11_15_2025');
-                    if (isPolycamData) {
-                        frameTimestampMap = new Map();
+                        // Don't set a default when using folder upload - will be set to 'folder-handle'
+                        console.log('📁 Scan folder will be determined by upload method');
                     }
                     
                     // Check if new Polycam format (cameras array) or old ARKit format (poses array)
                     const cameraArray = trajectoryJson.cameras || trajectoryJson.poses;
+                    
+                    // Initialize timestamp mapping for Polycam data
+                    // Check if poses have timestamp field (indicates Polycam format)
+                    const firstPose = cameraArray && cameraArray.length > 0 ? cameraArray[0] : null;
+                    const hasTimestamps = firstPose && ('timestamp' in firstPose);
+                    
+                    console.log('\n🔍 TIMESTAMP MAPPING DETECTION:');
+                    console.log('   - scan_folder:', trajectoryJson.scan_folder);
+                    console.log('   - First pose has timestamp?', hasTimestamps);
+                    console.log('   - First pose structure:', firstPose ? Object.keys(firstPose).join(', ') : 'N/A');
+                    
+                    if (hasTimestamps) {
+                        frameTimestampMap = new Map();
+                        console.log('   ✓ frameTimestampMap initialized (Polycam format detected)');
+                    } else {
+                        frameTimestampMap = null;
+                        console.log('   ✗ frameTimestampMap NOT initialized (no timestamps in poses)');
+                    }
                     
                     if (!cameraArray) {
                         throw new Error('No camera data found in trajectory JSON');
@@ -996,8 +1368,13 @@ async function loadCameraTrajectoryFromFile(trajectoryFile) {
                                 });
                                 
                                 // Store timestamp mapping for Polycam data
-                                if (isPolycamData && poseData.timestamp) {
+                                if (hasTimestamps && poseData.timestamp && frameTimestampMap) {
                                     frameTimestampMap.set(poseData.frame_index, poseData.timestamp);
+                                    if (i < 3) {
+                                        console.log(`   ✓ Mapped frame ${poseData.frame_index} → timestamp ${poseData.timestamp}`);
+                                    }
+                                } else if (i < 3) {
+                                    console.log(`   ✗ NOT mapping frame ${poseData.frame_index} (hasTimestamps: ${hasTimestamps}, pose has timestamp: ${!!poseData.timestamp}, map exists: ${!!frameTimestampMap})`);
                                 }
                             }
                         }
@@ -1006,8 +1383,12 @@ async function loadCameraTrajectoryFromFile(trajectoryFile) {
                     console.log(`Loaded ${cameraPoses.length} camera poses`);
                     
                     // Debug: Log timestamp mapping
+                    console.log('\n📸 TIMESTAMP MAPPING RESULT:');
+                    console.log('   - frameTimestampMap exists:', !!frameTimestampMap);
+                    console.log('   - frameTimestampMap size:', frameTimestampMap ? frameTimestampMap.size : 0);
+                    
                     if (frameTimestampMap && frameTimestampMap.size > 0) {
-                        console.log(`📸 Frame-to-Timestamp mapping created: ${frameTimestampMap.size} entries`);
+                        console.log(`   ✓ Frame-to-Timestamp mapping created: ${frameTimestampMap.size} entries`);
                         console.log(`   Sample mappings (first 5):`);
                         let count = 0;
                         for (const [frameIdx, timestamp] of frameTimestampMap) {
@@ -1016,7 +1397,8 @@ async function loadCameraTrajectoryFromFile(trajectoryFile) {
                             }
                         }
                     } else {
-                        console.warn(`⚠️ No timestamp mapping created!`);
+                        console.error(`   ✗ No timestamp mapping created!`);
+                        console.log(`   This will prevent frame images from loading.`);
                     }
                     
                     resolve(cameraPoses);
@@ -1125,36 +1507,42 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
         return cameraPoses.map(pose => ({
             index: pose.index,
             position: pose.position.clone(),
-            quaternion: pose.quaternion,
+            quaternion: pose.quaternion.clone(),
             matrix: pose.matrix,
             timestamp: pose.timestamp,
             intrinsics: pose.intrinsics
         }));
     }
     
-    // Step 3: Apply translation and X-axis flip to all camera poses
-    console.log(`\n   🔄 Applying translation + X-axis flip to ${cameraPoses.length} camera poses...`);
-    console.log(`   ⚠️ NOTE: Positions AND orientations flipped along X-axis`);
+    // Step 3: Apply translation and 180° Y-axis rotation around centroid
+    console.log(`\n   🔄 Applying translation + 180° Y-axis rotation to ${cameraPoses.length} camera poses...`);
+    console.log(`   ⚠️ NOTE: Translation + 180° rotation around Y-axis at centroid`);
     
-    // Create a 180-degree rotation around Y-axis for mirroring orientations
-    const yAxisFlip = new THREE.Quaternion();
-    yAxisFlip.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
+    // Create a 180-degree rotation around Y-axis
+    const yAxisRotation = new THREE.Quaternion();
+    yAxisRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI);
     
     const alignedPoses = cameraPoses.map(pose => {
-        // First translate
+        // First translate to align centroids
         const alignedPos = pose.position.clone().add(translation);
         
-        // Then flip X-axis (left ↔ right)
-        alignedPos.x = -alignedPos.x;
+        // Then rotate 180° around Y-axis at the PLY centroid
+        // 1. Move to origin (relative to PLY center)
+        const posRelativeToPly = alignedPos.clone().sub(plyCenter);
         
-        // Also flip the orientation by applying 180° rotation around Y-axis
-        // This ensures cameras face the correct direction after X-axis mirroring
+        // 2. Apply Y-axis rotation
+        posRelativeToPly.applyQuaternion(yAxisRotation);
+        
+        // 3. Move back from origin
+        const finalPos = posRelativeToPly.add(plyCenter);
+        
+        // Also apply rotation to camera orientation
         const quaternion = pose.quaternion.clone();
-        quaternion.premultiply(yAxisFlip);
+        quaternion.premultiply(yAxisRotation);
         
         return {
             index: pose.index,
-            position: alignedPos,
+            position: finalPos,
             quaternion: quaternion,
             matrix: pose.matrix,  // Keep original matrix for reference
             timestamp: pose.timestamp,
@@ -1162,23 +1550,19 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
         };
     });
     
-    // Verify alignment (centroid will be X-flipped relative to PLY)
+    // Verify alignment
     let verifySum = new THREE.Vector3(0, 0, 0);
     alignedPoses.forEach(pose => {
         verifySum.add(pose.position);
     });
     const verifiedCenter = verifySum.divideScalar(alignedPoses.length);
+    const alignmentError = verifiedCenter.distanceTo(plyCenter);
     
-    // Create a flipped PLY center for comparison
-    const flippedPlyCenter = plyCenter.clone();
-    flippedPlyCenter.x = -flippedPlyCenter.x;
-    const alignmentError = verifiedCenter.distanceTo(flippedPlyCenter);
-    
-    console.log(`\n   ✅ ALIGNMENT + FLIP COMPLETE!`);
-    console.log(`   📍 PLY Centroid (original): [${plyCenter.x.toFixed(3)}, ${plyCenter.y.toFixed(3)}, ${plyCenter.z.toFixed(3)}]`);
-    console.log(`   📍 Camera Centroid (flipped): [${verifiedCenter.x.toFixed(3)}, ${verifiedCenter.y.toFixed(3)}, ${verifiedCenter.z.toFixed(3)}]`);
+    console.log(`\n   ✅ TRANSLATION COMPLETE!`);
+    console.log(`   📍 PLY Centroid:           [${plyCenter.x.toFixed(3)}, ${plyCenter.y.toFixed(3)}, ${plyCenter.z.toFixed(3)}]`);
+    console.log(`   📍 Camera Centroid (aligned): [${verifiedCenter.x.toFixed(3)}, ${verifiedCenter.y.toFixed(3)}, ${verifiedCenter.z.toFixed(3)}]`);
     console.log(`   📊 Alignment Error: ${alignmentError.toFixed(6)} meters`);
-    console.log(`   🎯 Cameras are now aligned + X-flipped to match PLY!\n`);
+    console.log(`   🎯 Cameras are now aligned with PLY centroid!\n`);
     
     return alignedPoses;
 }
@@ -2527,11 +2911,11 @@ async function loadCameraFrames(cameraIndex) {
     const selectedCamera = trajectoryData[cameraIndex];
     const frameIndex = selectedCamera.index;
     
-    console.log('📷 Loading frames for camera:', {
-        cameraIndex,
-        frameIndex,
-        scanFolderPath
-    });
+    console.log('\n📷 LOADING FRAMES FOR CAMERA:');
+    console.log('   - cameraIndex in trajectoryData:', cameraIndex);
+    console.log('   - frameIndex:', frameIndex);
+    console.log('   - scanFolderPath:', scanFolderPath);
+    console.log('   - trajectoryData length:', trajectoryData.length);
     
     // Find the previous and next available cameras (not frame numbers)
     const framesToLoad = [];
@@ -2539,6 +2923,7 @@ async function loadCameraFrames(cameraIndex) {
     // Previous camera (if exists)
     if (cameraIndex > 0) {
         const prevCamera = trajectoryData[cameraIndex - 1];
+        console.log('   - Previous camera:', { arrayIndex: cameraIndex - 1, frameIndex: prevCamera.index, timestamp: prevCamera.timestamp });
         framesToLoad.push({
             frameNumber: prevCamera.index,
             isCurrent: false,
@@ -2547,6 +2932,7 @@ async function loadCameraFrames(cameraIndex) {
     }
     
     // Current camera
+    console.log('   - Current camera:', { arrayIndex: cameraIndex, frameIndex: frameIndex, timestamp: selectedCamera.timestamp });
     framesToLoad.push({
         frameNumber: frameIndex,
         isCurrent: true,
@@ -2556,6 +2942,7 @@ async function loadCameraFrames(cameraIndex) {
     // Next camera (if exists)
     if (cameraIndex < trajectoryData.length - 1) {
         const nextCamera = trajectoryData[cameraIndex + 1];
+        console.log('   - Next camera:', { arrayIndex: cameraIndex + 1, frameIndex: nextCamera.index, timestamp: nextCamera.timestamp });
         framesToLoad.push({
             frameNumber: nextCamera.index,
             isCurrent: false,
@@ -2563,7 +2950,7 @@ async function loadCameraFrames(cameraIndex) {
         });
     }
     
-    console.log('📋 Frames to load:', framesToLoad.map(f => `Frame ${f.frameNumber} (${f.label})`));
+    console.log('\n📋 Frames to load:', framesToLoad.map(f => `Frame ${f.frameNumber} (${f.label})`));
     
     // Display frames in viewer
     displayFrameViewer(framesToLoad, frameIndex);
@@ -2580,6 +2967,7 @@ function displayFrameViewer(frames, currentFrameIndex) {
     // Check if we're in frames mode by checking the active button
     const framesModeBtn = document.querySelector('.mode-btn[data-mode="frames"]');
     const isFramesMode = framesModeBtn && framesModeBtn.classList.contains('active');
+    
     if (isFramesMode) {
         viewer.classList.add('fullscreen-gallery');
         // Hide header and close button in frames mode
@@ -2615,71 +3003,98 @@ function displayFrameViewer(frames, currentFrameIndex) {
         
         const img = document.createElement('img');
         
-        // Determine paths based on data format
-        let possiblePaths = [];
-        
         // Debug: Check frameTimestampMap status
         console.log(`[FRAME LOAD DEBUG] Frame ${frameInfo.frameNumber}:`);
         console.log(`  - frameTimestampMap exists:`, frameTimestampMap ? 'YES' : 'NO');
         console.log(`  - frameTimestampMap size:`, frameTimestampMap ? frameTimestampMap.size : 0);
         console.log(`  - Has this frame:`, frameTimestampMap ? frameTimestampMap.has(frameInfo.frameNumber) : false);
-        
-        if (frameTimestampMap && frameTimestampMap.has(frameInfo.frameNumber)) {
-            // Polycam format: use timestamp
-            const timestamp = frameTimestampMap.get(frameInfo.frameNumber);
-            console.log(`  - Timestamp for frame ${frameInfo.frameNumber}:`, timestamp);
-            console.log(`  - scanFolderPath:`, scanFolderPath);
-            
-            possiblePaths = [
-                `${scanFolderPath}/corrected_images/${timestamp}.jpg`,
-                `${scanFolderPath}/images/${timestamp}.jpg`,
-            ];
-        } else {
-            // Old ARKit format: use padded frame number
-            console.log(`  - Using ARKit format (no timestamp found)`);
-            const frameNumberPadded = String(frameInfo.frameNumber).padStart(5, '0');
-            possiblePaths = [
-                `${scanFolderPath}/frame_${frameNumberPadded}.jpg`,
-                `${scanFolderPath}/frame_${frameNumberPadded}.png`,
-                `/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21/frame_${frameNumberPadded}.jpg`,
-                `/cloud/Untitled_Scan_22_24_52/2025_11_10_21_44_21/frame_${frameNumberPadded}.png`,
-            ];
-        }
-        
-        console.log(`  - Trying paths:`, possiblePaths);
+        console.log(`  - scanFolderPath:`, scanFolderPath);
         
         img.alt = `Frame ${frameInfo.frameNumber}`;
         img.style.display = 'none'; // Hide until loaded
         img.style.transform = 'rotate(90deg)'; // Rotate images to display upright
+        img.draggable = true; // Make image draggable
+        img.style.cursor = 'grab'; // Show grab cursor
         
-        let pathIndex = 0;
+        // Store frame info for drag (labelText will be defined later)
+        const frameLabel = frameInfo.label || (frameInfo.isCurrent ? 'Selected' : '');
+        img.dataset.frameNumber = frameInfo.frameNumber;
+        img.dataset.frameLabel = frameLabel || `Frame ${frameInfo.frameNumber}`;
         
-        const tryNextPath = () => {
-            if (pathIndex < possiblePaths.length) {
-                const path = possiblePaths[pathIndex];
-                console.log(`Attempting path: ${path}`);
-                img.src = path;
-                pathIndex++;
+        // Add drag handlers
+        const setupDragHandlers = () => {
+            img.addEventListener('dragstart', (e) => {
+                e.dataTransfer.effectAllowed = 'copy';
+                e.dataTransfer.setData('text/plain', `frame-${frameInfo.frameNumber}`);
+                // Store the image source URL for later use
+                if (img.src) {
+                    e.dataTransfer.setData('image-url', img.src);
+                }
+                img.style.cursor = 'grabbing';
+                img.style.opacity = '0.5';
+            });
+            
+            img.addEventListener('dragend', () => {
+                img.style.cursor = 'grab';
+                img.style.opacity = '1';
+            });
+        };
+        
+        // Setup drag handlers when image loads, or immediately if already loaded
+        if (img.complete && img.naturalHeight !== 0) {
+            setupDragHandlers();
+        } else {
+            img.addEventListener('load', setupDragHandlers, { once: true });
+        }
+        
+        // ALWAYS use folder handle when available (no hardcoded fallbacks)
+        if (scanFolderPath === 'folder-handle') {
+            console.log(`\n[FRAME ${frameInfo.frameNumber}] Loading from uploaded folder...`);
+            
+            // Check if we have timestamp mapping for this frame
+            if (frameTimestampMap && frameTimestampMap.has(frameInfo.frameNumber)) {
+                const timestamp = frameTimestampMap.get(frameInfo.frameNumber);
+                console.log(`  ✓ Timestamp mapping found: ${frameInfo.frameNumber} → ${timestamp}`);
+                
+                // Load image from folder handle (keyframes/images/)
+                (async () => {
+                    try {
+                        const url = await loadImageFromFolder(`${timestamp}.jpg`);
+                        if (url) {
+                            img.src = url;
+                            img.onload = () => {
+                                console.log(`  ✓ Loaded: ${timestamp}.jpg`);
+                                loader.remove();
+                                img.style.display = 'block';
+                                // Ensure drag handlers are set up after image loads
+                                if (!img.dataset.dragHandlersSetup) {
+                                    setupDragHandlers();
+                                    img.dataset.dragHandlersSetup = 'true';
+                                }
+                            };
+                            img.onerror = () => {
+                                console.error(`  ✗ Failed to display: ${timestamp}.jpg`);
+                                loader.innerHTML = `<div class="frame-error">❌<br>Image error</div>`;
+                            };
+                        } else {
+                            console.error(`  ✗ File not found in folder: ${timestamp}.jpg`);
+                            loader.innerHTML = `<div class="frame-error">❌<br>Not found</div>`;
+                        }
+                    } catch (error) {
+                        console.error(`  ✗ Error:`, error.message);
+                        loader.innerHTML = `<div class="frame-error">❌<br>Load error</div>`;
+                    }
+                })();
             } else {
-                // All paths failed, show error
-                loader.innerHTML = `<div class="frame-error">❌<br>Frame not found</div>`;
-                console.error(`Failed to load frame ${frameInfo.frameNumber}`);
+                console.error(`  ✗ No timestamp mapping for frame ${frameInfo.frameNumber}`);
+                console.log(`  - Available frames: ${frameTimestampMap ? frameTimestampMap.size : 0}`);
+                loader.innerHTML = `<div class="frame-error">❌<br>No mapping</div>`;
             }
-        };
-        
-        img.onload = () => {
-            console.log(`✓ Successfully loaded: ${img.src}`);
-            loader.remove();
-            img.style.display = 'block';
-        };
-        
-        img.onerror = () => {
-            console.log(`✗ Failed: ${img.src}`);
-            tryNextPath();
-        };
-        
-        // Start loading
-        tryNextPath();
+        } else {
+            // URL-based loading (only when NOT using folder upload)
+            console.error(`  ✗ scanFolderPath is not 'folder-handle': ${scanFolderPath}`);
+            loader.innerHTML = `<div class="frame-error">❌<br>Wrong mode</div>`;
+        }
         
         const label = document.createElement('div');
         label.className = 'frame-label';
@@ -2746,12 +3161,261 @@ function createFrameViewerUI() {
 
 // Chat interface state
 let chatHistory = [];
-// OpenRouter API configuration
+let pendingImages = []; // Store images to be sent with next message
+// API configuration
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const MCP_BRIDGE_URL = 'http://localhost:3001';
-// Default model to use (you can change this to any model supported by OpenRouter)
-// Examples: 'openai/gpt-3.5-turbo', 'openai/gpt-4', 'anthropic/claude-3-opus', 'google/gemini-pro'
+// Model configuration
+// OpenAI models (when using OpenAI API directly)
+const OPENAI_MODEL = 'gpt-3.5-turbo';
+const OPENAI_VISION_MODEL = 'gpt-4o'; // Vision-capable model
+// OpenRouter models (when using OpenRouter API)
 const OPENROUTER_MODEL = 'openai/gpt-3.5-turbo';
+const OPENROUTER_VISION_MODEL = 'openai/gpt-4o'; // Vision-capable model
+
+// Function to convert image to base64
+async function imageToBase64(imageUrl) {
+    // If it's already a data URL, return it
+    if (imageUrl.startsWith('data:')) {
+        return imageUrl;
+    }
+    
+    // If it's a blob URL, fetch it and convert to base64
+    if (imageUrl.startsWith('blob:')) {
+        try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error('Failed to read blob'));
+                reader.readAsDataURL(blob);
+            });
+        } catch (error) {
+            console.error('Error fetching blob URL:', error);
+            throw new Error('Failed to fetch image blob');
+        }
+    }
+    
+    // For regular URLs, try canvas method first, fallback to fetch
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        const timeout = setTimeout(() => {
+            // If canvas method fails or times out, try fetch method
+            fetch(imageUrl)
+                .then(response => response.blob())
+                .then(blob => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(new Error('Failed to read image'));
+                    reader.readAsDataURL(blob);
+                })
+                .catch(reject);
+        }, 3000);
+        
+        img.onload = () => {
+            clearTimeout(timeout);
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                const base64 = canvas.toDataURL('image/jpeg', 0.9);
+                resolve(base64);
+            } catch (e) {
+                // If canvas fails, try fetch method
+                fetch(imageUrl)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = () => reject(new Error('Failed to read image'));
+                        reader.readAsDataURL(blob);
+                    })
+                    .catch(reject);
+            }
+        };
+        
+        img.onerror = () => {
+            clearTimeout(timeout);
+            // Try fetch as fallback
+            fetch(imageUrl)
+                .then(response => response.blob())
+                .then(blob => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(new Error('Failed to read image'));
+                    reader.readAsDataURL(blob);
+                })
+                .catch(() => reject(new Error('Failed to load image')));
+        };
+        
+        img.src = imageUrl;
+    });
+}
+
+// Setup drag and drop zone for chat input
+function setupChatDropZone(container, chatInput, addChatMessageFn) {
+    container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'copy';
+        container.classList.add('drag-over');
+    });
+
+    container.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        container.classList.remove('drag-over');
+    });
+
+    container.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        container.classList.remove('drag-over');
+
+        // Check if it's a frame image being dropped
+        const frameData = e.dataTransfer.getData('text/plain');
+        const imageUrl = e.dataTransfer.getData('image-url');
+
+        if (frameData && frameData.startsWith('frame-')) {
+            // It's a frame image
+            const frameNumber = frameData.replace('frame-', '');
+            
+            try {
+                let base64Image;
+                
+                // If we have an image URL, try to use it
+                if (imageUrl) {
+                    try {
+                        base64Image = await imageToBase64(imageUrl);
+                    } catch (urlError) {
+                        console.warn('Failed to convert image URL, trying to reload from folder:', urlError);
+                        // Fallback: reload image from folder handle
+                        if (scanFolderPath === 'folder-handle' && frameTimestampMap && frameTimestampMap.has(parseInt(frameNumber))) {
+                            const timestamp = frameTimestampMap.get(parseInt(frameNumber));
+                            const imageFolder = folderFileHandles.correctedImagesFolder || folderFileHandles.imagesFolder;
+                            if (imageFolder) {
+                                try {
+                                    const fileHandle = await imageFolder.getFileHandle(`${timestamp}.jpg`);
+                                    const imageFile = await fileHandle.getFile();
+                                    base64Image = await new Promise((resolve, reject) => {
+                                        const reader = new FileReader();
+                                        reader.onload = () => resolve(reader.result);
+                                        reader.onerror = reject;
+                                        reader.readAsDataURL(imageFile);
+                                    });
+                                } catch (fileError) {
+                                    console.error('Failed to load file from folder:', fileError);
+                                }
+                            }
+                        }
+                        if (!base64Image) {
+                            throw new Error('Could not load image from folder');
+                        }
+                    }
+                } else {
+                    // No URL provided, try to load from folder
+                    if (scanFolderPath === 'folder-handle' && frameTimestampMap && frameTimestampMap.has(parseInt(frameNumber))) {
+                        const timestamp = frameTimestampMap.get(parseInt(frameNumber));
+                        const imageFolder = folderFileHandles.correctedImagesFolder || folderFileHandles.imagesFolder;
+                        if (imageFolder) {
+                            const fileHandle = await imageFolder.getFileHandle(`${timestamp}.jpg`);
+                            const imageFile = await fileHandle.getFile();
+                            base64Image = await new Promise((resolve, reject) => {
+                                const reader = new FileReader();
+                                reader.onload = () => resolve(reader.result);
+                                reader.onerror = reject;
+                                reader.readAsDataURL(imageFile);
+                            });
+                        }
+                    }
+                    if (!base64Image) {
+                        throw new Error('Could not find image file');
+                    }
+                }
+                
+                pendingImages.push({
+                    type: 'image_url',
+                    image_url: {
+                        url: base64Image
+                    },
+                    frameNumber: frameNumber
+                });
+
+                // Show image preview in chat
+                if (addChatMessageFn) {
+                    addChatMessageFn('user', `[Image: Frame ${frameNumber}]`, false, base64Image);
+                }
+                
+                // Update placeholder to indicate image is ready
+                chatInput.placeholder = `Ask about the image... (${pendingImages.length} image${pendingImages.length > 1 ? 's' : ''} attached)`;
+            } catch (error) {
+                console.error('Error processing dropped image:', error);
+                console.error('Frame number:', frameNumber);
+                console.error('Image URL:', imageUrl);
+                alert(`Failed to process the dropped image: ${error.message}. Please try again.`);
+            }
+        } else if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            // Handle file drops
+            const files = Array.from(e.dataTransfer.files).filter(file => 
+                file.type.startsWith('image/')
+            );
+            
+            for (const file of files) {
+                try {
+                    const reader = new FileReader();
+                    const base64Image = await new Promise((resolve, reject) => {
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+
+                    pendingImages.push({
+                        type: 'image_url',
+                        image_url: {
+                            url: base64Image
+                        },
+                        filename: file.name
+                    });
+
+                    // Show image preview in chat
+                    if (addChatMessageFn) {
+                        addChatMessageFn('user', `[Image: ${file.name}]`, false, base64Image);
+                    }
+                    
+                    // Update placeholder
+                    chatInput.placeholder = `Ask about the image... (${pendingImages.length} image${pendingImages.length > 1 ? 's' : ''} attached)`;
+                } catch (error) {
+                    console.error('Error processing dropped file:', error);
+                }
+            }
+        }
+    });
+}
+
+// Function to get OpenAI API key from environment variable
+// The API key should be set in .env file as VITE_OPENAI_API_KEY
+// Note: In Vite, only variables prefixed with VITE_ are exposed to client code
+function getOpenAIApiKey() {
+    // Try to get from environment variable (Vite exposes VITE_ prefixed vars)
+    const envKey = import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.OPENAI_API_KEY;
+    if (envKey) {
+        return envKey;
+    }
+    
+    // Fallback to localStorage if env var not set (for development/testing)
+    try {
+        return localStorage.getItem('openai_api_key') || '';
+    } catch (e) {
+        console.error('Error accessing localStorage:', e);
+        return '';
+    }
+}
 
 // Function to get OpenRouter API key from environment variable
 // The API key should be set in .env file as VITE_OPENROUTER_API_KEY
@@ -2796,6 +3460,56 @@ function setupChatInterface() {
     // Chat is open by default, so hide the toggle button initially
     chatToggleBtn.classList.add('hidden');
 
+    // Setup drag and drop for chat input container
+    const chatInputContainer = document.querySelector('.chat-input-container');
+    
+    // Function to add message to chat (defined before setupChatDropZone call)
+    function addChatMessage(role, content, isLoading = false, singleImage = null, imageArray = []) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${role}`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        
+        if (isLoading) {
+            contentDiv.innerHTML = '<div class="chat-loading"><span></span><span></span><span></span></div>';
+            messageDiv.dataset.loadingId = Date.now().toString();
+        } else {
+            // Add images if present
+            const imagesToShow = singleImage ? [singleImage] : imageArray;
+            if (imagesToShow.length > 0) {
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'chat-image-container';
+                imagesToShow.forEach((imageData) => {
+                    const img = document.createElement('img');
+                    img.src = imageData;
+                    img.className = 'chat-image';
+                    img.alt = 'Uploaded image';
+                    imageContainer.appendChild(img);
+                });
+                contentDiv.appendChild(imageContainer);
+            }
+            
+            // Format markdown and set as HTML
+            if (content) {
+                const formattedContent = formatMarkdown(content);
+                const textDiv = document.createElement('div');
+                textDiv.innerHTML = formattedContent;
+                contentDiv.appendChild(textDiv);
+            }
+        }
+        
+        messageDiv.appendChild(contentDiv);
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        return messageDiv.dataset.loadingId || null;
+    }
+    
+    setupChatDropZone(chatInputContainer, chatInput, addChatMessage);
+
     // Send message on button click
     chatSendBtn.addEventListener('click', () => {
         sendChatMessage();
@@ -2812,22 +3526,31 @@ function setupChatInterface() {
     // Function to send message
     async function sendChatMessage() {
         const message = chatInput.value.trim();
-        if (!message) return;
+        const hasImages = pendingImages.length > 0;
+        
+        // Require either message or images
+        if (!message && !hasImages) return;
 
         // Disable input while processing
         chatInput.disabled = true;
         chatSendBtn.disabled = true;
 
-        // Add user message to chat
-        addChatMessage('user', message);
+        // Add user message to chat (with images if any)
+        addChatMessage('user', message || 'Ask about the image', false, null, pendingImages.length > 0 ? pendingImages.map(img => img.image_url.url) : []);
+        
+        // Store images for API call
+        const imagesToSend = [...pendingImages];
+        pendingImages = []; // Clear pending images
         chatInput.value = '';
+        chatInput.placeholder = 'Ask about the model...'; // Reset placeholder
 
         // Show loading indicator
         const loadingId = addChatMessage('assistant', '', true);
 
         try {
+            // Skip MCP if images are present (MCP doesn't support image queries)
             // Check if this is a spatial data query (try MCP first)
-            const isSpatialQuery = /(chair|desk|table|sofa|bed|lamp|cabinet|shelf|door|window|color|material|room|dimension|size|how many|number of|list|count)/i.test(message);
+            const isSpatialQuery = imagesToSend.length === 0 && /(chair|desk|table|sofa|bed|lamp|cabinet|shelf|door|window|color|material|room|dimension|size|how many|number of|list|count)/i.test(message);
             
             if (isSpatialQuery) {
                 try {
@@ -2857,52 +3580,138 @@ function setupChatInterface() {
                 }
             }
 
-            // Fallback to OpenRouter
-            let apiKey = getOpenRouterApiKey();
+            // Check for API keys - prefer OpenAI if available, fallback to OpenRouter
+            const openAIKey = getOpenAIApiKey();
+            const openRouterKey = getOpenRouterApiKey();
             
-            if (!apiKey) {
-                throw new Error('OpenRouter API key is not set. Please set VITE_OPENROUTER_API_KEY in your .env file.');
+            let apiUrl, apiKey, modelToUse, useOpenAI;
+            
+            if (openAIKey) {
+                // Use OpenAI API directly
+                useOpenAI = true;
+                apiUrl = OPENAI_API_URL;
+                apiKey = openAIKey;
+                modelToUse = imagesToSend.length > 0 ? OPENAI_VISION_MODEL : OPENAI_MODEL;
+            } else if (openRouterKey) {
+                // Fallback to OpenRouter
+                useOpenAI = false;
+                apiUrl = OPENROUTER_API_URL;
+                apiKey = openRouterKey;
+                modelToUse = imagesToSend.length > 0 ? OPENROUTER_VISION_MODEL : OPENROUTER_MODEL;
+            } else {
+                throw new Error('No API key found. Please set VITE_OPENAI_API_KEY or VITE_OPENROUTER_API_KEY in your .env file.');
             }
 
             const modelContext = getModelContext();
+            
+            // Build user message content
+            let userContent;
+            if (imagesToSend.length > 0) {
+                // Clean image objects - remove any extra keys that aren't part of OpenAI's API format
+                const cleanedImages = imagesToSend.map(img => ({
+                    type: 'image_url',
+                    image_url: {
+                        url: img.image_url.url
+                    }
+                }));
+                
+                // For vision models, content is an array with text and images
+                userContent = [
+                    {
+                        type: 'text',
+                        text: message || 'What do you see in this image?'
+                    },
+                    ...cleanedImages
+                ];
+            } else {
+                userContent = message;
+            }
 
-            const response = await fetch(OPENROUTER_API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`,
-                    'HTTP-Referer': window.location.origin,
-                    'X-Title': 'AECTech Spatial Intelligence Modelling'
-                },
-                body: JSON.stringify({
-                    model: OPENROUTER_MODEL,
-                    messages: [
-                        {
-                            role: 'system',
-                            content: `You are an AI assistant helping users understand a 3D spatial intelligence model. You can answer questions about:
+            // Build headers
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            };
+            
+            // Add OpenRouter-specific headers only when using OpenRouter
+            if (!useOpenAI) {
+                headers['HTTP-Referer'] = window.location.origin;
+                headers['X-Title'] = 'AECTech Spatial Intelligence Modelling';
+            }
+
+            // Filter chat history to remove images (to prevent large payloads and 400 errors)
+            // Keep only text messages in history, but preserve the conversation flow
+            const filteredHistory = chatHistory.map(msg => {
+                if (msg.role === 'user' && Array.isArray(msg.content)) {
+                    // Extract only text from user messages with images
+                    const textPart = msg.content.find(item => item.type === 'text');
+                    return {
+                        role: msg.role,
+                        content: textPart ? textPart.text : '[Previous message with image]'
+                    };
+                }
+                return msg;
+            });
+
+            // Prepare request body
+            const requestBody = {
+                model: modelToUse,
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are an AI assistant helping users understand a 3D spatial intelligence model. You can answer questions about:
 - The 3D point cloud/mesh visualization
 - Camera trajectories and poses
 - Semantic labels and object detection
 - Navigation and controls
 - Technical details about the visualization
+${imagesToSend.length > 0 ? '- Analyzing images from camera frames in the spatial model' : ''}
 
 Current model context:
 ${modelContext}
 
 Be helpful, concise, and technical when appropriate.`
-                        },
-                        ...chatHistory,
-                        {
-                            role: 'user',
-                            content: message
-                        }
-                    ],
-                    temperature: 0.7
-                })
+                    },
+                    ...filteredHistory,
+                    {
+                        role: 'user',
+                        content: userContent
+                    }
+                ],
+                temperature: 0.7
+            };
+
+            // Log request for debugging (without sensitive data)
+            console.log('API Request:', {
+                url: apiUrl,
+                model: modelToUse,
+                useOpenAI: useOpenAI,
+                hasImages: imagesToSend.length > 0,
+                messageLength: message?.length || 0
+            });
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(requestBody)
             });
 
             if (!response.ok) {
-                throw new Error(`API error: ${response.status} ${response.statusText}`);
+                // Try to get detailed error message
+                let errorDetails = `${response.status} ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    console.error('API Error Response:', errorData);
+                    if (errorData.error) {
+                        errorDetails = errorData.error.message || errorData.error.code || errorDetails;
+                    } else if (errorData.message) {
+                        errorDetails = errorData.message;
+                    }
+                } catch (e) {
+                    // If response isn't JSON, use status text
+                    console.error('Failed to parse error response:', e);
+                }
+                throw new Error(`API error: ${response.status} - ${errorDetails}`);
             }
 
             const data = await response.json();
@@ -2915,15 +3724,23 @@ Be helpful, concise, and technical when appropriate.`
             addChatMessage('assistant', assistantMessage);
 
             // Update chat history
+            // For vision models, we need to store the content array with images
+            // But for text-only, just store the message string
+            const historyUserMessage = imagesToSend.length > 0 
+                ? { role: 'user', content: userContent }
+                : { role: 'user', content: message || 'Ask about the image' };
+            
             chatHistory.push(
-                { role: 'user', content: message },
+                historyUserMessage,
                 { role: 'assistant', content: assistantMessage }
             );
-
-            // Keep history manageable (last 10 exchanges)
-            if (chatHistory.length > 20) {
-                chatHistory = chatHistory.slice(-20);
+            
+            // Limit chat history to avoid token limits and large image payloads
+            // Keep only last 5 exchanges to prevent issues with large base64 images
+            if (chatHistory.length > 10) {
+                chatHistory = chatHistory.slice(-10);
             }
+
 
         } catch (error) {
             console.error('Chat API error:', error);
@@ -2933,10 +3750,15 @@ Be helpful, concise, and technical when appropriate.`
 
             // Show error message
             let errorMsg = `Sorry, I encountered an error: ${error.message}.`;
-            if (error.message.includes('API key')) {
-                errorMsg += ' Please set your OpenRouter API key. Get one from: https://openrouter.ai/keys';
+            if (error.message.includes('API key') || error.message.includes('No API key')) {
+                errorMsg += ' Please set VITE_OPENAI_API_KEY or VITE_OPENROUTER_API_KEY in your .env file.';
+                errorMsg += ' OpenAI API key: https://platform.openai.com/api-keys';
+                errorMsg += ' OpenRouter API key: https://openrouter.ai/keys';
             } else if (error.message.includes('401') || error.message.includes('403')) {
-                errorMsg += ' Please check your OpenRouter API key is valid.';
+                errorMsg += ' Please check your API key is valid.';
+            } else if (error.message.includes('402')) {
+                errorMsg += ' Payment required. If using OpenRouter, add credits at https://openrouter.ai/credits';
+                errorMsg += ' Or use OpenAI API directly by setting VITE_OPENAI_API_KEY.';
             }
             addChatMessage('assistant', errorMsg);
         } finally {
@@ -3195,32 +4017,6 @@ Be helpful, concise, and technical when appropriate.`
         return div.innerHTML;
     }
 
-    // Function to add message to chat
-    function addChatMessage(role, content, isLoading = false) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${role}`;
-        
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'message-content';
-        
-        if (isLoading) {
-            contentDiv.innerHTML = '<div class="chat-loading"><span></span><span></span><span></span></div>';
-            messageDiv.dataset.loadingId = Date.now().toString();
-        } else {
-            // Format markdown and set as HTML
-            const formattedContent = formatMarkdown(content);
-            contentDiv.innerHTML = formattedContent;
-        }
-        
-        messageDiv.appendChild(contentDiv);
-        chatMessages.appendChild(messageDiv);
-        
-        // Scroll to bottom
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-        return messageDiv.dataset.loadingId || null;
-    }
-
     // Function to remove message (for loading indicator)
     function removeChatMessage(loadingId) {
         if (!loadingId) return;
@@ -3262,118 +4058,17 @@ Be helpful, concise, and technical when appropriate.`
 // Initialize everything when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     init();
-    setupDragAndDrop();
     setupUI();
-    setupChatInterface();
-    
-    // Auto-load default PLY file from public folder
-    loadDefaultPLY();
+    // Ensure bottom dock (properties panel) is available even in PLY tab
+    (async () => {
+        try {
+            const dash = await import('./threeDashboard.js');
+            if (dash.ensureBottomDock) {
+                await dash.ensureBottomDock();
+            }
+        } catch (e) {
+            console.warn('Bottom dock init skipped:', e);
+        }
+    })();
 });
 
-// Setup view mode selector
-function setupViewModeSelector() {
-    const modeButtons = document.querySelectorAll('.mode-btn');
-    const canvasContainer = document.getElementById('canvas-container');
-    
-    modeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Remove active class from all buttons
-            modeButtons.forEach(btn => btn.classList.remove('active'));
-            // Add active class to clicked button
-            button.classList.add('active');
-            
-            // Get the selected mode
-            const selectedMode = button.getAttribute('data-mode');
-            console.log('View mode selected:', selectedMode);
-            
-            // Switch views based on mode
-            switchViewMode(selectedMode);
-        });
-    });
-}
-
-// Switch between different view modes
-function switchViewMode(mode) {
-    const canvasContainer = document.getElementById('canvas-container');
-    let frameViewer = document.getElementById('frame-viewer');
-    const chatContainer = document.getElementById('chat-container');
-    const chatToggleBtn = document.getElementById('chat-toggle-btn');
-    const controls = document.getElementById('controls');
-    const toggleControlsBtn = document.getElementById('toggle-controls');
-    
-    if (mode === 'frames') {
-        // Hide canvas
-        if (canvasContainer) {
-            canvasContainer.style.display = 'none';
-        }
-        
-        // Minimize chat if it's open
-        if (chatContainer && !chatContainer.classList.contains('hidden')) {
-            chatContainer.classList.add('hidden');
-            if (chatToggleBtn) {
-                chatToggleBtn.classList.remove('hidden');
-            }
-        }
-        
-        // Collapse controls if they're open and not already collapsed
-        if (controls && !controls.classList.contains('hidden')) {
-            if (!controls.classList.contains('collapsed')) {
-                controls.classList.add('collapsed');
-                if (toggleControlsBtn) {
-                    toggleControlsBtn.textContent = '+';
-                }
-            }
-        }
-        
-        // Show frame viewer with all frames
-        showAllFrames();
-    } else {
-        // Show canvas for PLY and 3D modes
-        if (canvasContainer) {
-            canvasContainer.style.display = 'block';
-        }
-        
-        // Hide frame viewer
-        if (frameViewer) {
-            frameViewer.classList.add('hidden');
-        }
-    }
-}
-
-// Show all frames in gallery
-function showAllFrames() {
-    if (!trajectoryData || trajectoryData.length === 0) {
-        console.warn('No trajectory data available to show frames');
-        // Still show the viewer but with a message
-        let viewer = document.getElementById('frame-viewer');
-        if (!viewer) {
-            viewer = createFrameViewerUI();
-        }
-        const gallery = viewer.querySelector('.frame-gallery');
-        gallery.innerHTML = '<div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.7);">No trajectory data loaded. Please load a trajectory file first.</div>';
-        viewer.classList.remove('hidden');
-        return;
-    }
-    
-    if (!scanFolderPath) {
-        console.warn('Scan folder path not available');
-        let viewer = document.getElementById('frame-viewer');
-        if (!viewer) {
-            viewer = createFrameViewerUI();
-        }
-        const gallery = viewer.querySelector('.frame-gallery');
-        gallery.innerHTML = '<div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.7);">Scan folder path not available. Please load a trajectory file first.</div>';
-        viewer.classList.remove('hidden');
-        return;
-    }
-    
-    // Create array of all frames from trajectory data
-    const allFrames = trajectoryData.map((pose, index) => ({
-        frameNumber: pose.index,
-        isCurrent: false,
-        label: `Camera ${index + 1}`
-    }));
-    
-    // Display all frames (this will also show the viewer)
-    displayFrameViewer(allFrames, null);
-}
