@@ -321,12 +321,30 @@ function applyFloorplanReport(report) {
 		}
 		setText('#kpi-total-volume', o.totalVolume ?? o.total_volume ?? '—');
 	}
-	// Rooms: choose primary room (e.g., Living Room) for dimensions
-	if (Array.isArray(report?.rooms) && report.rooms.length > 0) {
-		const primary = report.rooms.find(r => /living/i.test(r.name)) || report.rooms[0];
-		const dims = primary?.dimensions || primary?.boundingBox;
-		// Only stored for modal; totals card shows building totals
+
+	// Dimensions & Extents on totals card
+	const dimsTop = report?.dimensions;
+	if (dimsTop?.width || dimsTop?.depth || dimsTop?.height) {
+		const w = dimsTop.width ?? '—';
+		const d = dimsTop.depth ?? '—';
+		const h = dimsTop.height ? ` × ${dimsTop.height}` : '';
+		setText('#kpi-dimensions', `${w} × ${d}${h}`);
 	}
+	const bbox = report?.extents?.boundingBox;
+	if (bbox?.width || bbox?.depth || bbox?.height) {
+		const w = bbox.width ?? '—';
+		const d = bbox.depth ?? '—';
+		const h = bbox.height ? ` × ${bbox.height}` : '';
+		setText('#kpi-bbox', `${w} × ${d}${h}`);
+	}
+	const ins = report?.extents?.inscribed;
+	if (ins?.width || ins?.depth) {
+		const w = ins.width ?? '—';
+		const d = ins.depth ?? '—';
+		setText('#kpi-inscribed', `${w} × ${d}`);
+	}
+
+	// Rooms stored for modal only
 	// Furniture list if provided
 	// (Used in modal rendering on demand)
 }
@@ -524,6 +542,9 @@ function createBottomDock() {
 					<div class="kv"><div class="k">Wall Area</div><div class="v" id="arch-wall-area">—</div></div>
 					<div class="kv"><div class="k">Window Area</div><div class="v" id="arch-window-area">—</div></div>
 					<div class="kv"><div class="k">Total Volume</div><div class="v" id="kpi-total-volume">—</div></div>
+					<div class="kv"><div class="k">Dimensions</div><div class="v" id="kpi-dimensions">—</div></div>
+					<div class="kv"><div class="k">Bounding Box</div><div class="v" id="kpi-bbox">—</div></div>
+					<div class="kv"><div class="k">Inscribed</div><div class="v" id="kpi-inscribed">—</div></div>
 				</div>
 				<div class="totals-footer"><button id="view-more-details" class="view-btn">View details</button></div>
 			</div>
@@ -574,45 +595,107 @@ function openDetailsModal() {
 	const body = document.getElementById('details-modal-body');
 	if (!modal || !body) return;
 
-	const overview = lastReport?.overview ?? {};
-	const primary = (Array.isArray(lastReport?.rooms) && lastReport.rooms.length > 0)
-		? (lastReport.rooms.find(r => /living/i.test(r.name)) || lastReport.rooms[0])
-		: null;
-	const dims = primary?.dimensions || primary?.boundingBox || {};
-	const inscribed = primary?.inscribed || {};
+	const report = lastReport ?? {};
+	const overview = report.overview ?? {};
+	const dimsTop = report.dimensions ?? {};
+	const extents = report.extents ?? {};
+	const bbox = extents.boundingBox ?? {};
+	const inscribed = extents.inscribed ?? {};
+	const geoloc = report.geolocation ?? {};
 
-	const furnitureRows = Array.isArray(lastReport?.furniture) ? lastReport.furniture.map(f =>
+	const roomsTable = Array.isArray(report.rooms) ? report.rooms.map(r => {
+		const rd = r.dimensions || r.boundingBox || {};
+		const ins = r.inscribed || {};
+		return `<tr>
+			<td>${r.name ?? '—'}</td>
+			<td>${r.floorArea ?? '—'}</td>
+			<td>${r.wallAreaInclOpenings ?? '—'}</td>
+			<td>${r.wallAreaExclOpenings ?? r.wallArea ?? '—'}</td>
+			<td>${rd.width ?? '—'} × ${rd.depth ?? '—'} ${rd.height ? '× ' + rd.height : ''}</td>
+			<td>${ins.width ?? '—'} × ${ins.depth ?? '—'}</td>
+			<td>${r.perimeter ?? '—'}</td>
+			<td>${r.ceilingHeight ?? '—'}</td>
+			<td>${r.volume ?? '—'}</td>
+		</tr>`;
+	}).join('') : '';
+
+	const furnitureRows = Array.isArray(report.furniture) ? report.furniture.map(f =>
 		`<tr><td>${f.type || f.name || '—'}</td><td>${f.count ?? 1}</td><td>${f.notes || ''}</td></tr>`
-	).join('') : '<tr><td>—</td><td>—</td><td>—</td></tr>';
+	).join('') : '';
+
+	const materialsRows = Array.isArray(report.materials) ? report.materials.map(m =>
+		`<tr><td>${m.name ?? '—'}</td><td>${m.color ?? '—'}</td><td>${m.usage ?? '—'}</td></tr>`
+	).join('') : '';
+
+	const assets = report.assets ?? {};
+	const metadata = report.metadata ?? {};
 
 	body.innerHTML = `
 		<div class="details-sections">
 			<div class="details-group">
-				<h4>Building Totals</h4>
+				<h4>Overview</h4>
+				<div class="kv"><div class="k">Project</div><div class="v">${overview.projectName ?? '—'}</div></div>
+				<div class="kv"><div class="k">Units</div><div class="v">${overview.units ?? '—'}</div></div>
 				<div class="kv"><div class="k">Exterior Floor Area</div><div class="v">${overview.totalExteriorFloorArea ?? '—'}</div></div>
 				<div class="kv"><div class="k">Livable Floor Area</div><div class="v">${overview.totalLivableFloorArea ?? '—'}</div></div>
 				<div class="kv"><div class="k">Wall Area</div><div class="v">${overview.totalWallArea ?? '—'}</div></div>
 				<div class="kv"><div class="k">Window Area</div><div class="v">${overview.totalWindowArea ?? '—'}</div></div>
+				<div class="kv"><div class="k">Used / Unused</div><div class="v">${overview.usedArea ?? '—'} / ${overview.unusedArea ?? '—'}</div></div>
 				<div class="kv"><div class="k">Total Volume</div><div class="v">${overview.totalVolume ?? '—'}</div></div>
+				${overview.notes ? `<div class="kv"><div class="k">Notes</div><div class="v">${overview.notes}</div></div>` : ''}
 			</div>
 			<div class="details-group">
-				<h4>Primary Room</h4>
-				<div class="kv"><div class="k">Name</div><div class="v">${primary?.name ?? '—'}</div></div>
-				<div class="kv"><div class="k">Floor Area</div><div class="v">${primary?.floorArea ?? '—'}</div></div>
-				<div class="kv"><div class="k">Dimensions (B)</div><div class="v">${dims.width ?? '—'} × ${dims.depth ?? '—'} ${dims.height ? '× ' + dims.height : ''}</div></div>
-				<div class="kv"><div class="k">Dimensions (I)</div><div class="v">${inscribed.width ?? '—'} × ${inscribed.depth ?? '—'}</div></div>
-				<div class="kv"><div class="k">Wall Area (incl.)</div><div class="v">${primary?.wallAreaInclOpenings ?? '—'}</div></div>
-				<div class="kv"><div class="k">Wall Area (excl.)</div><div class="v">${primary?.wallArea ?? '—'}</div></div>
-				<div class="kv"><div class="k">Perimeter</div><div class="v">${primary?.perimeter ?? '—'}</div></div>
-				<div class="kv"><div class="k">Ceiling Height</div><div class="v">${primary?.ceilingHeight ?? '—'}</div></div>
-				<div class="kv"><div class="k">Room Volume</div><div class="v">${primary?.volume ?? '—'}</div></div>
+				<h4>Dimensions & Extents</h4>
+				<div class="kv"><div class="k">Dimensions</div><div class="v">${dimsTop.width ?? '—'} × ${dimsTop.depth ?? '—'} ${dimsTop.height ? '× ' + dimsTop.height : ''}</div></div>
+				<div class="kv"><div class="k">Bounding Box</div><div class="v">${bbox.width ?? '—'} × ${bbox.depth ?? '—'} ${bbox.height ? '× ' + bbox.height : ''}</div></div>
+				<div class="kv"><div class="k">Inscribed</div><div class="v">${inscribed.width ?? '—'} × ${inscribed.depth ?? '—'}</div></div>
+			</div>
+			<div class="details-group">
+				<h4>Geolocation</h4>
+				<div class="kv"><div class="k">Latitude</div><div class="v">${geoloc.latitude ?? '—'}</div></div>
+				<div class="kv"><div class="k">Longitude</div><div class="v">${geoloc.longitude ?? '—'}</div></div>
+				<div class="kv"><div class="k">Altitude</div><div class="v">${geoloc.altitude ?? '—'}</div></div>
+				<div class="kv"><div class="k">Address</div><div class="v">${geoloc.address ?? '—'}</div></div>
+			</div>
+			<div class="details-group" style="grid-column: 1 / -1">
+				<h4>Rooms</h4>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Name</th><th>Floor Area</th><th>Wall Area (incl.)</th><th>Wall Area (excl.)</th>
+							<th>Dimensions (B)</th><th>Dimensions (I)</th><th>Perimeter</th><th>Ceiling</th><th>Volume</th>
+						</tr>
+					</thead>
+					<tbody>
+						${roomsTable || '<tr><td colspan="9">—</td></tr>'}
+					</tbody>
+				</table>
 			</div>
 			<div class="details-group">
 				<h4>Furniture</h4>
 				<table class="table">
 					<thead><tr><th>Type</th><th>Count</th><th>Notes</th></tr></thead>
-					<tbody>${furnitureRows}</tbody>
+					<tbody>${furnitureRows || '<tr><td colspan="3">—</td></tr>'}</tbody>
 				</table>
+			</div>
+			<div class="details-group">
+				<h4>Materials</h4>
+				<table class="table">
+					<thead><tr><th>Name</th><th>Color</th><th>Usage</th></tr></thead>
+					<tbody>${materialsRows || '<tr><td colspan="3">—</td></tr>'}</tbody>
+				</table>
+			</div>
+			<div class="details-group">
+				<h4>Assets</h4>
+				<div class="kv"><div class="k">Model</div><div class="v">${assets.model ?? '—'}</div></div>
+				<div class="kv"><div class="k">Trajectory</div><div class="v">${assets.trajectory ?? '—'}</div></div>
+				<div class="kv"><div class="k">Labels</div><div class="v">${assets.labels ?? '—'}</div></div>
+				<div class="kv"><div class="k">Floorplan Image</div><div class="v">${report.floorplanImage ?? '—'}</div></div>
+			</div>
+			<div class="details-group">
+				<h4>Metadata</h4>
+				<div class="kv"><div class="k">Source</div><div class="v">${metadata.source ?? '—'}</div></div>
+				<div class="kv"><div class="k">Last Updated</div><div class="v">${metadata.lastUpdated ?? '—'}</div></div>
 			</div>
 		</div>
 	`;

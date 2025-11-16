@@ -213,7 +213,7 @@ body {
 .controls {
     position: fixed;
     bottom: 320px;
-    right: 20px;
+    left: 20px;
     width: 300px;
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(15px);
@@ -660,7 +660,7 @@ body {
 .chat-toggle-btn {
     position: fixed;
     bottom: var(--chat-bottom);
-    left: 20px;
+    right: 20px;
     width: 56px;
     height: 56px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -690,7 +690,7 @@ body {
 .chat-container {
     position: fixed;
     bottom: var(--chat-bottom);
-    left: 20px;
+    right: 20px;
     width: 400px;
     max-height: 600px;
     background: rgba(0, 0, 0, 0.9);
@@ -1012,11 +1012,14 @@ body {
     .chat-container {
         width: calc(100% - 40px);
         max-height: calc(100vh - 100px);
+        right: 10px;
+        left: auto;
     }
     
     .chat-toggle-btn {
         bottom: 10px;
-        left: 10px;
+        right: 10px;
+        left: auto;
         width: 48px;
         height: 48px;
         font-size: 20px;
