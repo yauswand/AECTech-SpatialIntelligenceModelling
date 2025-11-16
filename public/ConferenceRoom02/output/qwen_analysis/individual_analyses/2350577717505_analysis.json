@@ -1,0 +1,128 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "ergonomic office chair",
+        "distinctive_features": [
+            "mesh seat",
+            "high backrest",
+            "armrests",
+            "swivel base"
+        ]
+    },
+    "architectural_context": {
+        "category": "furniture",
+        "typical_location": "office or home office",
+        "architectural_style": "contemporary",
+        "functional_role": "seating for work or study"
+    },
+    "spatial_analysis": {
+        "size_scale": "medium",
+        "orientation": "sideways",
+        "relationship_to_space": "centered in the frame",
+        "placement": "on a carpeted floor, near a desk"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "plastic",
+            "metal"
+        ],
+        "quality_level": "standard",
+        "surface_finish": "polished",
+        "color_palette": [
+            "black"
+        ]
+    },
+    "style_design": {
+        "design_style": "modern",
+        "design_era": "contemporary",
+        "aesthetic_qualities": [
+            "functional",
+            "aesthetic"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "well-maintained",
+        "cleanliness": "clean",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "seating",
+        "usage_context": "residential or commercial office",
+        "ergonomic_notes": "ergonomically designed for comfort and support",
+        "functionality": "single-purpose"
+    },
+    "decorative_elements": {
+        "features": [
+            "mesh seat",
+            "high backrest",
+            "armrests"
+        ],
+        "visual_weight": "moderate",
+        "aesthetic_contribution": "contributes to a modern aesthetic",
+        "coordination": "coordinates well with the surrounding space"
+    },
+    "quality_value": {
+        "build_quality": "standard",
+        "value_category": "mid-range",
+        "brand_indicators": "not visible",
+        "craftsmanship": "average"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "ergonomic design",
+            "modern style"
+        ],
+        "cultural_influences": "not apparent",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "the chair appears to be in a home office setting"
+        ]
+    },
+    "confidence_score": 0.95,
+    "analysis_notes": "The chair is clearly identified as a modern ergonomic office chair with a mesh seat and high backrest, suitable for a contemporary office environment.",
+    "object_id": "2350577717505",
+    "current_label": "chair",
+    "detection_confidence": 0.95,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350577717505.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "furniture",
+        "reasoning": "The object detected as a 'chair' is a piece of furniture commonly used in interior spaces for seating purposes.",
+        "confidence": 0.61
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "architectural",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the image is clearly a chair, as it has the typical features of a chair such as a seat, backrest, and armrests. The bounding box is centered on this object, and the label 'chair' is correctly applied."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.178502034452944
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.7236788930438862
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.7736486070095241
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

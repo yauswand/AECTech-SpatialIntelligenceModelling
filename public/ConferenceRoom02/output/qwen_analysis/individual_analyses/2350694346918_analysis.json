@@ -1,0 +1,86 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "art installation resembling a clock",
+        "distinctive_features": [
+            "circular structure",
+            "decorative design",
+            "non-functional"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "small to medium-sized, approximately 1-2 feet in diameter",
+        "materials": [
+            "wood",
+            "metal"
+        ],
+        "color_appearance": "wooden color with a natural finish, metallic elements",
+        "condition": "new, likely part of an exhibition or gallery setting"
+    },
+    "functional_analysis": {
+        "primary_function": "decorative or conceptual piece",
+        "usage_context": "art gallery, museum, or public space",
+        "user_interaction": "viewing and appreciation, not for time-keeping"
+    },
+    "contextual_information": {
+        "typical_location": "art gallery, museum, or public space",
+        "brand_manufacturer": "not visible",
+        "value_category": "mid-range to premium, depending on the artist and context"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "artistic design",
+            "non-functional",
+            "prominent display"
+        ],
+        "environment_relationship": "part of a larger exhibition or gallery space",
+        "additional_notes": "The object is likely a conceptual or decorative piece rather than a functional clock."
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object is detected with a high confidence score, indicating a strong likelihood that it is an art installation resembling a clock. The verification notes confirm that it is not a functional clock but rather a decorative or conceptual piece.",
+    "object_id": "2350694346918",
+    "current_label": "art installation",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350694346918.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'art installation' indicates that the object is not a typical architectural, interior, or furniture item. Art installations are typically standalone pieces designed to be displayed in a space, often as a form of visual art, and do not fit into the categories of building architecture, interior design, or furniture.",
+        "confidence": 0.85
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "clock",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object detected as a clock appears to be an artistic installation resembling a clock, but it is not a functional clock. It is likely a decorative or conceptual piece rather than a clock."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.8967364657202408
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.5544902358124996
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.8954129641390294
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

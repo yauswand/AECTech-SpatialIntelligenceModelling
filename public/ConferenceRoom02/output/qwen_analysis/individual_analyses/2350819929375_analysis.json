@@ -1,0 +1,127 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "dressing table",
+        "distinctive_features": [
+            "black plastic cover",
+            "rectangular shape",
+            "furniture piece"
+        ]
+    },
+    "architectural_context": {
+        "category": "furniture",
+        "typical_location": "bedroom, dressing area",
+        "architectural_style": "modern",
+        "functional_role": "storage and dressing"
+    },
+    "spatial_analysis": {
+        "size_scale": "medium",
+        "orientation": "horizontal",
+        "relationship_to_space": "adjacent to wall",
+        "placement": "against wall, near floor"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "plastic",
+            "wood"
+        ],
+        "quality_level": "standard",
+        "surface_finish": "polished",
+        "color_palette": [
+            "black",
+            "white"
+        ]
+    },
+    "style_design": {
+        "design_style": "modern",
+        "design_era": "contemporary",
+        "aesthetic_qualities": [
+            "minimalist",
+            "functional"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "new",
+        "cleanliness": "clean",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "dressing and storage",
+        "usage_context": "residential",
+        "ergonomic_notes": "not applicable",
+        "functionality": "single-purpose"
+    },
+    "decorative_elements": {
+        "features": [
+            "black plastic cover"
+        ],
+        "visual_weight": "light",
+        "aesthetic_contribution": "neutral",
+        "coordination": "not visible"
+    },
+    "quality_value": {
+        "build_quality": "standard",
+        "value_category": "mid-range",
+        "brand_indicators": "not visible",
+        "craftsmanship": "standard"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "black plastic cover",
+            "modern design"
+        ],
+        "cultural_influences": "not apparent",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "object appears to be a piece of furniture, not a bag"
+        ]
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object is identified as a 'dressing table' due to its rectangular shape and placement against a wall, which is typical for such furniture. The black plastic cover suggests it might be a temporary or protective covering, but the overall structure and context indicate it is a piece of furniture.",
+    "object_id": "2350819929375",
+    "current_label": "dressing table",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350819929375.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "furniture",
+        "reasoning": "The object labeled as 'dressing table' is a piece of furniture typically used for personal grooming and storage, which fits the category of furniture.",
+        "confidence": 0.32
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "architectural",
+    "original_label": "bag",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object detected as a 'bag' appears to be a black plastic cover on a piece of furniture, which is more accurately described as a 'dressing table' in this context. The label 'bag' is not precise for this object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -1.0454197141303634
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.32606779587840234
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.3025692740225989
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

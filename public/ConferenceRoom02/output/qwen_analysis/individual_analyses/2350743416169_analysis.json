@@ -1,0 +1,84 @@
+{
+    "object_identification": {
+        "verified_label": "inaccurate label",
+        "specific_type": "booklet or manual",
+        "distinctive_features": [
+            "rectangular shape",
+            "text and images"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "small to medium size, approximate dimensions not visible",
+        "materials": [
+            "paper",
+            "plastic"
+        ],
+        "color_appearance": "white with black text and images",
+        "condition": "new, no visible signs of wear"
+    },
+    "functional_analysis": {
+        "primary_function": "providing information or instructions",
+        "usage_context": "typically found in retail stores, offices, or homes",
+        "user_interaction": "read and follow instructions or information"
+    },
+    "contextual_information": {
+        "typical_location": "retail store, office, or home",
+        "brand_manufacturer": "not visible",
+        "value_category": "budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "contains text and images",
+            "rectangular shape"
+        ],
+        "environment_relationship": "placed on a surface, possibly a table or counter",
+        "additional_notes": "the object is likely a booklet or manual, not a picture frame"
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object is more likely a booklet or manual based on its appearance and the verification notes provided.",
+    "object_id": "2350743416169",
+    "current_label": "booklet",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350743416169.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'booklet' does not correspond to any architectural, interior design, or furniture elements. It is a general object, likely a piece of paper or booklet.",
+        "confidence": 0.85
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "picture frame",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the bounding box appears to be a booklet or manual, not a picture frame. It is rectangular and contains text and images, which is more indicative of a booklet or manual rather than a picture frame."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.018080302581581442
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.03025175263652491
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.7650917321113289
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

@@ -1896,7 +1896,7 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
     
     // Create a -45 degree rotation around Y-axis
     const yAxisRotation = new THREE.Quaternion();
-    yAxisRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), 5 * Math.PI / 4);   
+    yAxisRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), 5 * Math.PI / 2);   
     const alignedPoses = cameraPoses.map(pose => {
         // First translate to align centroids
         const alignedPos = pose.position.clone().add(translation);

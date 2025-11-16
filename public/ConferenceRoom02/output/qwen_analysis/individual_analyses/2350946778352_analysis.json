@@ -1,0 +1,85 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "popcorn packet",
+        "distinctive_features": [
+            "yellow and white packaging",
+            "popcorn kernels visible through the packaging",
+            "text 'Popcorn' on the packaging"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "small, rectangular shape, approximately 10 cm x 15 cm",
+        "materials": [
+            "plastic",
+            "foil"
+        ],
+        "color_appearance": "yellow and white with some text and graphics",
+        "condition": "new, unused"
+    },
+    "functional_analysis": {
+        "primary_function": "contains popcorn",
+        "usage_context": "snacking, movie nights, or casual gatherings",
+        "user_interaction": "opened and poured popcorn into a bowl or eaten directly from the packet"
+    },
+    "contextual_information": {
+        "typical_location": "on a table, in a kitchen, or in a movie theater",
+        "brand_manufacturer": "not visible",
+        "value_category": "budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "popcorn kernels visible",
+            "text 'Popcorn' on the packaging"
+        ],
+        "environment_relationship": "on a wooden table, near other items like a water bottle and a chair",
+        "additional_notes": "The popcorn packet is the most confidently detected object, with a high detection confidence of 0.750."
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object is clearly a popcorn packet, as indicated by the label and the visible popcorn kernels through the packaging. The detection confidence is high, supporting the accuracy of the label.",
+    "object_id": "2350946778352",
+    "current_label": "popcorn packet",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350946778352.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'popcorn packet' is a food item and not an architectural, interior, or furniture element.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "bag",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object detected as a 'bag' appears to be a popcorn packet, which is a type of snack packaging, not a typical bag. The label 'popcorn packet' is more accurate for the object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.311213983242991
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.2868907510573268
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.25533165590010043
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

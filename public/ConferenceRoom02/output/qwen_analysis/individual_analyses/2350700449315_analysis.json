@@ -1,0 +1,126 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "picture frame",
+        "distinctive_features": [
+            "rectangular frame",
+            "visible image inside"
+        ]
+    },
+    "architectural_context": {
+        "category": "furniture",
+        "typical_location": "living room, hallway, or office",
+        "architectural_style": "modern",
+        "functional_role": "decorative and functional, used to display artwork or photographs"
+    },
+    "spatial_analysis": {
+        "size_scale": "small",
+        "orientation": "vertical",
+        "relationship_to_space": "aligned with the wall",
+        "placement": "on a glass shelf or display stand"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "wood",
+            "metal"
+        ],
+        "quality_level": "standard",
+        "surface_finish": "polished",
+        "color_palette": [
+            "brown",
+            "silver"
+        ]
+    },
+    "style_design": {
+        "design_style": "modern",
+        "design_era": "contemporary",
+        "aesthetic_qualities": [
+            "minimalist",
+            "clean lines"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "new",
+        "cleanliness": "well-maintained",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "display",
+        "usage_context": "residential or commercial",
+        "ergonomic_notes": "not applicable",
+        "functionality": "single-purpose"
+    },
+    "decorative_elements": {
+        "features": [
+            "rectangular frame",
+            "visible image inside"
+        ],
+        "visual_weight": "light",
+        "aesthetic_contribution": "adds visual interest and complements the modern aesthetic",
+        "coordination": "coordinates with the modern design of the space"
+    },
+    "quality_value": {
+        "build_quality": "standard",
+        "value_category": "mid-range",
+        "brand_indicators": "not visible",
+        "craftsmanship": "average"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "modern design",
+            "simple structure"
+        ],
+        "cultural_influences": "not apparent",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "the frame appears to be lightweight and portable"
+        ]
+    },
+    "confidence_score": 0.85,
+    "analysis_notes": "The picture frame is accurately identified and fits well within the modern architectural context of the space. The design is simple and functional, contributing to the overall aesthetic of the room.",
+    "object_id": "2350700449315",
+    "current_label": "picture frame",
+    "detection_confidence": 0.85,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350700449315.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "architectural/interior/furniture",
+        "reasoning": "The detected label 'picture frame' indicates that the object is related to interior design, as picture frames are typically used for decorative purposes within a home or office setting.",
+        "confidence": 0.6
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "architectural",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the bounding box is a rectangular frame with a visible image inside, which is characteristic of a picture frame. The label 'picture frame' is accurate for this object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.685840261464711
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.1876509095966413
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.2605508546069264
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

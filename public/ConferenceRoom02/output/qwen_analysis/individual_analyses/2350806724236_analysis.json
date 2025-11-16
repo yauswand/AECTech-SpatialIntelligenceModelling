@@ -1,0 +1,83 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "trash bin",
+        "distinctive_features": [
+            "plastic liner",
+            "filled with waste"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "small to medium size, approximately 1-2 feet in height and width",
+        "materials": [
+            "plastic",
+            "metal"
+        ],
+        "color_appearance": "black plastic liner, metallic exterior",
+        "condition": "used, with visible wear and tear"
+    },
+    "functional_analysis": {
+        "primary_function": "waste disposal",
+        "usage_context": "in indoor settings, such as homes, offices, or public spaces",
+        "user_interaction": "placed in a designated area for waste collection, typically emptied regularly"
+    },
+    "contextual_information": {
+        "typical_location": "indoors, near walls or corners",
+        "brand_manufacturer": "not visible",
+        "value_category": "budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "plastic liner",
+            "filled with waste"
+        ],
+        "environment_relationship": "placed on a red carpet, indicating it might be in a residential or commercial setting",
+        "additional_notes": "The object is a trash bin, which is commonly referred to as a 'bag' in the context of waste disposal."
+    },
+    "confidence_score": 0.95,
+    "analysis_notes": "The object is accurately identified as a trash bin, and the label 'bag' is appropriate for this context. The image shows a used trash bin with a plastic liner, filled with waste, placed on a red carpet.",
+    "object_id": "2350806724236",
+    "current_label": "bag",
+    "detection_confidence": 0.95,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350806724236.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The object detected as a 'bag' is not a typical architectural, interior, or furniture item. It is a general object, likely a trash bag, which is not typically considered part of building architecture, interior design, or furniture.",
+        "confidence": 0.94
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the image is a trash bin, which is commonly referred to as a 'bag' in the context of waste disposal. The label 'bag' is accurate for this object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.3995279121549661
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.5892549123455462
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.6377209741190126
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

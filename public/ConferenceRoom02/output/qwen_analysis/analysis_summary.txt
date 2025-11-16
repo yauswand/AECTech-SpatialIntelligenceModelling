@@ -1,0 +1,593 @@
+======================================================================
+DETECTION ANALYSIS SUMMARY
+======================================================================
+
+Total Detections: 39
+Successful Analyses: 39
+Failed Analyses: 0
+
+Object Type Classification:
+----------------------------------------
+  Architectural/Interior/Furniture: 16
+  General Objects: 23
+
+Architectural Objects by Category:
+----------------------------------------
+  furniture: 11
+  fixture: 3
+  architectural element: 1
+  decor: 1
+
+
+Detailed Object Analyses:
+======================================================================
+
+Object ID: 2350500153106
+Current Label: window
+Analysis Type: ARCHITECTURAL
+Classification: architectural/interior
+Original Label: mirror (corrected)
+Verification: The object in the image is a window, not a mirror. The reflection and the frame indicate it is a window, not a mirror.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: architectural element
+Style: modern
+Materials: metal, glass
+Condition: new
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350514675632
+Current Label: mirror
+Analysis Type: ARCHITECTURAL
+Classification: architectural/interior/furniture
+Verification: The object in the image is a reflective surface with a frame, which is characteristic of a mirror. The label 'mirror' is accurate for this object.
+Detection Confidence: 0.900
+Verified Label (from analysis): accurate label
+Category: furniture
+Style: modern
+Materials: glass, metal
+Condition: new
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350531082220
+Current Label: wall
+Analysis Type: ARCHITECTURAL
+Classification: architectural/interior/furniture
+Original Label: curtain (corrected)
+Verification: The detected object appears to be a wall, not a curtain. The green bounding box is placed on a plain surface, which is more indicative of a wall rather than a curtain. Curtains typically have a more textured and patterned appearance, which is not present here.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: furniture
+Style: modern
+Materials: plastic, paint
+Condition: well-maintained
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350531815848
+Current Label: paper
+Analysis Type: GENERAL
+Classification: general object
+Original Label: book (corrected)
+Verification: The object in the image appears to be a piece of paper with handwritten notes and diagrams, not a book. The label 'book' is incorrect as the object does not have the typical characteristics of a book, such as a cover, spine, or pages bound together.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350577717505
+Current Label: chair
+Analysis Type: ARCHITECTURAL
+Classification: furniture
+Verification: The object in the image is clearly a chair, as it has the typical features of a chair such as a seat, backrest, and armrests. The bounding box is centered on this object, and the label 'chair' is correctly applied.
+Detection Confidence: 0.950
+Verified Label (from analysis): accurate label
+Category: furniture
+Style: modern
+Materials: plastic, metal
+Condition: well-maintained
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350685326704
+Current Label: number
+Analysis Type: ARCHITECTURAL
+Classification: architectural/interior/furniture
+Original Label: clock (corrected)
+Verification: The object detected is a large number '8' rather than a clock. The label 'clock' is incorrect as the object does not have the typical features of a clock, such as hands or a face.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: decor
+Style: modern
+Materials: wood, marble
+Condition: new
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350686493830
+Current Label: clock
+Analysis Type: ARCHITECTURAL
+Classification: architectural/interior/furniture
+Verification: The object in the image is a clock with a circular shape and hands, which matches the label 'clock'. The confidence score of 0.773 is high enough to confirm the detection.
+Detection Confidence: 0.850
+Verified Label (from analysis): accurate label
+Category: fixture
+Style: industrial
+Materials: metal
+Condition: new
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350689711762
+Current Label: television
+Analysis Type: ARCHITECTURAL
+Classification: architectural/interior/furniture
+Verification: The object in the image is a flat-screen display mounted on the wall, which is commonly referred to as a television. The label 'television' is accurate for this object.
+Detection Confidence: 0.900
+Verified Label (from analysis): accurate label
+Category: fixture
+Style: modern
+Materials: plastic, glass
+Condition: new
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350694346918
+Current Label: art installation
+Analysis Type: GENERAL
+Classification: general object
+Original Label: clock (corrected)
+Verification: The object detected as a clock appears to be an artistic installation resembling a clock, but it is not a functional clock. It is likely a decorative or conceptual piece rather than a clock.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350695313964
+Current Label: sculpture
+Analysis Type: GENERAL
+Classification: general object
+Original Label: clock (corrected)
+Verification: The object in the image is a large, artistic sculpture made of stacked wooden pieces, not a clock. The label 'clock' is incorrect as there is no clock-like object in the image.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350700449315
+Current Label: picture frame
+Analysis Type: ARCHITECTURAL
+Classification: architectural/interior/furniture
+Verification: The object in the bounding box is a rectangular frame with a visible image inside, which is characteristic of a picture frame. The label 'picture frame' is accurate for this object.
+Detection Confidence: 0.850
+Verified Label (from analysis): accurate label
+Category: furniture
+Style: modern
+Materials: wood, metal
+Condition: new
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350703617226
+Current Label: wooden sculpture
+Analysis Type: GENERAL
+Classification: general object
+Original Label: clock (corrected)
+Verification: The object detected as a clock is actually a large, intricate wooden sculpture with a circular design, not a clock. The label 'clock' is incorrect because the object does not have the typical features of a clock, such as numbers, hands, or a face.
+Detection Confidence: 0.500
+Verified Label (from analysis): inaccurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350743416169
+Current Label: booklet
+Analysis Type: GENERAL
+Classification: general object
+Original Label: picture frame (corrected)
+Verification: The object in the bounding box appears to be a booklet or manual, not a picture frame. It is rectangular and contains text and images, which is more indicative of a booklet or manual rather than a picture frame.
+Detection Confidence: 0.750
+Verified Label (from analysis): inaccurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350767358877
+Current Label: tv
+Analysis Type: ARCHITECTURAL
+Classification: architectural/interior/furniture
+Verification: The object in the image is a flat-screen device with a screen displaying a blue image, which is characteristic of a television. The label 'tv' is accurate for this object.
+Detection Confidence: 0.850
+Verified Label (from analysis): accurate label
+Category: furniture
+Style: modern
+Materials: plastic, glass
+Condition: new
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350772827682
+Current Label: bottle
+Analysis Type: GENERAL
+Classification: general object
+Verification: The object detected with the label 'bottle' is a clear plastic bottle, which matches the label accurately. The confidence score of 0.653 is reasonable for a correctly identified object.
+Detection Confidence: 0.850
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350780530690
+Current Label: water bottle
+Analysis Type: GENERAL
+Classification: general object
+Original Label: bottle (corrected)
+Verification: The object detected as a 'bottle' is actually a water bottle, which is a more specific and accurate label.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350784698984
+Current Label: can
+Analysis Type: GENERAL
+Classification: general object
+Original Label: bottle (corrected)
+Verification: The object detected with the label 'bottle' appears to be a can, as indicated by the shape and the presence of a pull-tab. The label 'bottle' is incorrect for this object.
+Detection Confidence: 0.750
+Verified Label (from analysis): can
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350802005732
+Current Label: floor
+Analysis Type: GENERAL
+Classification: general object
+Original Label: carpet (corrected)
+Verification: The detected object is a red carpet, not a carpet. The label 'carpet' is incorrect as it refers to a type of floor covering, not the object in the image.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350806724236
+Current Label: bag
+Analysis Type: GENERAL
+Classification: general object
+Verification: The object in the image is a trash bin, which is commonly referred to as a 'bag' in the context of waste disposal. The label 'bag' is accurate for this object.
+Detection Confidence: 0.950
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350808041415
+Current Label: light switch
+Analysis Type: ARCHITECTURAL
+Classification: architectural/interior/furniture
+Original Label: picture frame (corrected)
+Verification: The object in the image is a light switch, not a picture frame. The label 'picture frame' is incorrect because the object has a rectangular shape with multiple buttons, which is characteristic of a light switch, not a picture frame.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: fixture
+Style: modern
+Materials: plastic
+Condition: new
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350810525716
+Current Label: plastic bag
+Analysis Type: GENERAL
+Classification: general object
+Original Label: bag (corrected)
+Verification: The object in the bottom right corner appears to be a plastic bag, not a bag as labeled. It is a common object in indoor scenes and matches the label 'bag' more closely.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350817928596
+Current Label: monitor
+Analysis Type: GENERAL
+Classification: general object
+Original Label: bag (corrected)
+Verification: The object detected as a 'bag' appears to be a black plastic bag covering a monitor, not a bag itself. The label 'monitor' is more accurate for the object in the image.
+Detection Confidence: 0.750
+Verified Label (from analysis): monitor
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350819929375
+Current Label: dressing table
+Analysis Type: ARCHITECTURAL
+Classification: furniture
+Original Label: bag (corrected)
+Verification: The object detected as a 'bag' appears to be a black plastic cover on a piece of furniture, which is more accurately described as a 'dressing table' in this context. The label 'bag' is not precise for this object.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: furniture
+Style: modern
+Materials: plastic, wood
+Condition: new
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350829416396
+Current Label: trash can
+Analysis Type: GENERAL
+Classification: general object
+Original Label: bag (corrected)
+Verification: The object detected as a 'bag' appears to be a trash can, as indicated by its shape and the presence of a liner. The label 'bag' is not precise for this object.
+Detection Confidence: 0.750
+Verified Label (from analysis): trash can
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350872216322
+Current Label: carpet
+Analysis Type: GENERAL
+Classification: general object
+Verification: The detected object is the floor, which is covered with a patterned carpet. The label 'carpet' is accurate for the object detected.
+Detection Confidence: 0.850
+Verified Label (from analysis): inaccurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350883904166
+Current Label: office chair
+Analysis Type: ARCHITECTURAL
+Classification: furniture
+Original Label: chair (corrected)
+Verification: The object in the image is clearly a chair with a backrest, armrests, and wheels, which is consistent with the label 'chair'. The context of the image, showing a room with a table and other office furniture, further supports that this is an office chair.
+Detection Confidence: 0.900
+Verified Label (from analysis): accurate label
+Category: furniture
+Style: modern
+Materials: fabric, metal
+Condition: well-maintained
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350906796321
+Current Label: cup
+Analysis Type: GENERAL
+Classification: general object
+Verification: The object in the image is a disposable paper cup, which matches the label 'cup'. The context of the image, showing a table with a cup and other items, supports the correct label. The confidence is high due to the clear visual match.
+Detection Confidence: 0.900
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350908213533
+Current Label: rug
+Analysis Type: ARCHITECTURAL
+Classification: architectural/interior/furniture
+Verification: The object labeled as 'rug' is clearly visible on the floor to the right of the table, and it matches the typical appearance of a rug in an indoor setting. The confidence score of 0.565 is reasonable for a correctly identified object.
+Detection Confidence: 0.800
+Verified Label (from analysis): accurate label
+Category: furniture
+Style: contemporary
+Materials: textile
+Condition: new
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350946778352
+Current Label: popcorn packet
+Analysis Type: GENERAL
+Classification: general object
+Original Label: bag (corrected)
+Verification: The object detected as a 'bag' appears to be a popcorn packet, which is a type of snack packaging, not a typical bag. The label 'popcorn packet' is more accurate for the object.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350948879158
+Current Label: snack bag
+Analysis Type: GENERAL
+Classification: general object
+Original Label: bag (corrected)
+Verification: The object detected as a 'bag' appears to be a snack bag, which is a type of bag used for storing and transporting snacks. The label 'bag' is close but not precise enough, as it could be more specific to the context of a snack bag.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350949612772
+Current Label: snack packet
+Analysis Type: GENERAL
+Classification: general object
+Original Label: bag (corrected)
+Verification: The object detected as a 'bag' is actually a snack packet, which is a type of bag but not the same as a typical handbag or backpack. The label 'snack packet' is more accurate for this object.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350973155129
+Current Label: floor lamp
+Analysis Type: ARCHITECTURAL
+Classification: architectural/interior/furniture
+Verification: The object in the image is a lamp with a base and a lampshade, which matches the description of a floor lamp. The label is correctly identified.
+Detection Confidence: 0.850
+Verified Label (from analysis): accurate label
+Category: furniture
+Style: modern
+Materials: metal, plastic
+Condition: new
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2350986927064
+Current Label: desk
+Analysis Type: GENERAL
+Classification: general object
+Verification: The entire image shows a flat surface with various items placed on it, which is characteristic of a desk. The presence of a chair and other typical desk items further supports this label.
+Detection Confidence: 0.950
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2351023807771
+Current Label: tablet
+Analysis Type: GENERAL
+Classification: general object
+Original Label: television (corrected)
+Verification: The object in the image is a tablet, not a television. It is being used as a monitor, but it is not a television. The label 'television' is incorrect because the object is a tablet, which is a portable electronic device used for computing and entertainment purposes.
+Detection Confidence: 0.750
+Verified Label (from analysis): tablet
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2351030276896
+Current Label: mug
+Analysis Type: GENERAL
+Classification: general object
+Verification: The object in the image is a ceramic cup with a handle, which is commonly used for holding beverages. The label 'mug' is accurate for this object.
+Detection Confidence: 0.850
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2351102170795
+Current Label: business card
+Analysis Type: GENERAL
+Classification: general object
+Original Label: book (corrected)
+Verification: The object detected as a 'book' is actually a business card with a QR code and text, not a book.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2351209327795
+Current Label: printer
+Analysis Type: GENERAL
+Classification: general object
+Original Label: fan (corrected)
+Verification: The object in the green bounding box appears to be a printer, not a fan. It has a rectangular shape with a flat surface and a control panel, which is characteristic of a printer. The label 'fan' is incorrect for this object.
+Detection Confidence: 0.750
+Verified Label (from analysis): accurate label
+Category: N/A
+Style: N/A
+Materials: N/A
+Condition: N/A
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2351218781340
+Current Label: table
+Analysis Type: ARCHITECTURAL
+Classification: furniture
+Verification: The object in the image is a flat surface with a wooden texture, which is characteristic of a table. There are no other objects that could be more accurately labeled as a table in this scene.
+Detection Confidence: 0.950
+Verified Label (from analysis): accurate label
+Category: furniture
+Style: modern
+Materials: wood
+Condition: well-maintained
+3D Position: Available
+----------------------------------------------------------------------
+
+Object ID: 2351258696267
+Current Label: cabinet
+Analysis Type: ARCHITECTURAL
+Classification: architectural/interior/furniture
+Verification: The detected object appears to be a cabinet based on its shape and the context of the image, which shows a typical office or home setting with furniture. The label 'cabinet' is accurate for this object.
+Detection Confidence: 0.850
+Verified Label (from analysis): accurate label
+Category: furniture
+Style: modern
+Materials: wood, metal
+Condition: new
+3D Position: Available
+----------------------------------------------------------------------
+

@@ -1,0 +1,127 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "office cabinet",
+        "distinctive_features": [
+            "rectangular shape",
+            "closed front",
+            "hinges visible"
+        ]
+    },
+    "architectural_context": {
+        "category": "furniture",
+        "typical_location": "office or home office",
+        "architectural_style": "modern",
+        "functional_role": "storage and organization"
+    },
+    "spatial_analysis": {
+        "size_scale": "medium",
+        "orientation": "vertical",
+        "relationship_to_space": "adjacent to wall",
+        "placement": "against the wall, near a window"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "wood",
+            "metal"
+        ],
+        "quality_level": "standard",
+        "surface_finish": "polished",
+        "color_palette": [
+            "brown",
+            "black"
+        ]
+    },
+    "style_design": {
+        "design_style": "modern",
+        "design_era": "contemporary",
+        "aesthetic_qualities": [
+            "functional",
+            "minimalist"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "new",
+        "cleanliness": "well-maintained",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "storage",
+        "usage_context": "office",
+        "ergonomic_notes": "not applicable",
+        "functionality": "single-purpose"
+    },
+    "decorative_elements": {
+        "features": [
+            "hinges",
+            "closed front"
+        ],
+        "visual_weight": "light",
+        "aesthetic_contribution": "functional",
+        "coordination": "matches other furniture"
+    },
+    "quality_value": {
+        "build_quality": "standard",
+        "value_category": "mid-range",
+        "brand_indicators": "not visible",
+        "craftsmanship": "standard"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "modern design",
+            "fits well in the office setting"
+        ],
+        "cultural_influences": "not apparent",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "matches the overall modern office aesthetic"
+        ]
+    },
+    "confidence_score": 0.85,
+    "analysis_notes": "The cabinet appears to be a standard office storage unit, likely made of wood and metal, with a polished finish. Its placement and design suggest it is intended for functional use in an office environment.",
+    "object_id": "2351258696267",
+    "current_label": "cabinet",
+    "detection_confidence": 0.85,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2351258696267.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "architectural/interior/furniture",
+        "reasoning": "The object labeled as 'cabinet' is typically used for storage and is a common element in interior design and furniture, often found in offices, homes, and other buildings.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "architectural",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The detected object appears to be a cabinet based on its shape and the context of the image, which shows a typical office or home setting with furniture. The label 'cabinet' is accurate for this object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            1.0591991666262235
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.6393201167699156
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.5320522489014081
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

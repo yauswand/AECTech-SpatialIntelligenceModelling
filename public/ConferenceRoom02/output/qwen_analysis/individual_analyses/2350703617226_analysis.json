@@ -1,0 +1,85 @@
+{
+    "object_identification": {
+        "verified_label": "inaccurate label",
+        "specific_type": "large, intricate wooden sculpture with a circular design",
+        "distinctive_features": [
+            "circular design",
+            "intricate details",
+            "wooden construction"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "large, circular, with an approximate diameter of 30-40 cm",
+        "materials": [
+            "wood"
+        ],
+        "color_appearance": "natural wood color, possibly stained or varnished",
+        "condition": "new, well-maintained"
+    },
+    "functional_analysis": {
+        "primary_function": "decorative",
+        "usage_context": "displayed in a gallery or museum setting",
+        "user_interaction": "observed, admired, but not interacted with"
+    },
+    "contextual_information": {
+        "typical_location": "art gallery, museum, or home decor",
+        "brand_manufacturer": "not visible",
+        "value_category": "premium"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "intricate details",
+            "wooden construction",
+            "circular design"
+        ],
+        "environment_relationship": "placed on a red carpet, suggesting a formal or artistic setting",
+        "additional_notes": "The object is likely a piece of art rather than a functional clock."
+    },
+    "confidence_score": 0.5,
+    "analysis_notes": "The object is incorrectly labeled as a 'clock' due to its circular design, which is a common feature in wooden sculptures. The high detection confidence (0.71) for 'clock' suggests the object's circular shape is a significant feature, but it lacks the typical features of a clock.",
+    "object_id": "2350703617226",
+    "current_label": "wooden sculpture",
+    "detection_confidence": 0.5,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350703617226.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The object is a wooden sculpture, which is not a part of building architecture, interior design, or furniture. It is a standalone decorative item.",
+        "confidence": 0.85
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "clock",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object detected as a clock is actually a large, intricate wooden sculpture with a circular design, not a clock. The label 'clock' is incorrect because the object does not have the typical features of a clock, such as numbers, hands, or a face."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.6075642592659247
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.25657142602378136
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.5657899309967149
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

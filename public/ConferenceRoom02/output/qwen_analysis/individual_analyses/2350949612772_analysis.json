@@ -1,0 +1,85 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "snack packet",
+        "distinctive_features": [
+            "popcorn",
+            "skinny",
+            "packaging"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "small, rectangular",
+        "materials": [
+            "plastic",
+            "foil"
+        ],
+        "color_appearance": "green and white packaging with blue text",
+        "condition": "new"
+    },
+    "functional_analysis": {
+        "primary_function": "containing popcorn",
+        "usage_context": "snacking, movie nights, or casual eating",
+        "user_interaction": "opened and consumed"
+    },
+    "contextual_information": {
+        "typical_location": "table, desk, or counter",
+        "brand_manufacturer": "not visible",
+        "value_category": "budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "popcorn flavor",
+            "skinny label"
+        ],
+        "environment_relationship": "on a wooden table",
+        "additional_notes": "no other objects are interacting with the snack packet"
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object is clearly a snack packet, and the label 'snack packet' is more accurate than 'bag' as it is specifically designed for popcorn and not a general bag.",
+    "object_id": "2350949612772",
+    "current_label": "snack packet",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350949612772.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'snack packet' indicates that the object is a food item, which does not fall under the categories of architectural, interior design, or furniture.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "bag",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object detected as a 'bag' is actually a snack packet, which is a type of bag but not the same as a typical handbag or backpack. The label 'snack packet' is more accurate for this object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.14081462987340965
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.37531952063342705
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.19278906046037436
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

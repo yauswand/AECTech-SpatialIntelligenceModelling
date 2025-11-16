@@ -1,0 +1,85 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "snack bag",
+        "distinctive_features": [
+            "popcorn",
+            "green and white packaging",
+            "text 'Skinny Pop'"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "small, rectangular, approximately 10 cm x 15 cm",
+        "materials": [
+            "plastic",
+            "paper"
+        ],
+        "color_appearance": "green and white, with a clear plastic window",
+        "condition": "new, unused"
+    },
+    "functional_analysis": {
+        "primary_function": "storage and transport of popcorn snacks",
+        "usage_context": "typically found in snack areas, movie theaters, or at home",
+        "user_interaction": "snack bag is opened to access the popcorn inside, then consumed"
+    },
+    "contextual_information": {
+        "typical_location": "snack area, movie theater, or home",
+        "brand_manufacturer": "Skinny Pop",
+        "value_category": "budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "popcorn branding",
+            "clear plastic window"
+        ],
+        "environment_relationship": "placed on a wooden surface, near other snacks and a bottle",
+        "additional_notes": "the snack bag is the main focus of the image, indicating it is the primary object of interest."
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object is clearly identified as a snack bag, and the label 'bag' is corrected to 'snack bag' for better specificity. The image provides a clear view of the snack bag, allowing for accurate identification and analysis.",
+    "object_id": "2350948879158",
+    "current_label": "snack bag",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350948879158.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'snack bag' indicates that the object is a snack item, which is not related to building architecture, interior design, or furniture. It is a general object.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "bag",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object detected as a 'bag' appears to be a snack bag, which is a type of bag used for storing and transporting snacks. The label 'bag' is close but not precise enough, as it could be more specific to the context of a snack bag."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.1908895544276401
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.30543376915943804
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.2425655106193101
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

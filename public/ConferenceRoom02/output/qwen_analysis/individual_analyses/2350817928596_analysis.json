@@ -1,0 +1,84 @@
+{
+    "object_identification": {
+        "verified_label": "monitor",
+        "specific_type": "a black plastic bag covering a monitor",
+        "distinctive_features": [
+            "black plastic bag",
+            "monitor"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "small to medium-sized monitor, approximate dimensions not visible",
+        "materials": [
+            "plastic",
+            "monitor material"
+        ],
+        "color_appearance": "black plastic bag, monitor color not visible",
+        "condition": "new, as the bag appears to be intact"
+    },
+    "functional_analysis": {
+        "primary_function": "to display content on a screen",
+        "usage_context": "typically used in offices, homes, or other workspaces for computer or multimedia purposes",
+        "user_interaction": "user interacts with the monitor by using a keyboard, mouse, or other input devices to control the content displayed on the screen"
+    },
+    "contextual_information": {
+        "typical_location": "office, home, or workspace",
+        "brand_manufacturer": "not visible",
+        "value_category": "budget to mid-range, depending on the monitor's specifications"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "plastic bag covering",
+            "monitor"
+        ],
+        "environment_relationship": "the monitor is placed on a surface, possibly a desk or table, with a wall and a carpeted floor in the background",
+        "additional_notes": "the plastic bag covering the monitor suggests it might be a new or recently purchased monitor, or it could be for protection during transport or storage"
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object is accurately labeled as a 'monitor' despite the presence of a black plastic bag, which is likely covering the monitor. The bag's presence does not affect the primary identification of the object.",
+    "object_id": "2350817928596",
+    "current_label": "monitor",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350817928596.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'monitor' refers to an electronic device, which is not typically classified as part of building architecture, interior design, or furniture. It is a general object.",
+        "confidence": 0.24
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "bag",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object detected as a 'bag' appears to be a black plastic bag covering a monitor, not a bag itself. The label 'monitor' is more accurate for the object in the image."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.8176844056275341
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.07717439124998904
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.3001073353666015
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

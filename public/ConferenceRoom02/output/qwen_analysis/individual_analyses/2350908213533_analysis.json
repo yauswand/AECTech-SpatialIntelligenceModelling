@@ -1,0 +1,124 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "rug",
+        "distinctive_features": [
+            "patterned design",
+            "dark color with light accents"
+        ]
+    },
+    "architectural_context": {
+        "category": "furniture",
+        "typical_location": "living room, dining area, or entryway",
+        "architectural_style": "contemporary",
+        "functional_role": "add comfort and style to the floor space"
+    },
+    "spatial_analysis": {
+        "size_scale": "medium",
+        "orientation": "aligned with the right edge of the table",
+        "relationship_to_space": "adjacent to the table and floor",
+        "placement": "on the floor to the right of the table"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "textile"
+        ],
+        "quality_level": "standard",
+        "surface_finish": "textured",
+        "color_palette": [
+            "dark gray",
+            "light gray"
+        ]
+    },
+    "style_design": {
+        "design_style": "contemporary",
+        "design_era": "modern",
+        "aesthetic_qualities": [
+            "subtle",
+            "functional"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "new",
+        "cleanliness": "clean",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "add aesthetic value to the space",
+        "usage_context": "residential",
+        "ergonomic_notes": "not applicable",
+        "functionality": "single-purpose"
+    },
+    "decorative_elements": {
+        "features": [
+            "patterned design"
+        ],
+        "visual_weight": "light",
+        "aesthetic_contribution": "enhances the space with a subtle pattern",
+        "coordination": "coordinates with the table and other elements in the space"
+    },
+    "quality_value": {
+        "build_quality": "standard",
+        "value_category": "budget",
+        "brand_indicators": "not visible",
+        "craftsmanship": "average"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "patterned design",
+            "dark color with light accents"
+        ],
+        "cultural_influences": "not apparent",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "matches the typical appearance of a rug in an indoor setting"
+        ]
+    },
+    "confidence_score": 0.8,
+    "analysis_notes": "The detected object is clearly a rug, and the confidence score supports the accuracy of the label. The rug's pattern and color scheme are consistent with contemporary design trends, and it appears to be in good condition with no visible signs of wear or damage.",
+    "object_id": "2350908213533",
+    "current_label": "rug",
+    "detection_confidence": 0.8,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350908213533.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "architectural/interior/furniture",
+        "reasoning": "The detected label 'rug' indicates that the object is a type of floor covering, which is typically used in interior design to enhance the aesthetic and functional aspects of a space. Rugs are not architectural elements but are considered part of interior design and furniture in the broader sense.",
+        "confidence": 0.56
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "architectural",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object labeled as 'rug' is clearly visible on the floor to the right of the table, and it matches the typical appearance of a rug in an indoor setting. The confidence score of 0.565 is reasonable for a correctly identified object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.1392658934725004
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.5802409449529566
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.9503736870444581
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

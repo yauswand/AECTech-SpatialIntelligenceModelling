@@ -1,0 +1,129 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "whiteboard",
+        "distinctive_features": [
+            "writing",
+            "drawings",
+            "notations"
+        ]
+    },
+    "architectural_context": {
+        "category": "furniture",
+        "typical_location": "office, classroom, meeting room",
+        "architectural_style": "modern",
+        "functional_role": "writing and brainstorming tool"
+    },
+    "spatial_analysis": {
+        "size_scale": "medium",
+        "orientation": "horizontal",
+        "relationship_to_space": "central",
+        "placement": "attached to wall"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "plastic",
+            "paint"
+        ],
+        "quality_level": "standard",
+        "surface_finish": "smooth",
+        "color_palette": [
+            "white",
+            "black"
+        ]
+    },
+    "style_design": {
+        "design_style": "modern",
+        "design_era": "contemporary",
+        "aesthetic_qualities": [
+            "functional",
+            "practical"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "well-maintained",
+        "cleanliness": "clean",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "writing and brainstorming",
+        "usage_context": "office, classroom, meeting room",
+        "ergonomic_notes": "not applicable",
+        "functionality": "single-purpose"
+    },
+    "decorative_elements": {
+        "features": [
+            "writing",
+            "drawings",
+            "notations"
+        ],
+        "visual_weight": "light",
+        "aesthetic_contribution": "practical",
+        "coordination": "not applicable"
+    },
+    "quality_value": {
+        "build_quality": "standard",
+        "value_category": "mid-range",
+        "brand_indicators": "not visible",
+        "craftsmanship": "standard"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "notations",
+            "drawings"
+        ],
+        "cultural_influences": "not apparent",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "writing appears to be in multiple colors"
+        ]
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The detected object is a whiteboard, which is a common piece of furniture used for writing and brainstorming. The green bounding box indicates a plain surface, which is consistent with a whiteboard. The presence of writing and drawings suggests it is actively used, but the condition appears well-maintained.",
+    "object_id": "2350531082220",
+    "current_label": "wall",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350531082220.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "architectural/interior/furniture",
+        "reasoning": "The object detected as 'wall' is part of the architectural and interior design elements of a building, as it is a structural component that forms the boundary and support of the space.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "architectural",
+    "original_label": "curtain",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The detected object appears to be a wall, not a curtain. The green bounding box is placed on a plain surface, which is more indicative of a wall rather than a curtain. Curtains typically have a more textured and patterned appearance, which is not present here."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            1.1791258572904046
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.6963481058993395
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            -1.8275583373732291
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

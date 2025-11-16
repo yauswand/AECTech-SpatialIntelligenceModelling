@@ -1,0 +1,127 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "floor lamp with a base and a lampshade",
+        "distinctive_features": [
+            "lampshade",
+            "base",
+            "lighting fixture"
+        ]
+    },
+    "architectural_context": {
+        "category": "furniture",
+        "typical_location": "office, home office, living room",
+        "architectural_style": "modern",
+        "functional_role": "provides ambient and task lighting"
+    },
+    "spatial_analysis": {
+        "size_scale": "medium",
+        "orientation": "vertical, standing upright",
+        "relationship_to_space": "adjacent to a chair and desk",
+        "placement": "on the floor, near the desk"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "metal",
+            "plastic"
+        ],
+        "quality_level": "standard",
+        "surface_finish": "polished",
+        "color_palette": [
+            "black",
+            "silver"
+        ]
+    },
+    "style_design": {
+        "design_style": "modern",
+        "design_era": "contemporary",
+        "aesthetic_qualities": [
+            "minimalist",
+            "functional"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "new",
+        "cleanliness": "clean",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "provides lighting",
+        "usage_context": "residential, office",
+        "ergonomic_notes": "not applicable",
+        "functionality": "single-purpose"
+    },
+    "decorative_elements": {
+        "features": [
+            "lampshade",
+            "base"
+        ],
+        "visual_weight": "light",
+        "aesthetic_contribution": "contributes to a modern aesthetic",
+        "coordination": "coordinates with the chair and desk"
+    },
+    "quality_value": {
+        "build_quality": "standard",
+        "value_category": "mid-range",
+        "brand_indicators": "not visible",
+        "craftsmanship": "average"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "simple design",
+            "modern style"
+        ],
+        "cultural_influences": "not apparent",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "matches the modern office setting"
+        ]
+    },
+    "confidence_score": 0.85,
+    "analysis_notes": "The object is clearly identified as a floor lamp, and the analysis is based on the visible features and context within the image.",
+    "object_id": "2350973155129",
+    "current_label": "floor lamp",
+    "detection_confidence": 0.85,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350973155129.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "architectural/interior/furniture",
+        "reasoning": "The detected label 'floor lamp' is a type of lighting fixture, which is typically used in interior design and furniture settings to provide illumination and enhance the aesthetic of a space.",
+        "confidence": 0.55
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "architectural",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the image is a lamp with a base and a lampshade, which matches the description of a floor lamp. The label is correctly identified."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -1.1927402255948305
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.1649482952558896
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.046533015053266125
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

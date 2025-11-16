@@ -1,0 +1,13 @@
+{
+    "total": 39,
+    "successful": 39,
+    "failed": 0,
+    "by_category": {
+        "architectural element": 1,
+        "furniture": 11,
+        "fixture": 3,
+        "decor": 1
+    },
+    "architectural_count": 16,
+    "general_count": 23
+}

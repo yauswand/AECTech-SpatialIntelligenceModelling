@@ -1,0 +1,84 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "wooden desk with various items placed on it",
+        "distinctive_features": [
+            "flat surface",
+            "wood grain texture",
+            "sticker on the surface"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "approximately 120 cm x 60 cm",
+        "materials": [
+            "wood",
+            "plastic"
+        ],
+        "color_appearance": "light brown with visible wood grain",
+        "condition": "used, with some wear and tear"
+    },
+    "functional_analysis": {
+        "primary_function": "workstation or study area",
+        "usage_context": "office or home office",
+        "user_interaction": "used for writing, typing, and organizing items"
+    },
+    "contextual_information": {
+        "typical_location": "office or home office",
+        "brand_manufacturer": "not visible",
+        "value_category": "budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "sticker on the surface",
+            "various items placed on it"
+        ],
+        "environment_relationship": "chair partially visible, suggesting a workspace",
+        "additional_notes": "items on the desk include a water bottle, a bag, a marker, a tape dispenser, and a trash bin"
+    },
+    "confidence_score": 0.95,
+    "analysis_notes": "The high detection confidence (0.950) supports the accuracy of the label 'desk'. The presence of a chair and typical desk items further confirms the label. The desk appears to be a standard office desk with a wooden surface and some wear, indicating it is likely a used item.",
+    "object_id": "2350986927064",
+    "current_label": "desk",
+    "detection_confidence": 0.95,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350986927064.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'desk' refers to a piece of furniture, which is not an architectural or interior element in the context of building structures or design.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The entire image shows a flat surface with various items placed on it, which is characteristic of a desk. The presence of a chair and other typical desk items further supports this label."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.3113156407532123
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.5570265444012167
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.22518239149531608
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

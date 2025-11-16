@@ -1,0 +1,126 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "flat-screen television",
+        "distinctive_features": [
+            "blue screen",
+            "thin bezel"
+        ]
+    },
+    "architectural_context": {
+        "category": "furniture",
+        "typical_location": "living room, bedroom, or home office",
+        "architectural_style": "modern",
+        "functional_role": "entertainment, information display, or multimedia center"
+    },
+    "spatial_analysis": {
+        "size_scale": "medium",
+        "orientation": "horizontal",
+        "relationship_to_space": "aligned with the red wall",
+        "placement": "on the floor, leaning against the wall"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "plastic",
+            "glass"
+        ],
+        "quality_level": "standard",
+        "surface_finish": "polished",
+        "color_palette": [
+            "black",
+            "blue"
+        ]
+    },
+    "style_design": {
+        "design_style": "modern",
+        "design_era": "contemporary",
+        "aesthetic_qualities": [
+            "minimalist",
+            "functional"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "new",
+        "cleanliness": "clean",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "display content",
+        "usage_context": "residential",
+        "ergonomic_notes": "not applicable",
+        "functionality": "single-purpose"
+    },
+    "decorative_elements": {
+        "features": [
+            "thin bezel",
+            "blue screen"
+        ],
+        "visual_weight": "light",
+        "aesthetic_contribution": "neutral",
+        "coordination": "coordination with the red wall"
+    },
+    "quality_value": {
+        "build_quality": "standard",
+        "value_category": "mid-range",
+        "brand_indicators": "not visible",
+        "craftsmanship": "standard"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "thin bezel",
+            "blue screen"
+        ],
+        "cultural_influences": "not apparent",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "leaning against the wall, not mounted"
+        ]
+    },
+    "confidence_score": 0.85,
+    "analysis_notes": "The detected object is a flat-screen television with a blue screen, placed on the floor against a red wall. The object is identified as a modern, minimalist flat-screen television with a standard build quality and mid-range value. The object is in good condition and clean, with no visible signs of wear or damage.",
+    "object_id": "2350767358877",
+    "current_label": "tv",
+    "detection_confidence": 0.85,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350767358877.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "architectural/interior/furniture",
+        "reasoning": "The object detected as 'tv' is a piece of furniture that is commonly used in interior design settings, such as living rooms or bedrooms, to display content on a screen.",
+        "confidence": 0.62
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "architectural",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the image is a flat-screen device with a screen displaying a blue image, which is characteristic of a television. The label 'tv' is accurate for this object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.1908600697096376
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.5022023449058353
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.374300780909109
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

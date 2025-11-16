@@ -1,0 +1,124 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "light switch",
+        "distinctive_features": [
+            "rectangular shape",
+            "multiple buttons"
+        ]
+    },
+    "architectural_context": {
+        "category": "fixture",
+        "typical_location": "wall",
+        "architectural_style": "modern",
+        "functional_role": "controls lighting"
+    },
+    "spatial_analysis": {
+        "size_scale": "small",
+        "orientation": "vertical",
+        "relationship_to_space": "attached to wall",
+        "placement": "on wall, near ceiling"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "plastic"
+        ],
+        "quality_level": "standard",
+        "surface_finish": "polished",
+        "color_palette": [
+            "white"
+        ]
+    },
+    "style_design": {
+        "design_style": "modern",
+        "design_era": "contemporary",
+        "aesthetic_qualities": [
+            "functional",
+            "minimalist"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "new",
+        "cleanliness": "clean",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "controls lighting",
+        "usage_context": "residential",
+        "ergonomic_notes": "not applicable",
+        "functionality": "single-purpose"
+    },
+    "decorative_elements": {
+        "features": [
+            "rectangular shape",
+            "multiple buttons"
+        ],
+        "visual_weight": "light",
+        "aesthetic_contribution": "functional",
+        "coordination": "not applicable"
+    },
+    "quality_value": {
+        "build_quality": "standard",
+        "value_category": "budget",
+        "brand_indicators": "not visible",
+        "craftsmanship": "standard"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "rectangular shape with multiple buttons"
+        ],
+        "cultural_influences": "not apparent",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "corrected label from 'picture frame' to 'light switch'"
+        ]
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object is clearly identified as a light switch based on its shape and the multiple buttons, which are characteristic features of a light switch. The detection confidence is high, and the object is correctly labeled as a light switch, not a picture frame.",
+    "object_id": "2350808041415",
+    "current_label": "light switch",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350808041415.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "architectural/interior/furniture",
+        "reasoning": "The detected label 'light switch' is a component typically found in interior design and architecture, used for controlling lighting in buildings and rooms.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "architectural",
+    "original_label": "picture frame",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the image is a light switch, not a picture frame. The label 'picture frame' is incorrect because the object has a rectangular shape with multiple buttons, which is characteristic of a light switch, not a picture frame."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.4050076604885497
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.16170354660859532
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.10810198468257548
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}
