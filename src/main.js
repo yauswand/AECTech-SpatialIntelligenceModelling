@@ -906,6 +906,185 @@ function setupUI() {
     
     // Setup control panel
     setupControlPanel();
+    
+    // Setup chat interface
+    setupChatInterface();
+    
+    // Setup view picker
+    setupViewPicker();
+    
+    // Setup view mode selector
+    setupViewModeSelector();
+}
+
+// Setup view picker for render mode selection
+function setupViewPicker() {
+    const renderModeSelect = document.getElementById('render-mode-select');
+    if (!renderModeSelect) return;
+    
+    // Set initial value
+    renderModeSelect.value = renderMode;
+    
+    // Handle mode change
+    renderModeSelect.addEventListener('change', (e) => {
+        const newMode = e.target.value;
+        if (!currentGeometry) {
+            console.log('No geometry loaded yet');
+            return;
+        }
+        
+        const hasFaces = currentGeometry.index !== null && currentGeometry.index.count > 0;
+        
+        // Remove current mesh
+        if (currentPointCloud) {
+            scene.remove(currentPointCloud);
+            if (currentPointCloud.material) {
+                currentPointCloud.material.dispose();
+            }
+            currentPointCloud = null;
+        }
+        
+        renderMode = newMode;
+        
+        if (newMode === 'auto') {
+            // Auto mode: use wireframe if faces exist, otherwise points
+            if (hasFaces) {
+                createWireframeMesh(currentGeometry);
+                document.getElementById('controls').classList.add('hidden');
+                console.log('Switched to Auto mode (Wireframe)');
+            } else {
+                createPointCloud(currentGeometry);
+                document.getElementById('controls').classList.remove('hidden');
+                console.log('Switched to Auto mode (Points)');
+            }
+        } else if (newMode === 'wireframe') {
+            if (hasFaces) {
+                createWireframeMesh(currentGeometry);
+                document.getElementById('controls').classList.add('hidden');
+                console.log('Switched to Wireframe mode');
+            } else {
+                alert('No face data available - cannot display wireframe. Switching to points mode.');
+                renderModeSelect.value = 'points';
+                renderMode = 'points';
+                createPointCloud(currentGeometry);
+                document.getElementById('controls').classList.remove('hidden');
+            }
+        } else if (newMode === 'points') {
+            createPointCloud(currentGeometry);
+            document.getElementById('controls').classList.remove('hidden');
+            console.log('Switched to Points mode');
+        }
+    });
+}
+
+// Setup view mode selector
+function setupViewModeSelector() {
+    const modeButtons = document.querySelectorAll('.mode-btn');
+    const canvasContainer = document.getElementById('canvas-container');
+    
+    modeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            modeButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            button.classList.add('active');
+            
+            // Get the selected mode
+            const selectedMode = button.getAttribute('data-mode');
+            console.log('View mode selected:', selectedMode);
+            
+            // Switch views based on mode
+            switchViewMode(selectedMode);
+        });
+    });
+}
+
+// Switch between different view modes
+function switchViewMode(mode) {
+    const canvasContainer = document.getElementById('canvas-container');
+    let frameViewer = document.getElementById('frame-viewer');
+    const chatContainer = document.getElementById('chat-container');
+    const chatToggleBtn = document.getElementById('chat-toggle-btn');
+    const controls = document.getElementById('controls');
+    const toggleControlsBtn = document.getElementById('toggle-controls');
+    
+    if (mode === 'frames') {
+        // Hide canvas
+        if (canvasContainer) {
+            canvasContainer.style.display = 'none';
+        }
+        
+        // Minimize chat if it's open
+        if (chatContainer && !chatContainer.classList.contains('hidden')) {
+            chatContainer.classList.add('hidden');
+            if (chatToggleBtn) {
+                chatToggleBtn.classList.remove('hidden');
+            }
+        }
+        
+        // Collapse controls if they're open and not already collapsed
+        if (controls && !controls.classList.contains('hidden')) {
+            if (!controls.classList.contains('collapsed')) {
+                controls.classList.add('collapsed');
+                if (toggleControlsBtn) {
+                    toggleControlsBtn.textContent = '+';
+                }
+            }
+        }
+        
+        // Show frame viewer with all frames
+        showAllFrames();
+    } else {
+        // Show canvas for PLY and 3D modes
+        if (canvasContainer) {
+            canvasContainer.style.display = 'block';
+        }
+        
+        // Hide frame viewer
+        if (frameViewer) {
+            frameViewer.classList.add('hidden');
+        }
+    }
+}
+
+// Show all frames in gallery
+function showAllFrames() {
+    if (!trajectoryData || trajectoryData.length === 0) {
+        console.warn('No trajectory data available to show frames');
+        // Still show the viewer but with a message
+        let viewer = document.getElementById('frame-viewer');
+        if (!viewer) {
+            viewer = createFrameViewerUI();
+        }
+        const gallery = viewer.querySelector('.frame-gallery');
+        gallery.innerHTML = '<div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.7);">No trajectory data loaded. Please load a trajectory file first.</div>';
+        viewer.classList.remove('hidden');
+        viewer.classList.add('fullscreen-gallery');
+        return;
+    }
+    
+    if (!scanFolderPath) {
+        console.warn('Scan folder path not available');
+        let viewer = document.getElementById('frame-viewer');
+        if (!viewer) {
+            viewer = createFrameViewerUI();
+        }
+        const gallery = viewer.querySelector('.frame-gallery');
+        gallery.innerHTML = '<div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.7);">Scan folder path not available. Please load a trajectory file first.</div>';
+        viewer.classList.remove('hidden');
+        viewer.classList.add('fullscreen-gallery');
+        return;
+    }
+    
+    // Create array of all frames from trajectory data
+    const allFrames = trajectoryData.map((pose, index) => ({
+        frameNumber: pose.index,
+        isCurrent: false,
+        label: `Camera ${index + 1}`
+    }));
+    
+    // Display all frames (this will also show the viewer)
+    displayFrameViewer(allFrames, null);
 }
 
 // Setup control panel handlers
@@ -2767,6 +2946,26 @@ function displayFrameViewer(frames, currentFrameIndex) {
         viewer = createFrameViewerUI();
     }
     
+    // Check if we're in frames mode by checking the active button
+    const framesModeBtn = document.querySelector('.mode-btn[data-mode="frames"]');
+    const isFramesMode = framesModeBtn && framesModeBtn.classList.contains('active');
+    
+    if (isFramesMode) {
+        viewer.classList.add('fullscreen-gallery');
+        // Hide header and close button in frames mode
+        const header = viewer.querySelector('.frame-viewer-header');
+        if (header) {
+            header.style.display = 'none';
+        }
+    } else {
+        viewer.classList.remove('fullscreen-gallery');
+        // Show header and close button in camera selection mode
+        const header = viewer.querySelector('.frame-viewer-header');
+        if (header) {
+            header.style.display = 'flex';
+        }
+    }
+    
     // Clear previous content
     const gallery = viewer.querySelector('.frame-gallery');
     gallery.innerHTML = '';
@@ -2871,8 +3070,15 @@ function createFrameViewerUI() {
     
     document.body.appendChild(viewer);
     
-    // Close button handler
+    // Close button handler (only for camera selection mode, not frames mode)
     document.getElementById('close-frame-viewer').addEventListener('click', () => {
+        // Check if we're in frames mode - if so, don't handle close (user should use mode selector)
+        const framesModeBtn = document.querySelector('.mode-btn[data-mode="frames"]');
+        if (framesModeBtn && framesModeBtn.classList.contains('active')) {
+            return; // Don't handle close in frames mode
+        }
+        
+        // Just hide the viewer (for camera selection mode)
         viewer.classList.add('hidden');
         
         // Deselect camera (restore original colors including best view yellow)
