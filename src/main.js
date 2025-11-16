@@ -2499,6 +2499,22 @@ function highlightSelectedCamera(instanceId) {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// 'Frames' view
+
 // Load and display camera frames
 async function loadCameraFrames(cameraIndex) {
     if (!scanFolderPath || !trajectoryData) {
@@ -2730,7 +2746,31 @@ function createFrameViewerUI() {
 
 // Chat interface state
 let chatHistory = [];
-const LM_STUDIO_API_URL = 'http://localhost:1234/v1/chat/completions'; // Default LM Studio URL
+// OpenRouter API configuration
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const MCP_BRIDGE_URL = 'http://localhost:3001';
+// Default model to use (you can change this to any model supported by OpenRouter)
+// Examples: 'openai/gpt-3.5-turbo', 'openai/gpt-4', 'anthropic/claude-3-opus', 'google/gemini-pro'
+const OPENROUTER_MODEL = 'openai/gpt-3.5-turbo';
+
+// Function to get OpenRouter API key from environment variable
+// The API key should be set in .env file as VITE_OPENROUTER_API_KEY
+// Note: In Vite, only variables prefixed with VITE_ are exposed to client code
+function getOpenRouterApiKey() {
+    // Try to get from environment variable (Vite exposes VITE_ prefixed vars)
+    const envKey = import.meta.env.VITE_OPENROUTER_API_KEY || import.meta.env.OPENROUTER_API_KEY;
+    if (envKey) {
+        return envKey;
+    }
+    
+    // Fallback to localStorage if env var not set (for development/testing)
+    try {
+        return localStorage.getItem('openrouter_api_key') || '';
+    } catch (e) {
+        console.error('Error accessing localStorage:', e);
+        return '';
+    }
+}
 
 // Setup chat interface
 function setupChatInterface() {
@@ -2786,17 +2826,56 @@ function setupChatInterface() {
         const loadingId = addChatMessage('assistant', '', true);
 
         try {
-            // Get context about the current model
+            // Check if this is a spatial data query (try MCP first)
+            const isSpatialQuery = /(chair|desk|table|sofa|bed|lamp|cabinet|shelf|door|window|color|material|room|dimension|size|how many|number of|list|count)/i.test(message);
+            
+            if (isSpatialQuery) {
+                try {
+                    const mcpResponse = await fetch(`${MCP_BRIDGE_URL}/query`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query: message })
+                    });
+
+                    if (mcpResponse.ok) {
+                        const mcpData = await mcpResponse.json();
+                        const result = mcpData.result?.[0]?.text || JSON.stringify(mcpData.result);
+                        
+                        removeChatMessage(loadingId);
+                        addChatMessage('assistant', result);
+                        chatHistory.push(
+                            { role: 'user', content: message },
+                            { role: 'assistant', content: result }
+                        );
+                        if (chatHistory.length > 20) {
+                            chatHistory = chatHistory.slice(-20);
+                        }
+                        return;
+                    }
+                } catch (mcpError) {
+                    console.warn('MCP query failed, falling back to OpenRouter:', mcpError);
+                }
+            }
+
+            // Fallback to OpenRouter
+            let apiKey = getOpenRouterApiKey();
+            
+            if (!apiKey) {
+                throw new Error('OpenRouter API key is not set. Please set VITE_OPENROUTER_API_KEY in your .env file.');
+            }
+
             const modelContext = getModelContext();
 
-            // Call LM Studio API
-            const response = await fetch(LM_STUDIO_API_URL, {
+            const response = await fetch(OPENROUTER_API_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,
+                    'HTTP-Referer': window.location.origin,
+                    'X-Title': 'AECTech Spatial Intelligence Modelling'
                 },
                 body: JSON.stringify({
-                    model: 'local-model', // LM Studio uses this
+                    model: OPENROUTER_MODEL,
                     messages: [
                         {
                             role: 'system',
@@ -2818,8 +2897,7 @@ Be helpful, concise, and technical when appropriate.`
                             content: message
                         }
                     ],
-                    temperature: 0.7,
-                    stream: false
+                    temperature: 0.7
                 })
             });
 
@@ -2854,7 +2932,13 @@ Be helpful, concise, and technical when appropriate.`
             removeChatMessage(loadingId);
 
             // Show error message
-            addChatMessage('assistant', `Sorry, I encountered an error: ${error.message}. Make sure LM Studio is running on ${LM_STUDIO_API_URL}`);
+            let errorMsg = `Sorry, I encountered an error: ${error.message}.`;
+            if (error.message.includes('API key')) {
+                errorMsg += ' Please set your OpenRouter API key. Get one from: https://openrouter.ai/keys';
+            } else if (error.message.includes('401') || error.message.includes('403')) {
+                errorMsg += ' Please check your OpenRouter API key is valid.';
+            }
+            addChatMessage('assistant', errorMsg);
         } finally {
             // Re-enable input
             chatInput.disabled = false;

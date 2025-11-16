@@ -6,17 +6,24 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "inspect": "npx @modelcontextprotocol/inspector node mcp/mcpServer.js",
+    "mcp:bridge": "node mcp/mcpBridge.js"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.22.0",
     "@openrouter/sdk": "^0.1.11",
     "@qdrant/js-client-rest": "^1.15.1",
     "@qdrant/qdrant-js": "^1.15.1",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
+    "express": "^5.1.0",
     "openai": "^6.9.0",
-    "three": "^0.160.0"
+    "three": "^0.160.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@modelcontextprotocol/inspector": "^0.17.2",
     "vite": "^5.0.0"
   }
 }

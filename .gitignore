@@ -61,5 +61,8 @@ semantic_labeling/
 # Output directories
 spatial_intelligence/output/
 
+# Keyframes
+keyframes/
+
 
 
