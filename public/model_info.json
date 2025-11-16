@@ -1,107 +1,93 @@
 {
-  "overview": {
-    "projectName": "1407 Broadway - Living Space",
-    "totalExteriorFloorArea": "33.6 m²",
-    "totalLivableFloorArea": "30.3 m²",
-    "totalWallArea": "60.8 m²",
-    "totalWindowArea": "3.0 m²",
-    "totalVolume": "78.10 m³",
-    "usedArea": "31.4 m²",
-    "unusedArea": "20.7 m²",
-    "units": "metric",
-    "notes": "Values sourced from floorplan report; editable for future models."
+  "report_title": "SpatialReport",
+  "space_name": "Conference Room",
+  "location": {
+    "address": "95 Trinity Pl, New York, NY",
+    "latitude_deg": 40.708775,
+    "longitude_deg": -74.011764,
+    "altitude_m": 81
   },
   "dimensions": {
     "width": "6.8 m",
     "depth": "3.9 m",
     "height": "2.4 - 2.7 m"
   },
-  "extents": {
-    "boundingBox": {
-      "width": "—",
-      "depth": "—",
-      "height": "—"
-    },
-    "inscribed": {
-      "width": "—",
-      "depth": "—"
-    }
+  "legal_disclaimer": "Legal Disclaimer: The results in this report are estimates and may not perfectly reflect real-world measurements or conditions. This report is intended for informational purposes only. Users should independently verify dimensions and data for critical planning or execution. Polycam is not liable for any discrepancies or decisions made based on this report.",
+  "unit_system": "metric",
+  "global_overview": {
+    "total_exterior_floor_area_m2": 34.0,
+    "total_livable_floor_area_m2": 32.2,
+    "total_wall_area_m2": 38.9,
+    "total_window_area_m2": 0.0,
+    "total_volume_m3": 84.81
   },
-  "geolocation": {
-    "latitude": "40.688851 N",
-    "longitude": "-73.920504 W",
-    "altitude": "21 m",
-    "address": "1407 Broadway, New York, NY"
+  "space_overview": {
+    "space_name": "Conference Room",
+    "floor_area_m2": 32.2,
+    "floor_area_label_m2": 32.0,
+    "dimensions_bounding_box_m": {
+      "length": 6.3,
+      "width": 5.3
+    },
+    "dimensions_inscribed_m": {
+      "length": 6.3,
+      "width": 4.4
+    },
+    "wall_area_incl_openings_m2": 49.8,
+    "wall_area_excl_openings_m2": 38.9,
+    "perimeter_m": 23.3,
+    "ceiling_height_min_m": 2.6,
+    "ceiling_height_max_m": 2.8,
+    "room_volume_m3": 84.81
   },
-  "rooms": [
-    {
-      "name": "Living Room",
-      "floorArea": "23.4 m²",
-      "wallArea": "34.0 m²",
-      "wallAreaInclOpenings": "46.2 m²",
-      "wallAreaExclOpenings": "34.0 m²",
-      "ceilingHeight": "2.4 - 2.7 m",
-      "dimensions": {
-        "width": "6.8 m",
-        "depth": "3.9 m",
-        "height": "2.4 - 2.7 m"
-      },
-      "perimeter": "21.5 m",
-      "volume": "61.48 m³",
-      "boundingBox": { "width": "6.8 m", "depth": "3.9 m", "height": "2.4 - 2.7 m" },
-      "inscribed": { "width": "4.8 m", "depth": "3.8 m" }
+  "floor_plan": {
+    "name": "Conference Room Floor Plan",
+    "area_text_label_m2": 32.0,
+    "bounding_box_dimensions_m": {
+      "length": 6.3,
+      "width": 5.3
     },
-    {
-      "name": "Other 1",
-      "floorArea": "3.5 m²",
-      "wallArea": "9.6 m²",
-      "ceilingHeight": "2.4 m",
-      "dimensions": { "width": "2.3 m", "depth": "1.5 m", "height": "2.4 m" },
-      "perimeter": "7.6 m",
-      "volume": "8.16 m³"
+    "inscribed_dimensions_m": {
+      "length": 6.3,
+      "width": 4.4
     },
-    {
-      "name": "Other 2",
-      "floorArea": "2.6 m²",
-      "wallArea": "11.9 m²",
-      "ceilingHeight": "2.4 m",
-      "dimensions": { "width": "2.9 m", "depth": "0.9 m", "height": "2.4 m" },
-      "perimeter": "7.6 m",
-      "volume": "6.18 m³"
-    },
-    {
-      "name": "Other 3",
-      "floorArea": "1.0 m²",
-      "wallArea": "5.3 m²",
-      "ceilingHeight": "2.4 m",
-      "dimensions": { "width": "1.5 m", "depth": "0.6 m", "height": "2.4 m" },
-      "perimeter": "4.3 m",
-      "volume": "2.29 m³"
-    }
-  ],
-  "furniture": [
-    { "type": "Desk", "count": 1, "notes": "Work desk", "dimensions": { "w": "1.3 m", "h": "0.8 m", "d": "0.6 m" } },
-    { "type": "Dining table", "count": 2, "notes": "", "dimensions": { "w": "1.1 m", "h": "0.5 m", "d": "1.0 m" } },
-    { "type": "Sofa (double)", "count": 1, "notes": "" },
-    { "type": "Sofa (extension)", "count": 1, "notes": "" },
-    { "type": "Task chair", "count": 1, "notes": "" }
-  ],
-  "materials": [
-    {
-      "name": "WallPaint",
-      "color": "#f2f2f2",
-      "usage": "Walls"
-    }
-  ],
-  "assets": {
-    "model": "",
-    "trajectory": "",
-    "labels": ""
+    "perimeter_m": 23.3,
+    "edge_measurements_m": [5.45,5.62,4.60,5.61,4.67,4.96,4.57,4.71,4.47,0.92,0.78,4.76,0.86,0.66,4.37,0.92,4.61,0.86]
   },
-  "floorplanImage": "/floorplan.png",
-  "metadata": {
-    "source": "manual",
-    "lastUpdated": ""
-  }
+  "furniture": {
+    "summary_counts": {
+      "Chair": 11,
+      "Desk": 1,
+      "Dining table": 1,
+      "Task chair": 1
+    },
+    "items": [
+      { "id": 1, "type": "Chair", "width_m": 0.6, "height_m": 0.8, "depth_m": 0.6 },
+      { "id": 2, "type": "Chair", "width_m": 0.5, "height_m": 0.9, "depth_m": 0.6 },
+      { "id": 3, "type": "Chair", "width_m": 0.5, "height_m": 0.9, "depth_m": 0.6 },
+      { "id": 4, "type": "Chair", "width_m": 0.5, "height_m": 0.9, "depth_m": 0.6 },
+      { "id": 5, "type": "Chair", "width_m": 0.5, "height_m": 0.9, "depth_m": 0.6 },
+      { "id": 6, "type": "Chair", "width_m": 0.5, "height_m": 0.9, "depth_m": 0.6 },
+      { "id": 7, "type": "Chair", "width_m": 0.5, "height_m": 0.9, "depth_m": 0.6 },
+      { "id": 8, "type": "Chair", "width_m": 0.5, "height_m": 0.8, "depth_m": 0.6 },
+      { "id": 9, "type": "Chair", "width_m": 0.5, "height_m": 0.9, "depth_m": 0.5 },
+      { "id": 10, "type": "Chair", "width_m": 0.5, "height_m": 0.7, "depth_m": 0.6 },
+      { "id": 11, "type": "Chair", "width_m": 0.4, "height_m": 0.8, "depth_m": 0.5 },
+      { "id": 12, "type": "Desk", "width_m": 3.7, "height_m": 0.7, "depth_m": 0.6 },
+      { "id": 13, "type": "Dining table", "width_m": 2.8, "height_m": 0.8, "depth_m": 1.5 },
+      { "id": 14, "type": "Task chair", "width_m": 0.6, "height_m": 1.0, "depth_m": 0.6 }
+    ]
+  },
+  "appliances": {
+    "summary_counts": { "TV": 1 },
+    "items": [ { "id": 1, "type": "TV", "width_m": 1.7, "height_m": 1.0, "depth_m": 0.11 } ]
+  },
+  "openings": {
+    "door_summary_counts": { "Door": 1 },
+    "doors": [ { "id": 1, "type": "Door", "width_m": 4.6, "height_m": 2.4, "area_m2": 10.971 } ],
+    "casing_settings": { "window_casing_width_m": 0.04, "door_casing_width_m": 0.04 },
+    "total_casing_lengths_m": { "doors": 9.5 }
+  },
+  "floorplanImage": "/floorplan.png"
 }
 

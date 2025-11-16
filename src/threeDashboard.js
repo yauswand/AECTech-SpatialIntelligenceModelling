@@ -282,10 +282,6 @@ async function tryLoadFloorplanAssets() {
 			const report = await infoRes.value.json();
 			applyFloorplanReport(report);
 			if (report.floorplanImage) { setFloorPlan(report.floorplanImage); imageSet = true; }
-			if (report.overview) {
-				updateUsageChart({ usedArea: report.overview.usedArea, unusedArea: report.overview.unusedArea });
-				updateOpeningsChart({ wallArea: report.overview.totalWallArea, windowArea: report.overview.totalWindowArea });
-			}
 		} catch (_) {}
 	}
 	// fallback JSON report
@@ -309,38 +305,58 @@ async function tryLoadFloorplanAssets() {
 function applyFloorplanReport(report) {
 	lastReport = report;
 	// Top-level overview numbers
-	if (report?.overview) {
-		const o = report.overview;
-		setText('#kpi-gross-area', o.totalExteriorFloorArea ?? o.total_exterior_floor_area);
-		setText('#arch-livable-area', o.totalLivableFloorArea ?? o.total_livable_floor_area);
-		setText('#arch-wall-area', o.totalWallArea ?? o.total_wall_area);
-		setText('#arch-window-area', o.totalWindowArea ?? o.total_window_area);
-		// used / unused can be derived if provided
+	const o = report?.overview || report?.global_overview;
+	if (o) {
+		// Normalize to strings with units
+		const extFloor = o.totalExteriorFloorArea ?? o.total_exterior_floor_area_m2;
+		const livFloor = o.totalLivableFloorArea ?? o.total_livable_floor_area_m2;
+		const wallArea = o.totalWallArea ?? o.total_wall_area_m2;
+		const winArea = o.totalWindowArea ?? o.total_window_area_m2;
+		const totalVol = o.totalVolume ?? o.total_volume_m3;
+		setText('#kpi-gross-area', typeof extFloor === 'number' ? `${extFloor.toFixed(1)} m²` : (extFloor ?? '—'));
+		setText('#arch-livable-area', typeof livFloor === 'number' ? `${livFloor.toFixed(1)} m²` : (livFloor ?? '—'));
+		setText('#arch-wall-area', typeof wallArea === 'number' ? `${wallArea.toFixed(1)} m²` : (wallArea ?? '—'));
+		setText('#arch-window-area', typeof winArea === 'number' ? `${winArea.toFixed(1)} m²` : (winArea ?? '—'));
+		setText('#kpi-total-volume', typeof totalVol === 'number' ? `${totalVol.toFixed(2)} m³` : (totalVol ?? '—'));
+		// Update openings chart from normalized values
+		updateOpeningsChart({ wallArea: wallArea ?? 0, windowArea: winArea ?? 0 });
+		// used/unused not provided in new schema; leave as-is if absent
 		if (o.usedArea || o.unusedArea) {
 			setText('#kpi-used-unused', `${o.usedArea ?? '—'} / ${o.unusedArea ?? '—'}`);
 		}
-		setText('#kpi-total-volume', o.totalVolume ?? o.total_volume ?? '—');
 	}
 
 	// Dimensions & Extents on totals card
+	// Prefer new schema (space_overview) and gracefully fallback to old one
+	const space = report?.space_overview;
+	if (space?.dimensions_bounding_box_m) {
+		const b = space.dimensions_bounding_box_m;
+		setText('#kpi-dimensions', `${b.length ?? '—'} m × ${b.width ?? '—'} m`);
+		setText('#kpi-bbox', `${b.length ?? '—'} m × ${b.width ?? '—'} m`);
+	}
+	if (space?.dimensions_inscribed_m) {
+		const i = space.dimensions_inscribed_m;
+		setText('#kpi-inscribed', `${i.length ?? '—'} m × ${i.width ?? '—'} m`);
+	}
+	// Old schema fallback
 	const dimsTop = report?.dimensions;
-	if (dimsTop?.width || dimsTop?.depth || dimsTop?.height) {
+	if (!space && (dimsTop?.width || dimsTop?.depth || dimsTop?.height)) {
 		const w = dimsTop.width ?? '—';
 		const d = dimsTop.depth ?? '—';
 		const h = dimsTop.height ? ` × ${dimsTop.height}` : '';
 		setText('#kpi-dimensions', `${w} × ${d}${h}`);
 	}
-	const bbox = report?.extents?.boundingBox;
-	if (bbox?.width || bbox?.depth || bbox?.height) {
-		const w = bbox.width ?? '—';
-		const d = bbox.depth ?? '—';
-		const h = bbox.height ? ` × ${bbox.height}` : '';
+	const bboxOld = report?.extents?.boundingBox;
+	if (!space && (bboxOld?.width || bboxOld?.depth || bboxOld?.height)) {
+		const w = bboxOld.width ?? '—';
+		const d = bboxOld.depth ?? '—';
+		const h = bboxOld.height ? ` × ${bboxOld.height}` : '';
 		setText('#kpi-bbox', `${w} × ${d}${h}`);
 	}
-	const ins = report?.extents?.inscribed;
-	if (ins?.width || ins?.depth) {
-		const w = ins.width ?? '—';
-		const d = ins.depth ?? '—';
+	const insOld = report?.extents?.inscribed;
+	if (!space && (insOld?.width || insOld?.depth)) {
+		const w = insOld.width ?? '—';
+		const d = insOld.depth ?? '—';
 		setText('#kpi-inscribed', `${w} × ${d}`);
 	}
 
@@ -377,6 +393,8 @@ export function initThreeDashboard(container) {
 	tryLoadFloorplanAssets();
 
 	window.addEventListener('resize', onResize);
+	// Keep floating UI aligned with dock on resize
+	window.addEventListener('resize', updateDockDependentUI);
 	onResize();
 	animate();
 }
@@ -413,17 +431,13 @@ export async function loadGLBFile(file) {
 		const box = new THREE.Box3().setFromObject(currentModel);
 		const size = box.getSize(new THREE.Vector3());
 		const extents = `${size.x.toFixed(2)} × ${size.y.toFixed(2)} × ${size.z.toFixed(2)} m`;
-		let vertices = 0;
 		let faces = 0;
 		currentModel.traverse((o) => {
 			if (o.isMesh && o.geometry) {
 				const g = o.geometry.index ? o.geometry.index.count / 3 : (o.geometry.attributes?.position?.count ?? 0) / 3;
-				if (o.geometry.attributes?.position) vertices += o.geometry.attributes.position.count;
 				faces += Math.floor(g);
 			}
 		});
-		setText('#kpi-vertices', vertices.toLocaleString());
-		setText('#kpi-faces', faces.toLocaleString());
 		setText('#kpi-extents', extents);
 	} finally {
 		URL.revokeObjectURL(url);
@@ -525,6 +539,10 @@ function createBottomDock() {
 	bottomDockEl = document.createElement('div');
 	bottomDockEl.className = 'dashboard-bottom';
 	bottomDockEl.innerHTML = `
+		<div class="dashboard-toggle" id="dashboard-toggle" title="Expand/Collapse dashboard">
+			<span class="toggle-grip"></span>
+			<span class="toggle-icon" aria-hidden="true">▴</span>
+		</div>
 		<div class="chart-card card-square">
 			<div class="chart-title">Used vs Unused</div>
 			<div class="chart-canvas" id="chart-usage"></div>
@@ -557,9 +575,46 @@ function createBottomDock() {
 		</div>
 	`;
 	document.body.appendChild(bottomDockEl);
+	// Reparent the toggle handle to body so it's always clickable
+	const createdToggle = bottomDockEl.querySelector('#dashboard-toggle');
+	if (createdToggle) {
+		document.body.appendChild(createdToggle);
+	}
 	// Point bindings to totals card so setText() fills values
 	panelEl = document.getElementById('totals-card');
 	initCharts();
+	// Restore collapsed state if saved
+	updateDockDependentUI(); // set initial offsets
+	try {
+		const saved = localStorage.getItem('dashboardCollapsed');
+		if (saved === 'true') {
+			bottomDockEl.classList.add('collapsed');
+			const icon = document.getElementById('dashboard-toggle')?.querySelector('.toggle-icon');
+			if (icon) icon.textContent = '▴';
+		} else {
+			const icon = document.getElementById('dashboard-toggle')?.querySelector('.toggle-icon');
+			if (icon) icon.textContent = '▾';
+		}
+	} catch (_) {}
+	// Toggle interaction
+	const toggleEl = document.getElementById('dashboard-toggle');
+	toggleEl?.addEventListener('click', () => {
+		const isCollapsed = bottomDockEl.classList.toggle('collapsed');
+		// Flip icon
+		const icon = toggleEl.querySelector('.toggle-icon');
+		if (icon) icon.textContent = isCollapsed ? '▴' : '▾';
+		try { localStorage.setItem('dashboardCollapsed', String(isCollapsed)); } catch (_) {}
+		// Move handle immediately to target anchor
+		updateDockDependentUI();
+		// Resize charts after transition ends
+		const onTransitionEnd = () => {
+			charts.usage?.resize();
+			charts.openings?.resize();
+			updateDockDependentUI();
+			bottomDockEl.removeEventListener('transitionend', onTransitionEnd);
+		};
+		bottomDockEl.addEventListener('transitionend', onTransitionEnd);
+	});
 
 	// Modal setup
 	ensureDetailsModal();
@@ -567,6 +622,24 @@ function createBottomDock() {
 	viewBtn?.addEventListener('click', () => {
 		openDetailsModal();
 	});
+}
+
+function updateDockDependentUI() {
+	try {
+		const root = document.documentElement;
+		const dockRect = bottomDockEl?.getBoundingClientRect();
+		const dockHeight = dockRect ? dockRect.height : 0;
+		const isCollapsed = bottomDockEl?.classList.contains('collapsed');
+		// Handle position: at bottom when collapsed, above dock when expanded
+		const handleBottom = isCollapsed ? 0 : dockHeight;
+		root.style.setProperty('--dock-handle-bottom', handleBottom + 'px');
+		root.style.setProperty('--dock-height', dockHeight + 'px');
+		// Floating UI offsets: small when collapsed, dynamic when expanded
+		const chatOffset = isCollapsed ? 80 : Math.max(140, Math.floor(dockHeight + 20));
+		const controlsOffset = isCollapsed ? 80 : Math.max(120, Math.floor(dockHeight + 20));
+		root.style.setProperty('--chat-bottom', chatOffset + 'px');
+		root.style.setProperty('--controls-bottom', controlsOffset + 'px');
+	} catch (_) {}
 }
 
 function ensureDetailsModal() {
@@ -617,18 +690,41 @@ function openDetailsModal() {
 			<td>${r.ceilingHeight ?? '—'}</td>
 			<td>${r.volume ?? '—'}</td>
 		</tr>`;
-	}).join('') : '';
+	}).join('') : (report.space_overview ? (() => {
+		const s = report.space_overview;
+		const bb = s.dimensions_bounding_box_m || {};
+		const ins = s.dimensions_inscribed_m || {};
+		return `<tr>
+			<td>${report.space_name ?? s.space_name ?? '—'}</td>
+			<td>${s.floor_area_m2 != null ? s.floor_area_m2 + ' m²' : '—'}</td>
+			<td>${s.wall_area_incl_openings_m2 != null ? s.wall_area_incl_openings_m2 + ' m²' : '—'}</td>
+			<td>${s.wall_area_excl_openings_m2 != null ? s.wall_area_excl_openings_m2 + ' m²' : '—'}</td>
+			<td>${bb.length ?? '—'} × ${bb.width ?? '—'}</td>
+			<td>${ins.length ?? '—'} × ${ins.width ?? '—'}</td>
+			<td>${s.perimeter_m != null ? s.perimeter_m + ' m' : '—'}</td>
+			<td>${(s.ceiling_height_min_m != null && s.ceiling_height_max_m != null) ? (s.ceiling_height_min_m + '–' + s.ceiling_height_max_m + ' m') : '—'}</td>
+			<td>${s.room_volume_m3 != null ? s.room_volume_m3 + ' m³' : '—'}</td>
+		</tr>`;
+	})() : '');
 
-	const furnitureRows = Array.isArray(report.furniture) ? report.furniture.map(f =>
-		`<tr><td>${f.type || f.name || '—'}</td><td>${f.count ?? 1}</td><td>${f.notes || ''}</td></tr>`
-	).join('') : '';
+	// Furniture from new schema
+	let furnitureRows = '';
+	if (Array.isArray(report.furniture)) {
+		furnitureRows = report.furniture.map(f =>
+			`<tr><td>${f.type || f.name || '—'}</td><td>${f.count ?? 1}</td><td>${f.notes || ''}</td></tr>`
+		).join('');
+	} else if (report.furniture?.summary_counts) {
+		furnitureRows = Object.entries(report.furniture.summary_counts).map(([type, count]) =>
+			`<tr><td>${type}</td><td>${count}</td><td></td></tr>`
+		).join('');
+	}
 
 	const materialsRows = Array.isArray(report.materials) ? report.materials.map(m =>
 		`<tr><td>${m.name ?? '—'}</td><td>${m.color ?? '—'}</td><td>${m.usage ?? '—'}</td></tr>`
 	).join('') : '';
 
 	const assets = report.assets ?? {};
-	const metadata = report.metadata ?? {};
+	const metadata = report.metadata ?? report.metadata ?? {};
 
 	body.innerHTML = `
 		<div class="details-sections">
@@ -739,13 +835,31 @@ async function initCharts() {
 		darkMode: true,
 		textStyle: { color: 'rgba(255,255,255,0.9)' },
 		tooltip: { trigger: 'item' },
-		series: [{ type: 'pie', radius: ['42%', '68%'], data: [], label: { color: 'rgba(255,255,255,0.85)' } }]
+		color: ['#b0b0b0', '#5e5e5e'],
+		series: [{
+			type: 'pie',
+			radius: ['42%', '68%'],
+			// Dummy initial values until real data is loaded
+			data: [
+				{ name: 'Used', value: 60 },
+				{ name: 'Unused', value: 40 }
+			],
+			label: { color: 'rgba(255,255,255,0.85)' },
+			itemStyle: { borderColor: 'rgba(0,0,0,0.6)', borderWidth: 1 }
+		}]
 	});
 	charts.openings.setOption({
 		darkMode: true,
 		textStyle: { color: 'rgba(255,255,255,0.9)' },
 		tooltip: { trigger: 'item' },
-		series: [{ type: 'pie', radius: ['34%', '56%'], data: [], label: { color: 'rgba(255,255,255,0.85)' } }]
+		color: ['#5e5e5e', '#b0b0b0'],
+		series: [{
+			type: 'pie',
+			radius: ['34%', '56%'],
+			data: [],
+			label: { color: 'rgba(255,255,255,0.85)' },
+			itemStyle: { borderColor: 'rgba(0,0,0,0.6)', borderWidth: 1 }
+		}]
 	});
 	window.addEventListener('resize', () => {
 		charts.usage?.resize();

@@ -194,6 +194,19 @@ function init() {
     animate();
 }
 
+// Make "Ask Simon" label open chat like the toggle button
+window.addEventListener('DOMContentLoaded', () => {
+    try {
+        const labelEl = document.querySelector('.chat-toggle-label');
+        const toggleBtn = document.getElementById('chat-toggle-btn');
+        if (labelEl && toggleBtn) {
+            labelEl.addEventListener('click', () => {
+                toggleBtn.click();
+            });
+        }
+    } catch (_) {}
+});
+
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
@@ -3022,9 +3035,9 @@ function displayFrameViewer(frames, currentFrameIndex) {
         console.log(`  - Has this frame:`, frameTimestampMap ? frameTimestampMap.has(frameInfo.frameNumber) : false);
         console.log(`  - scanFolderPath:`, scanFolderPath);
         
-        img.alt = `Frame ${frameInfo.frameNumber}`;
-        img.style.display = 'none'; // Hide until loaded
-        img.style.transform = 'rotate(90deg)'; // Rotate images to display upright
+		img.alt = `Frame ${frameInfo.frameNumber}`;
+		img.style.display = 'none'; // Hide until loaded
+		img.style.transform = 'rotate(90deg)'; // Rotate images to display upright
         img.draggable = true; // Make image draggable
         img.style.cursor = 'grab'; // Show grab cursor
         
@@ -3113,10 +3126,16 @@ function displayFrameViewer(frames, currentFrameIndex) {
         const labelText = frameInfo.label || (frameInfo.isCurrent ? 'Selected' : '');
         label.textContent = `Frame ${frameInfo.frameNumber}${labelText ? ` (${labelText})` : ''}`;
         
-        frameContainer.appendChild(loader);
-        frameContainer.appendChild(img);
-        frameContainer.appendChild(label);
-        gallery.appendChild(frameContainer);
+		// Click to preview (opens lightbox)
+		img.addEventListener('click', () => {
+			const rotation = img.style.transform || '';
+			openImageLightbox(img.src, label.textContent, rotation);
+		});
+		
+		frameContainer.appendChild(loader);
+		frameContainer.appendChild(img);
+		frameContainer.appendChild(label);
+		gallery.appendChild(frameContainer);
     });
     
     // Show the viewer
@@ -3137,6 +3156,7 @@ function createFrameViewerUI() {
     `;
     
     document.body.appendChild(viewer);
+	ensureImageLightbox();
     
     // Close button handler (only for camera selection mode, not frames mode)
     document.getElementById('close-frame-viewer').addEventListener('click', () => {
@@ -3169,6 +3189,35 @@ function createFrameViewerUI() {
     });
     
     return viewer;
+}
+
+// Image lightbox for previewing a single frame
+function ensureImageLightbox() {
+	if (document.getElementById('image-lightbox')) return;
+	const overlay = document.createElement('div');
+	overlay.id = 'image-lightbox';
+	overlay.className = 'image-lightbox';
+	overlay.innerHTML = `<img alt=""><div class="lightbox-caption"></div>`;
+	document.body.appendChild(overlay);
+	
+	const close = () => overlay.classList.remove('visible');
+	overlay.addEventListener('click', (e) => {
+		// allow clicking on backdrop or image to close
+		close();
+	});
+	window.addEventListener('keydown', (e) => {
+		if (e.key === 'Escape') close();
+	});
+}
+function openImageLightbox(src, caption, rotation) {
+	const overlay = document.getElementById('image-lightbox');
+	if (!overlay) return;
+	const img = overlay.querySelector('img');
+	const cap = overlay.querySelector('.lightbox-caption');
+	img.src = src || '';
+	img.style.transform = rotation || '';
+	cap.textContent = caption || '';
+	overlay.classList.add('visible');
 }
 
 // Chat interface state
