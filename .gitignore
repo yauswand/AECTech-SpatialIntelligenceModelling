@@ -46,6 +46,7 @@ ScanFull/
 
 # Polycam scan data (images, depth, cameras)
 11_15_2025/
+Centerspace/
 */keyframes/
 */corrected_images/
 */corrected_cameras/
@@ -54,9 +55,23 @@ ScanFull/
 cloud/trajectory.json
 cloud/*_trajectory.json
 camera_trajectory.json
+**/camera_trajectory.json
+
+# Label position files (generated)
+label_positions.json
+label_positions_refined.json
+**/label_positions*.json
 
 # Semantic labeling - entire directory excluded
 semantic_labeling/
+
+# Image files (scans and captures)
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.tiff
+*.tif
 
 # Output directories
 spatial_intelligence/output/
