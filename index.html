@@ -55,6 +55,12 @@
         <button class="mode-btn" data-mode="frames">Frames</button>
     </div>
 
+    <!-- Render Filters (for 3D mode - loads pre-baked GLB models) -->
+    <div id="render-filters" class="render-filters">
+        <button class="filter-btn" data-filter="mesh">Mesh</button>
+        <button class="filter-btn active" data-filter="solid">Solid</button>
+    </div>
+
     <!-- Control Toolbar -->
     <div id="controls" class="controls hidden">
         <div class="controls-header">
@@ -94,7 +100,7 @@
             
             <div class="control-group">
                 <label>
-                    <input type="checkbox" id="debug-lines-toggle" checked>
+                    <input type="checkbox" id="debug-lines-toggle">
                     Debug Lines (Camera → Label)
                 </label>
             </div>
@@ -148,6 +154,18 @@
             <button id="chat-send-btn" class="chat-send-btn">Send</button>
         </div>
     </div>
+
+    <!-- Label Analysis Modal -->
+    <div id="label-analysis-modal" class="label-analysis-modal">
+        <div class="label-analysis-header">
+            <h2 id="label-analysis-title">Object Analysis</h2>
+            <button id="label-analysis-close" class="close-btn">×</button>
+        </div>
+        <div id="label-analysis-content" class="label-analysis-content">
+            <!-- Dynamic content will be inserted here -->
+        </div>
+    </div>
+    <div id="label-analysis-backdrop" class="label-analysis-backdrop"></div>
 
     <script type="module" src="/src/main.js"></script>
 </body>

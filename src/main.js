@@ -77,7 +77,8 @@ let folderFileHandles = {
     outputFolder: null, // Semantic labeling output folder
     uniqueObjectsFile: null, // unique_objects_final.json
     labelPositionsFile: null, // label_positions.json (original)
-    labelPositionsRefinedFile: null // label_positions_refined.json (refined)
+    labelPositionsRefinedFile: null, // label_positions_refined.json (refined)
+    qwenAnalysisFolder: null // qwen_analysis/individual_analyses folder
 };
 
 // Semantic labels
@@ -90,7 +91,7 @@ let hoveredLabel = null; // Track currently hovered label for highlighting
 let bestViewFrameIds = new Set(); // Track which frames have best views
 let labelFrameIds = new Set(); // Track which frames have labels (from label_positions.json)
 let debugLines = null; // Visual debug lines from cameras to labels
-let debugLinesVisible = true; // Separate toggle for debug lines
+let debugLinesVisible = false; // Separate toggle for debug lines
 
 // Backup label rendering (places labels at camera positions)
 let backupLabelsVisible = false;
@@ -119,6 +120,8 @@ const keyboard = {
     a: false,
     s: false,
     d: false,
+    q: false,
+    e: false,
     shift: false,
     space: false
 };
@@ -204,6 +207,9 @@ function init() {
     
     // Setup camera selection
     setupCameraSelection();
+    
+    // Setup label analysis modal
+    setupLabelAnalysisModal();
 
     // Start animation loop
     animate();
@@ -256,6 +262,8 @@ function setupKeyboardControls() {
         if (key === 'a') keyboard.a = true;
         if (key === 's') keyboard.s = true;
         if (key === 'd') keyboard.d = true;
+        if (key === 'q') keyboard.q = true;
+        if (key === 'e') keyboard.e = true;
         if (key === 'shift') keyboard.shift = true;
         if (key === ' ') keyboard.space = true;
         
@@ -271,6 +279,8 @@ function setupKeyboardControls() {
         if (key === 'a') keyboard.a = false;
         if (key === 's') keyboard.s = false;
         if (key === 'd') keyboard.d = false;
+        if (key === 'q') keyboard.q = false;
+        if (key === 'e') keyboard.e = false;
         if (key === 'shift') keyboard.shift = false;
         if (key === ' ') keyboard.space = false;
     });
@@ -306,12 +316,12 @@ function handleKeyboardMovement() {
         controls.target.addScaledVector(right, -speed);
     }
     
-    // Up/Down movement
-    if (keyboard.space) {
+    // Up/Down movement - E for up, Q for down
+    if (keyboard.e || keyboard.space) {
         camera.position.y += speed;
         controls.target.y += speed;
     }
-    if (keyboard.shift && !keyboard.w && !keyboard.s && !keyboard.a && !keyboard.d) {
+    if (keyboard.q || (keyboard.shift && !keyboard.w && !keyboard.s && !keyboard.a && !keyboard.d)) {
         camera.position.y -= speed;
         controls.target.y -= speed;
     }
@@ -655,6 +665,15 @@ async function validateFolderStructure(dirHandle) {
         // Check for output/unique_objects folder (optional - for semantic labels)
         try {
             handles.outputFolder = await dirHandle.getDirectoryHandle('output');
+            
+            // Add qwen_analysis folder detection
+            try {
+                const qwenFolder = await handles.outputFolder.getDirectoryHandle('qwen_analysis');
+                handles.qwenAnalysisFolder = await qwenFolder.getDirectoryHandle('individual_analyses');
+                console.log('✅ Found analysis folder: output/qwen_analysis/individual_analyses/');
+            } catch {
+                console.log('⚠️ output/qwen_analysis/individual_analyses/ not found (analysis optional)');
+            }
             
             try {
                 const uniqueObjectsFolder = await handles.outputFolder.getDirectoryHandle('unique_objects');
@@ -1152,6 +1171,63 @@ function setupUI() {
     
     // Setup view mode selector
     setupViewModeSelector();
+    
+    // Setup render filters
+    setupRenderFilters();
+}
+
+// Setup render filters for 3D tab
+function setupRenderFilters() {
+    const renderFilters = document.getElementById('render-filters');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    
+    if (!renderFilters || filterBtns.length === 0) return;
+    
+    // Handle filter button clicks
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const filterType = btn.dataset.filter;
+            
+            // Update active state
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            // Load the appropriate GLB model
+            let glbPath = '';
+            if (filterType === 'mesh') {
+                glbPath = '/ConferenceRoom02/11_16_2025_mesh.glb';
+                console.log('Loading Mesh GLB model...');
+            } else if (filterType === 'solid') {
+                glbPath = '/ConferenceRoom02/11_16_2025_solid.glb';
+                console.log('Loading Solid GLB model...');
+            }
+            
+            if (glbPath) {
+                try {
+                    // Load GLB file into 3D dashboard
+                    const response = await fetch(glbPath);
+                    if (!response.ok) {
+                        throw new Error(`GLB file not found: ${glbPath}`);
+                    }
+                    const blob = await response.blob();
+                    const file = new File([blob], glbPath.split('/').pop(), { type: 'model/gltf-binary' });
+                    
+                    // Import and load into 3D dashboard
+                    const dash = await import('./threeDashboard.js');
+                    await dash.loadGLBFile(file);
+                    console.log(`✓ Loaded ${filterType} model: ${glbPath}`);
+                } catch (error) {
+                    console.error(`Failed to load ${filterType} model:`, error);
+                    alert(`Failed to load ${filterType} model. Make sure ${glbPath} exists in the public folder.`);
+                    // Revert active state
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    // Find previously active button or default to solid
+                    const defaultBtn = document.querySelector('[data-filter="solid"]');
+                    if (defaultBtn) defaultBtn.classList.add('active');
+                }
+            }
+        });
+    });
 }
 
 // Setup view picker for render mode selection
@@ -1218,6 +1294,7 @@ function setupViewPicker() {
 function setupViewModeSelector() {
     const modeButtons = document.querySelectorAll('.mode-btn');
     const canvasContainer = document.getElementById('canvas-container');
+    const renderFilters = document.getElementById('render-filters');
     
     modeButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -1230,10 +1307,25 @@ function setupViewModeSelector() {
             const selectedMode = button.getAttribute('data-mode');
             console.log('View mode selected:', selectedMode);
             
+            // Show/hide render filters based on mode
+            if (renderFilters) {
+                if (selectedMode === '3d') {
+                    renderFilters.classList.add('visible');
+                } else {
+                    renderFilters.classList.remove('visible');
+                }
+            }
+            
             // Switch views based on mode
             switchViewMode(selectedMode);
         });
     });
+    
+    // Show render filters initially if in 3D mode
+    const activeBtn = document.querySelector('.mode-btn.active');
+    if (activeBtn && activeBtn.dataset.mode === '3d' && renderFilters) {
+        renderFilters.classList.add('visible');
+    }
 }
 
 // Switch between different view modes
@@ -1289,6 +1381,19 @@ function switchViewMode(mode) {
                     if (!window.__threeDashInit) {
                         dash.initThreeDashboard(threeContainer);
                         window.__threeDashInit = true;
+                        
+                        // Auto-load default solid model
+                        try {
+                            const response = await fetch('/ConferenceRoom02/11_16_2025_solid.glb');
+                            if (response.ok) {
+                                const blob = await response.blob();
+                                const file = new File([blob], '11_16_2025_solid.glb', { type: 'model/gltf-binary' });
+                                await dash.loadGLBFile(file);
+                                console.log('✓ Auto-loaded default solid model');
+                            }
+                        } catch (err) {
+                            console.warn('Could not auto-load default solid model:', err);
+                        }
                     }
                     await dash.refreshDashboardData?.();
                     dash.show?.();
@@ -1777,7 +1882,7 @@ function transformTrajectoryData(cameraPoses, plyCenter, scale) {
     
     // Create a -45 degree rotation around Y-axis
     const yAxisRotation = new THREE.Quaternion();
-    yAxisRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI / 4);    
+    yAxisRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), 5 * Math.PI / 4);   
     const alignedPoses = cameraPoses.map(pose => {
         // First translate to align centroids
         const alignedPos = pose.position.clone().add(translation);
@@ -2165,34 +2270,39 @@ function toggleCameraTrajectory(visible) {
     
     if (visible) {
         if (!trajectoryData) {
-            console.log('Trajectory data not loaded yet');
+            console.log('⚠️ Trajectory data not loaded yet');
             return;
         }
         
-        console.log('Creating camera frustums...');
+        console.log('👁️ Showing camera trajectory...');
         
-        // Create camera frustums (no trajectory tube)
+        // Create camera frustums if they don't exist
         if (!cameraFrustums) {
+            console.log('   Creating camera frustums...');
             const result = createCameraFrustums(trajectoryData);
             if (result) {
                 cameraFrustums = result.group;
                 scene.add(cameraFrustums);
-                console.log('Camera frustums added to scene');
+                console.log('   ✅ Camera frustums added to scene');
             } else {
-                console.error('Failed to create camera frustums');
+                console.error('   ❌ Failed to create camera frustums');
+                return;
             }
         }
         
         // Show camera frustums
         if (cameraFrustums) {
             cameraFrustums.visible = true;
-            console.log('Camera frustums visible');
+            console.log('   ✓ Camera frustums visible');
         }
         
     } else {
-        console.log('Hiding camera frustums');
+        console.log('👁️‍🗨️ Hiding camera trajectory...');
         // Hide camera frustums
-        if (cameraFrustums) cameraFrustums.visible = false;
+        if (cameraFrustums) {
+            cameraFrustums.visible = false;
+            console.log('   ✓ Camera frustums hidden');
+        }
     }
 }
 
@@ -3567,7 +3677,7 @@ function onCameraHover(event) {
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     
-    // Check for label hover first (labels have higher priority)
+    // Check for label hover first (labels have higher priority) - ONLY if labels are visible
     raycaster.setFromCamera(mouse, camera);
     if (labelsVisible && labelSprites.length > 0) {
         const labelIntersects = raycaster.intersectObjects(labelSprites);
@@ -3594,6 +3704,40 @@ function onCameraHover(event) {
             }
             hoveredLabel = null;
         }
+    }
+    
+    // Check backup labels hover - ONLY if backup labels are visible
+    if (backupLabelsVisible && backupLabelSprites.length > 0) {
+        const backupIntersects = raycaster.intersectObjects(backupLabelSprites);
+        if (backupIntersects.length > 0) {
+            const newHoveredLabel = backupIntersects[0].object;
+            if (hoveredLabel !== newHoveredLabel) {
+                // Reset previous hovered label
+                if (hoveredLabel && hoveredLabel.userData.defaultScale) {
+                    const ds = hoveredLabel.userData.defaultScale;
+                    hoveredLabel.scale.set(ds.x, ds.y, 1);
+                }
+                // Highlight new hovered label (scale up 15%)
+                hoveredLabel = newHoveredLabel;
+                const ds = hoveredLabel.userData.defaultScale;
+                hoveredLabel.scale.set(ds.x * 1.15, ds.y * 1.15, 1);
+            }
+            renderer.domElement.style.cursor = 'pointer';
+            return; // Don't check cameras if hovering backup label
+        } else if (hoveredLabel) {
+            // Reset if no longer hovering any label
+            if (hoveredLabel.userData.defaultScale) {
+                const ds = hoveredLabel.userData.defaultScale;
+                hoveredLabel.scale.set(ds.x, ds.y, 1);
+            }
+            hoveredLabel = null;
+        }
+    }
+    
+    // Only check camera intersections if trajectory is visible
+    if (!trajectoryVisible || !cameraFrustums || !cameraFrustums.visible) {
+        renderer.domElement.style.cursor = 'default';
+        return;
     }
     
     // Check for camera intersections against individual body meshes
@@ -3690,6 +3834,31 @@ function onCameraClick(event) {
     // Update the picking ray with the camera and mouse position
     raycaster.setFromCamera(mouse, camera);
     
+    // First, handle clicks on semantic labels (primary system) - ONLY if labels are visible
+    if (labelsVisible && labelSprites.length > 0) {
+        const labelIntersects = raycaster.intersectObjects(labelSprites);
+        if (labelIntersects.length > 0) {
+            const clickedLabel = labelIntersects[0].object;
+            handleLabelClick(clickedLabel);
+            return; // Do not process camera click when label clicked
+        }
+    }
+    // Then, handle clicks on backup labels (camera-based) - ONLY if backup labels are visible
+    if (backupLabelsVisible && backupLabelSprites.length > 0) {
+        const backupIntersects = raycaster.intersectObjects(backupLabelSprites);
+        if (backupIntersects.length > 0) {
+            const clickedBackupLabel = backupIntersects[0].object;
+            handleLabelClick(clickedBackupLabel);
+            return;
+        }
+    }
+    
+    // Only check for camera intersections if trajectory is visible
+    if (!trajectoryVisible || !cameraFrustums || !cameraFrustums.visible) {
+        console.log('[CLICK DEBUG] ✗ Camera trajectory not visible - skipping camera click check');
+        return;
+    }
+    
     // Check for intersections with camera body meshes
     const intersects = raycaster.intersectObjects(cameraBodyInstances);
     
@@ -3741,6 +3910,188 @@ function highlightSelectedCamera(instanceId) {
         cameraBodyInstances[i].material.color.setHex(tempColor.getHex());
         cameraLensInstances[i].material.color.setHex(tempColor.getHex()); // Update lens too!
     }
+}
+
+// Handle clicks on label sprites (primary and backup)
+async function handleLabelClick(sprite) {
+    // Extract known metadata
+    const { labelId, confidence, source, frameId, cameraIndex, text, color } = sprite.userData || {};
+    console.log('🏷️ Label clicked:', {
+        text: text || '(unknown)',
+        labelId,
+        confidence,
+        source,
+        frameId,
+        cameraIndex
+    });
+    
+    // Emit a custom DOM event for other UI modules to react (e.g., dashboard)
+    try {
+        window.dispatchEvent(new CustomEvent('semantic-label-click', {
+            detail: {
+                text: text || '',
+                labelId: labelId || null,
+                confidence: confidence ?? null,
+                source: source || 'unknown',
+                frameId: frameId ?? null,
+                cameraIndex: cameraIndex ?? null,
+                color: color || null,
+                position: sprite.position ? [sprite.position.x, sprite.position.y, sprite.position.z] : null
+            }
+        }));
+    } catch (e) {
+        console.warn('Could not dispatch semantic-label-click event:', e);
+    }
+    
+    // Open the analysis modal
+    await openLabelAnalysisModal(labelId, text, confidence);
+    
+    // If this label is associated with a specific camera (backup mode), select and load it
+    // BUT ONLY if the camera trajectory is actually visible
+    if (typeof cameraIndex === 'number' && trajectoryData && trajectoryData.length > 0 && trajectoryVisible) {
+        // Map trajectory index to instanceId via renderPosesMapping
+        const instanceId = renderPosesMapping.findIndex(idx => idx === cameraIndex);
+        if (instanceId !== -1) {
+            selectedCameraIndex = instanceId;
+            highlightSelectedCamera(instanceId);
+            loadCameraFrames(cameraIndex);
+            return;
+        }
+    }
+    
+    // Otherwise, briefly pulse the label to give click feedback
+    if (sprite.userData && sprite.userData.defaultScale) {
+        const ds = sprite.userData.defaultScale;
+        sprite.scale.set(ds.x * 1.25, ds.y * 1.25, 1);
+        setTimeout(() => {
+            sprite.scale.set(ds.x, ds.y, 1);
+        }, 150);
+    }
+}
+
+// Open label analysis modal and load analysis data
+async function openLabelAnalysisModal(labelId, labelText, confidence) {
+    const modal = document.getElementById('label-analysis-modal');
+    const backdrop = document.getElementById('label-analysis-backdrop');
+    const title = document.getElementById('label-analysis-title');
+    const content = document.getElementById('label-analysis-content');
+    
+    if (!modal || !backdrop || !title || !content) {
+        console.error('Modal elements not found');
+        return;
+    }
+    
+    // Set title
+    title.textContent = labelText || 'Object Analysis';
+    
+    // Show loading state
+    content.innerHTML = '<div class="analysis-no-data"><div class="analysis-no-data-emoji">⏳</div><div class="analysis-no-data-text">Loading analysis...</div></div>';
+    
+    // Show modal
+    modal.classList.add('visible');
+    backdrop.classList.add('visible');
+    
+    // Load analysis data
+    const analysisData = await loadAnalysisData(labelId);
+    
+    if (analysisData) {
+        renderAnalysisContent(analysisData, content, labelText, confidence);
+    } else {
+        // Show "Simon hasn't analyzed" message
+        content.innerHTML = `
+            <div class="analysis-no-data">
+                <div class="analysis-no-data-emoji">🤖</div>
+                <div class="analysis-no-data-text">Simon is yet to analyse this object.</div>
+            </div>
+        `;
+    }
+}
+
+// Close label analysis modal
+function closeLabelAnalysisModal() {
+    const modal = document.getElementById('label-analysis-modal');
+    const backdrop = document.getElementById('label-analysis-backdrop');
+    
+    if (modal && backdrop) {
+        modal.classList.remove('visible');
+        backdrop.classList.remove('visible');
+    }
+}
+
+// Setup modal close handlers
+function setupLabelAnalysisModal() {
+    const closeBtn = document.getElementById('label-analysis-close');
+    const backdrop = document.getElementById('label-analysis-backdrop');
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeLabelAnalysisModal);
+    }
+    
+    if (backdrop) {
+        backdrop.addEventListener('click', closeLabelAnalysisModal);
+    }
+}
+
+// Load analysis JSON for a specific label ID
+async function loadAnalysisData(labelId) {
+    if (!folderFileHandles.qwenAnalysisFolder) {
+        console.warn('No qwen analysis folder available');
+        return null;
+    }
+    
+    try {
+        const fileName = `${labelId}_analysis.json`;
+        const fileHandle = await folderFileHandles.qwenAnalysisFolder.getFileHandle(fileName);
+        const file = await fileHandle.getFile();
+        const text = await file.text();
+        const data = JSON.parse(text);
+        
+        console.log('[ANALYSIS] Loaded analysis for', labelId, data);
+        return data;
+    } catch (error) {
+        console.warn(`[ANALYSIS] No analysis file found for ${labelId}:`, error.message);
+        return null;
+    }
+}
+
+// Render analysis data in structured format
+function renderAnalysisContent(data, contentEl, labelText, confidence) {
+    let html = '';
+    
+    // Helper to format section titles
+    const formatTitle = (key) => key.replace(/_/g, ' ');
+    
+    // Helper to render field value
+    const renderValue = (value) => {
+        if (Array.isArray(value)) {
+            return `<div class="analysis-field-value list">
+                ${value.map(v => `<span class="analysis-tag">${v}</span>`).join('')}
+            </div>`;
+        } else if (typeof value === 'object' && value !== null) {
+            return `<div class="analysis-field-value">${JSON.stringify(value, null, 2)}</div>`;
+        } else {
+            return `<div class="analysis-field-value">${value}</div>`;
+        }
+    };
+    
+    // Render each section
+    for (const [sectionKey, sectionData] of Object.entries(data)) {
+        if (typeof sectionData === 'object' && sectionData !== null && !Array.isArray(sectionData)) {
+            html += `<div class="analysis-section">
+                <div class="analysis-section-title">${formatTitle(sectionKey)}</div>`;
+            
+            for (const [fieldKey, fieldValue] of Object.entries(sectionData)) {
+                html += `<div class="analysis-field">
+                    <div class="analysis-field-label">${formatTitle(fieldKey)}</div>
+                    ${renderValue(fieldValue)}
+                </div>`;
+            }
+            
+            html += `</div>`;
+        }
+    }
+    
+    contentEl.innerHTML = html;
 }
 
 
