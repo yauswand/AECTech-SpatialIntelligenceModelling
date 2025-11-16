@@ -754,11 +754,55 @@ body {
     word-wrap: break-word;
 }
 
+.chat-image-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.chat-image {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 8px;
+    object-fit: contain;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.chat-image:hover {
+    transform: scale(1.02);
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
 .chat-input-container {
     display: flex;
     gap: 10px;
     padding: 15px 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.chat-input-container.drag-over {
+    background: rgba(102, 126, 234, 0.2);
+    border-top-color: #667eea;
+    border-top-width: 2px;
+}
+
+.chat-input-container.drag-over::before {
+    content: 'Drop image here';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #667eea;
+    font-size: 14px;
+    font-weight: 600;
+    pointer-events: none;
+    z-index: 10;
 }
 
 .chat-input {

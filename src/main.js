@@ -2995,6 +2995,39 @@ function displayFrameViewer(frames, currentFrameIndex) {
         img.alt = `Frame ${frameInfo.frameNumber}`;
         img.style.display = 'none'; // Hide until loaded
         img.style.transform = 'rotate(90deg)'; // Rotate images to display upright
+        img.draggable = true; // Make image draggable
+        img.style.cursor = 'grab'; // Show grab cursor
+        
+        // Store frame info for drag (labelText will be defined later)
+        const frameLabel = frameInfo.label || (frameInfo.isCurrent ? 'Selected' : '');
+        img.dataset.frameNumber = frameInfo.frameNumber;
+        img.dataset.frameLabel = frameLabel || `Frame ${frameInfo.frameNumber}`;
+        
+        // Add drag handlers
+        const setupDragHandlers = () => {
+            img.addEventListener('dragstart', (e) => {
+                e.dataTransfer.effectAllowed = 'copy';
+                e.dataTransfer.setData('text/plain', `frame-${frameInfo.frameNumber}`);
+                // Store the image source URL for later use
+                if (img.src) {
+                    e.dataTransfer.setData('image-url', img.src);
+                }
+                img.style.cursor = 'grabbing';
+                img.style.opacity = '0.5';
+            });
+            
+            img.addEventListener('dragend', () => {
+                img.style.cursor = 'grab';
+                img.style.opacity = '1';
+            });
+        };
+        
+        // Setup drag handlers when image loads, or immediately if already loaded
+        if (img.complete && img.naturalHeight !== 0) {
+            setupDragHandlers();
+        } else {
+            img.addEventListener('load', setupDragHandlers, { once: true });
+        }
         
         // ALWAYS use folder handle when available (no hardcoded fallbacks)
         if (scanFolderPath === 'folder-handle') {
@@ -3015,6 +3048,11 @@ function displayFrameViewer(frames, currentFrameIndex) {
                                 console.log(`  ✓ Loaded: ${timestamp}.jpg`);
                                 loader.remove();
                                 img.style.display = 'block';
+                                // Ensure drag handlers are set up after image loads
+                                if (!img.dataset.dragHandlersSetup) {
+                                    setupDragHandlers();
+                                    img.dataset.dragHandlersSetup = 'true';
+                                }
                             };
                             img.onerror = () => {
                                 console.error(`  ✗ Failed to display: ${timestamp}.jpg`);
@@ -3105,12 +3143,261 @@ function createFrameViewerUI() {
 
 // Chat interface state
 let chatHistory = [];
-// OpenRouter API configuration
+let pendingImages = []; // Store images to be sent with next message
+// API configuration
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const MCP_BRIDGE_URL = 'http://localhost:3001';
-// Default model to use (you can change this to any model supported by OpenRouter)
-// Examples: 'openai/gpt-3.5-turbo', 'openai/gpt-4', 'anthropic/claude-3-opus', 'google/gemini-pro'
+// Model configuration
+// OpenAI models (when using OpenAI API directly)
+const OPENAI_MODEL = 'gpt-3.5-turbo';
+const OPENAI_VISION_MODEL = 'gpt-4o'; // Vision-capable model
+// OpenRouter models (when using OpenRouter API)
 const OPENROUTER_MODEL = 'openai/gpt-3.5-turbo';
+const OPENROUTER_VISION_MODEL = 'openai/gpt-4o'; // Vision-capable model
+
+// Function to convert image to base64
+async function imageToBase64(imageUrl) {
+    // If it's already a data URL, return it
+    if (imageUrl.startsWith('data:')) {
+        return imageUrl;
+    }
+    
+    // If it's a blob URL, fetch it and convert to base64
+    if (imageUrl.startsWith('blob:')) {
+        try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error('Failed to read blob'));
+                reader.readAsDataURL(blob);
+            });
+        } catch (error) {
+            console.error('Error fetching blob URL:', error);
+            throw new Error('Failed to fetch image blob');
+        }
+    }
+    
+    // For regular URLs, try canvas method first, fallback to fetch
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        const timeout = setTimeout(() => {
+            // If canvas method fails or times out, try fetch method
+            fetch(imageUrl)
+                .then(response => response.blob())
+                .then(blob => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(new Error('Failed to read image'));
+                    reader.readAsDataURL(blob);
+                })
+                .catch(reject);
+        }, 3000);
+        
+        img.onload = () => {
+            clearTimeout(timeout);
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                const base64 = canvas.toDataURL('image/jpeg', 0.9);
+                resolve(base64);
+            } catch (e) {
+                // If canvas fails, try fetch method
+                fetch(imageUrl)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = () => reject(new Error('Failed to read image'));
+                        reader.readAsDataURL(blob);
+                    })
+                    .catch(reject);
+            }
+        };
+        
+        img.onerror = () => {
+            clearTimeout(timeout);
+            // Try fetch as fallback
+            fetch(imageUrl)
+                .then(response => response.blob())
+                .then(blob => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(new Error('Failed to read image'));
+                    reader.readAsDataURL(blob);
+                })
+                .catch(() => reject(new Error('Failed to load image')));
+        };
+        
+        img.src = imageUrl;
+    });
+}
+
+// Setup drag and drop zone for chat input
+function setupChatDropZone(container, chatInput, addChatMessageFn) {
+    container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'copy';
+        container.classList.add('drag-over');
+    });
+
+    container.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        container.classList.remove('drag-over');
+    });
+
+    container.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        container.classList.remove('drag-over');
+
+        // Check if it's a frame image being dropped
+        const frameData = e.dataTransfer.getData('text/plain');
+        const imageUrl = e.dataTransfer.getData('image-url');
+
+        if (frameData && frameData.startsWith('frame-')) {
+            // It's a frame image
+            const frameNumber = frameData.replace('frame-', '');
+            
+            try {
+                let base64Image;
+                
+                // If we have an image URL, try to use it
+                if (imageUrl) {
+                    try {
+                        base64Image = await imageToBase64(imageUrl);
+                    } catch (urlError) {
+                        console.warn('Failed to convert image URL, trying to reload from folder:', urlError);
+                        // Fallback: reload image from folder handle
+                        if (scanFolderPath === 'folder-handle' && frameTimestampMap && frameTimestampMap.has(parseInt(frameNumber))) {
+                            const timestamp = frameTimestampMap.get(parseInt(frameNumber));
+                            const imageFolder = folderFileHandles.correctedImagesFolder || folderFileHandles.imagesFolder;
+                            if (imageFolder) {
+                                try {
+                                    const fileHandle = await imageFolder.getFileHandle(`${timestamp}.jpg`);
+                                    const imageFile = await fileHandle.getFile();
+                                    base64Image = await new Promise((resolve, reject) => {
+                                        const reader = new FileReader();
+                                        reader.onload = () => resolve(reader.result);
+                                        reader.onerror = reject;
+                                        reader.readAsDataURL(imageFile);
+                                    });
+                                } catch (fileError) {
+                                    console.error('Failed to load file from folder:', fileError);
+                                }
+                            }
+                        }
+                        if (!base64Image) {
+                            throw new Error('Could not load image from folder');
+                        }
+                    }
+                } else {
+                    // No URL provided, try to load from folder
+                    if (scanFolderPath === 'folder-handle' && frameTimestampMap && frameTimestampMap.has(parseInt(frameNumber))) {
+                        const timestamp = frameTimestampMap.get(parseInt(frameNumber));
+                        const imageFolder = folderFileHandles.correctedImagesFolder || folderFileHandles.imagesFolder;
+                        if (imageFolder) {
+                            const fileHandle = await imageFolder.getFileHandle(`${timestamp}.jpg`);
+                            const imageFile = await fileHandle.getFile();
+                            base64Image = await new Promise((resolve, reject) => {
+                                const reader = new FileReader();
+                                reader.onload = () => resolve(reader.result);
+                                reader.onerror = reject;
+                                reader.readAsDataURL(imageFile);
+                            });
+                        }
+                    }
+                    if (!base64Image) {
+                        throw new Error('Could not find image file');
+                    }
+                }
+                
+                pendingImages.push({
+                    type: 'image_url',
+                    image_url: {
+                        url: base64Image
+                    },
+                    frameNumber: frameNumber
+                });
+
+                // Show image preview in chat
+                if (addChatMessageFn) {
+                    addChatMessageFn('user', `[Image: Frame ${frameNumber}]`, false, base64Image);
+                }
+                
+                // Update placeholder to indicate image is ready
+                chatInput.placeholder = `Ask about the image... (${pendingImages.length} image${pendingImages.length > 1 ? 's' : ''} attached)`;
+            } catch (error) {
+                console.error('Error processing dropped image:', error);
+                console.error('Frame number:', frameNumber);
+                console.error('Image URL:', imageUrl);
+                alert(`Failed to process the dropped image: ${error.message}. Please try again.`);
+            }
+        } else if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            // Handle file drops
+            const files = Array.from(e.dataTransfer.files).filter(file => 
+                file.type.startsWith('image/')
+            );
+            
+            for (const file of files) {
+                try {
+                    const reader = new FileReader();
+                    const base64Image = await new Promise((resolve, reject) => {
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+
+                    pendingImages.push({
+                        type: 'image_url',
+                        image_url: {
+                            url: base64Image
+                        },
+                        filename: file.name
+                    });
+
+                    // Show image preview in chat
+                    if (addChatMessageFn) {
+                        addChatMessageFn('user', `[Image: ${file.name}]`, false, base64Image);
+                    }
+                    
+                    // Update placeholder
+                    chatInput.placeholder = `Ask about the image... (${pendingImages.length} image${pendingImages.length > 1 ? 's' : ''} attached)`;
+                } catch (error) {
+                    console.error('Error processing dropped file:', error);
+                }
+            }
+        }
+    });
+}
+
+// Function to get OpenAI API key from environment variable
+// The API key should be set in .env file as VITE_OPENAI_API_KEY
+// Note: In Vite, only variables prefixed with VITE_ are exposed to client code
+function getOpenAIApiKey() {
+    // Try to get from environment variable (Vite exposes VITE_ prefixed vars)
+    const envKey = import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.OPENAI_API_KEY;
+    if (envKey) {
+        return envKey;
+    }
+    
+    // Fallback to localStorage if env var not set (for development/testing)
+    try {
+        return localStorage.getItem('openai_api_key') || '';
+    } catch (e) {
+        console.error('Error accessing localStorage:', e);
+        return '';
+    }
+}
 
 // Function to get OpenRouter API key from environment variable
 // The API key should be set in .env file as VITE_OPENROUTER_API_KEY
@@ -3155,6 +3442,56 @@ function setupChatInterface() {
     // Chat is open by default, so hide the toggle button initially
     chatToggleBtn.classList.add('hidden');
 
+    // Setup drag and drop for chat input container
+    const chatInputContainer = document.querySelector('.chat-input-container');
+    
+    // Function to add message to chat (defined before setupChatDropZone call)
+    function addChatMessage(role, content, isLoading = false, singleImage = null, imageArray = []) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${role}`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        
+        if (isLoading) {
+            contentDiv.innerHTML = '<div class="chat-loading"><span></span><span></span><span></span></div>';
+            messageDiv.dataset.loadingId = Date.now().toString();
+        } else {
+            // Add images if present
+            const imagesToShow = singleImage ? [singleImage] : imageArray;
+            if (imagesToShow.length > 0) {
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'chat-image-container';
+                imagesToShow.forEach((imageData) => {
+                    const img = document.createElement('img');
+                    img.src = imageData;
+                    img.className = 'chat-image';
+                    img.alt = 'Uploaded image';
+                    imageContainer.appendChild(img);
+                });
+                contentDiv.appendChild(imageContainer);
+            }
+            
+            // Format markdown and set as HTML
+            if (content) {
+                const formattedContent = formatMarkdown(content);
+                const textDiv = document.createElement('div');
+                textDiv.innerHTML = formattedContent;
+                contentDiv.appendChild(textDiv);
+            }
+        }
+        
+        messageDiv.appendChild(contentDiv);
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        return messageDiv.dataset.loadingId || null;
+    }
+    
+    setupChatDropZone(chatInputContainer, chatInput, addChatMessage);
+
     // Send message on button click
     chatSendBtn.addEventListener('click', () => {
         sendChatMessage();
@@ -3171,22 +3508,31 @@ function setupChatInterface() {
     // Function to send message
     async function sendChatMessage() {
         const message = chatInput.value.trim();
-        if (!message) return;
+        const hasImages = pendingImages.length > 0;
+        
+        // Require either message or images
+        if (!message && !hasImages) return;
 
         // Disable input while processing
         chatInput.disabled = true;
         chatSendBtn.disabled = true;
 
-        // Add user message to chat
-        addChatMessage('user', message);
+        // Add user message to chat (with images if any)
+        addChatMessage('user', message || 'Ask about the image', false, null, pendingImages.length > 0 ? pendingImages.map(img => img.image_url.url) : []);
+        
+        // Store images for API call
+        const imagesToSend = [...pendingImages];
+        pendingImages = []; // Clear pending images
         chatInput.value = '';
+        chatInput.placeholder = 'Ask about the model...'; // Reset placeholder
 
         // Show loading indicator
         const loadingId = addChatMessage('assistant', '', true);
 
         try {
+            // Skip MCP if images are present (MCP doesn't support image queries)
             // Check if this is a spatial data query (try MCP first)
-            const isSpatialQuery = /(chair|desk|table|sofa|bed|lamp|cabinet|shelf|door|window|color|material|room|dimension|size|how many|number of|list|count)/i.test(message);
+            const isSpatialQuery = imagesToSend.length === 0 && /(chair|desk|table|sofa|bed|lamp|cabinet|shelf|door|window|color|material|room|dimension|size|how many|number of|list|count)/i.test(message);
             
             if (isSpatialQuery) {
                 try {
@@ -3216,52 +3562,138 @@ function setupChatInterface() {
                 }
             }
 
-            // Fallback to OpenRouter
-            let apiKey = getOpenRouterApiKey();
+            // Check for API keys - prefer OpenAI if available, fallback to OpenRouter
+            const openAIKey = getOpenAIApiKey();
+            const openRouterKey = getOpenRouterApiKey();
             
-            if (!apiKey) {
-                throw new Error('OpenRouter API key is not set. Please set VITE_OPENROUTER_API_KEY in your .env file.');
+            let apiUrl, apiKey, modelToUse, useOpenAI;
+            
+            if (openAIKey) {
+                // Use OpenAI API directly
+                useOpenAI = true;
+                apiUrl = OPENAI_API_URL;
+                apiKey = openAIKey;
+                modelToUse = imagesToSend.length > 0 ? OPENAI_VISION_MODEL : OPENAI_MODEL;
+            } else if (openRouterKey) {
+                // Fallback to OpenRouter
+                useOpenAI = false;
+                apiUrl = OPENROUTER_API_URL;
+                apiKey = openRouterKey;
+                modelToUse = imagesToSend.length > 0 ? OPENROUTER_VISION_MODEL : OPENROUTER_MODEL;
+            } else {
+                throw new Error('No API key found. Please set VITE_OPENAI_API_KEY or VITE_OPENROUTER_API_KEY in your .env file.');
             }
 
             const modelContext = getModelContext();
+            
+            // Build user message content
+            let userContent;
+            if (imagesToSend.length > 0) {
+                // Clean image objects - remove any extra keys that aren't part of OpenAI's API format
+                const cleanedImages = imagesToSend.map(img => ({
+                    type: 'image_url',
+                    image_url: {
+                        url: img.image_url.url
+                    }
+                }));
+                
+                // For vision models, content is an array with text and images
+                userContent = [
+                    {
+                        type: 'text',
+                        text: message || 'What do you see in this image?'
+                    },
+                    ...cleanedImages
+                ];
+            } else {
+                userContent = message;
+            }
 
-            const response = await fetch(OPENROUTER_API_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`,
-                    'HTTP-Referer': window.location.origin,
-                    'X-Title': 'AECTech Spatial Intelligence Modelling'
-                },
-                body: JSON.stringify({
-                    model: OPENROUTER_MODEL,
-                    messages: [
-                        {
-                            role: 'system',
-                            content: `You are an AI assistant helping users understand a 3D spatial intelligence model. You can answer questions about:
+            // Build headers
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            };
+            
+            // Add OpenRouter-specific headers only when using OpenRouter
+            if (!useOpenAI) {
+                headers['HTTP-Referer'] = window.location.origin;
+                headers['X-Title'] = 'AECTech Spatial Intelligence Modelling';
+            }
+
+            // Filter chat history to remove images (to prevent large payloads and 400 errors)
+            // Keep only text messages in history, but preserve the conversation flow
+            const filteredHistory = chatHistory.map(msg => {
+                if (msg.role === 'user' && Array.isArray(msg.content)) {
+                    // Extract only text from user messages with images
+                    const textPart = msg.content.find(item => item.type === 'text');
+                    return {
+                        role: msg.role,
+                        content: textPart ? textPart.text : '[Previous message with image]'
+                    };
+                }
+                return msg;
+            });
+
+            // Prepare request body
+            const requestBody = {
+                model: modelToUse,
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are an AI assistant helping users understand a 3D spatial intelligence model. You can answer questions about:
 - The 3D point cloud/mesh visualization
 - Camera trajectories and poses
 - Semantic labels and object detection
 - Navigation and controls
 - Technical details about the visualization
+${imagesToSend.length > 0 ? '- Analyzing images from camera frames in the spatial model' : ''}
 
 Current model context:
 ${modelContext}
 
 Be helpful, concise, and technical when appropriate.`
-                        },
-                        ...chatHistory,
-                        {
-                            role: 'user',
-                            content: message
-                        }
-                    ],
-                    temperature: 0.7
-                })
+                    },
+                    ...filteredHistory,
+                    {
+                        role: 'user',
+                        content: userContent
+                    }
+                ],
+                temperature: 0.7
+            };
+
+            // Log request for debugging (without sensitive data)
+            console.log('API Request:', {
+                url: apiUrl,
+                model: modelToUse,
+                useOpenAI: useOpenAI,
+                hasImages: imagesToSend.length > 0,
+                messageLength: message?.length || 0
+            });
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(requestBody)
             });
 
             if (!response.ok) {
-                throw new Error(`API error: ${response.status} ${response.statusText}`);
+                // Try to get detailed error message
+                let errorDetails = `${response.status} ${response.statusText}`;
+                try {
+                    const errorData = await response.json();
+                    console.error('API Error Response:', errorData);
+                    if (errorData.error) {
+                        errorDetails = errorData.error.message || errorData.error.code || errorDetails;
+                    } else if (errorData.message) {
+                        errorDetails = errorData.message;
+                    }
+                } catch (e) {
+                    // If response isn't JSON, use status text
+                    console.error('Failed to parse error response:', e);
+                }
+                throw new Error(`API error: ${response.status} - ${errorDetails}`);
             }
 
             const data = await response.json();
@@ -3274,15 +3706,23 @@ Be helpful, concise, and technical when appropriate.`
             addChatMessage('assistant', assistantMessage);
 
             // Update chat history
+            // For vision models, we need to store the content array with images
+            // But for text-only, just store the message string
+            const historyUserMessage = imagesToSend.length > 0 
+                ? { role: 'user', content: userContent }
+                : { role: 'user', content: message || 'Ask about the image' };
+            
             chatHistory.push(
-                { role: 'user', content: message },
+                historyUserMessage,
                 { role: 'assistant', content: assistantMessage }
             );
-
-            // Keep history manageable (last 10 exchanges)
-            if (chatHistory.length > 20) {
-                chatHistory = chatHistory.slice(-20);
+            
+            // Limit chat history to avoid token limits and large image payloads
+            // Keep only last 5 exchanges to prevent issues with large base64 images
+            if (chatHistory.length > 10) {
+                chatHistory = chatHistory.slice(-10);
             }
+
 
         } catch (error) {
             console.error('Chat API error:', error);
@@ -3292,10 +3732,15 @@ Be helpful, concise, and technical when appropriate.`
 
             // Show error message
             let errorMsg = `Sorry, I encountered an error: ${error.message}.`;
-            if (error.message.includes('API key')) {
-                errorMsg += ' Please set your OpenRouter API key. Get one from: https://openrouter.ai/keys';
+            if (error.message.includes('API key') || error.message.includes('No API key')) {
+                errorMsg += ' Please set VITE_OPENAI_API_KEY or VITE_OPENROUTER_API_KEY in your .env file.';
+                errorMsg += ' OpenAI API key: https://platform.openai.com/api-keys';
+                errorMsg += ' OpenRouter API key: https://openrouter.ai/keys';
             } else if (error.message.includes('401') || error.message.includes('403')) {
-                errorMsg += ' Please check your OpenRouter API key is valid.';
+                errorMsg += ' Please check your API key is valid.';
+            } else if (error.message.includes('402')) {
+                errorMsg += ' Payment required. If using OpenRouter, add credits at https://openrouter.ai/credits';
+                errorMsg += ' Or use OpenAI API directly by setting VITE_OPENAI_API_KEY.';
             }
             addChatMessage('assistant', errorMsg);
         } finally {
@@ -3552,32 +3997,6 @@ Be helpful, concise, and technical when appropriate.`
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
-    }
-
-    // Function to add message to chat
-    function addChatMessage(role, content, isLoading = false) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${role}`;
-        
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'message-content';
-        
-        if (isLoading) {
-            contentDiv.innerHTML = '<div class="chat-loading"><span></span><span></span><span></span></div>';
-            messageDiv.dataset.loadingId = Date.now().toString();
-        } else {
-            // Format markdown and set as HTML
-            const formattedContent = formatMarkdown(content);
-            contentDiv.innerHTML = formattedContent;
-        }
-        
-        messageDiv.appendChild(contentDiv);
-        chatMessages.appendChild(messageDiv);
-        
-        // Scroll to bottom
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-        
-        return messageDiv.dataset.loadingId || null;
     }
 
     // Function to remove message (for loading indicator)
