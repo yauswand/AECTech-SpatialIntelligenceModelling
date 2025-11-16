@@ -3445,6 +3445,137 @@ function setupChatInterface() {
     // Setup drag and drop for chat input container
     const chatInputContainer = document.querySelector('.chat-input-container');
     
+    // Function to display furniture search results with product images
+    function displayFurnitureResults(textContent, productData) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message assistant';
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        
+        // Always show product cards if product data is available
+        if (productData && productData.products && Array.isArray(productData.products) && productData.products.length > 0) {
+            // Show a simple header instead of the full numbered text list
+            const header = document.createElement('div');
+            header.className = 'furniture-results-header';
+            const queryText = productData.query || (textContent ? textContent.match(/for "([^"]+)"/)?.[1] : 'your search') || 'your search';
+            header.textContent = `Found ${productData.total || productData.products.length} furniture options for "${queryText}":`;
+            contentDiv.appendChild(header);
+            
+            const productsContainer = document.createElement('div');
+            productsContainer.className = 'furniture-products-container';
+            
+            productData.products.forEach((product) => {
+                const productCard = document.createElement('div');
+                productCard.className = 'furniture-product-card';
+                
+                // Product image as clickable link
+                if (product.thumbnail) {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'product-image-container';
+                    
+                    if (product.link && product.link !== '#') {
+                        const imageLink = document.createElement('a');
+                        imageLink.href = product.link;
+                        imageLink.target = '_blank';
+                        imageLink.rel = 'noopener noreferrer';
+                        imageLink.className = 'product-image-link';
+                        
+                        const img = document.createElement('img');
+                        img.src = product.thumbnail;
+                        img.className = 'product-image';
+                        img.alt = product.title;
+                        img.onerror = () => {
+                            img.style.display = 'none'; // Hide broken images
+                        };
+                        
+                        imageLink.appendChild(img);
+                        imgContainer.appendChild(imageLink);
+                    } else {
+                        const img = document.createElement('img');
+                        img.src = product.thumbnail;
+                        img.className = 'product-image';
+                        img.alt = product.title;
+                        img.onerror = () => {
+                            img.style.display = 'none';
+                        };
+                        imgContainer.appendChild(img);
+                    }
+                    
+                    productCard.appendChild(imgContainer);
+                }
+                
+                // Product info
+                const productInfo = document.createElement('div');
+                productInfo.className = 'product-info';
+                
+                // Title (also clickable if link exists)
+                if (product.link && product.link !== '#') {
+                    const titleLink = document.createElement('a');
+                    titleLink.href = product.link;
+                    titleLink.target = '_blank';
+                    titleLink.rel = 'noopener noreferrer';
+                    titleLink.className = 'product-title-link';
+                    titleLink.textContent = product.title;
+                    productInfo.appendChild(titleLink);
+                } else {
+                    const title = document.createElement('div');
+                    title.className = 'product-title';
+                    title.textContent = product.title;
+                    productInfo.appendChild(title);
+                }
+                
+                const price = document.createElement('div');
+                price.className = 'product-price';
+                price.textContent = product.price;
+                productInfo.appendChild(price);
+                
+                if (product.rating && product.rating !== 'No rating') {
+                    const rating = document.createElement('div');
+                    rating.className = 'product-rating';
+                    rating.textContent = `${product.rating} ${product.reviews || ''}`;
+                    productInfo.appendChild(rating);
+                }
+                
+                // Show URL/source
+                if (product.link && product.link !== '#') {
+                    try {
+                        const urlDisplay = document.createElement('div');
+                        urlDisplay.className = 'product-url';
+                        const url = new URL(product.link);
+                        urlDisplay.textContent = url.hostname.replace('www.', '');
+                        productInfo.appendChild(urlDisplay);
+                    } catch (e) {
+                        // If URL parsing fails, show truncated link
+                        const urlDisplay = document.createElement('div');
+                        urlDisplay.className = 'product-url';
+                        urlDisplay.textContent = product.link.length > 30 ? product.link.substring(0, 30) + '...' : product.link;
+                        productInfo.appendChild(urlDisplay);
+                    }
+                }
+                
+                productCard.appendChild(productInfo);
+                productsContainer.appendChild(productCard);
+            });
+            
+            contentDiv.appendChild(productsContainer);
+        } else {
+            // Fallback: show text content if no product data available
+            if (textContent) {
+                const formattedContent = formatMarkdown(textContent);
+                const textDiv = document.createElement('div');
+                textDiv.innerHTML = formattedContent;
+                contentDiv.appendChild(textDiv);
+            }
+        }
+        
+        messageDiv.appendChild(contentDiv);
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
     // Function to add message to chat (defined before setupChatDropZone call)
     function addChatMessage(role, content, isLoading = false, singleImage = null, imageArray = []) {
         const messageDiv = document.createElement('div');
@@ -3530,7 +3661,235 @@ function setupChatInterface() {
         const loadingId = addChatMessage('assistant', '', true);
 
         try {
-            // Skip MCP if images are present (MCP doesn't support image queries)
+            // If images are present, use MCP image analysis tool
+            if (imagesToSend.length > 0) {
+                try {
+                    // Use the first image (or combine multiple images)
+                    const imageData = imagesToSend[0].image_url.url;
+                    const question = message || 'What do you see in this image? Provide a detailed description.';
+                    
+                    console.log('[Frontend] Calling MCP bridge for image analysis...');
+                    console.log(`[Frontend] Image data length: ${imageData.length} characters`);
+                    console.log(`[Frontend] Question: "${question}"`);
+                    
+                    const mcpResponse = await fetch(`${MCP_BRIDGE_URL}/analyze-image`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            image: imageData,
+                            question: question
+                        })
+                    });
+
+                    if (mcpResponse.ok) {
+                        const mcpData = await mcpResponse.json();
+                        const result = mcpData.result?.[0]?.text || JSON.stringify(mcpData.result);
+                        
+                        console.log('[Frontend] MCP image analysis successful');
+                        console.log(`[Frontend] Result length: ${result.length} characters`);
+                        console.log(`[Frontend] Result preview: ${result.substring(0, 100)}...`);
+                        
+                        removeChatMessage(loadingId);
+                        addChatMessage('assistant', result);
+                        
+                        // Ask follow-up question about replacing furniture
+                        const followUpQuestion = "\n\n**Would you like to see replacement options for any furniture or objects detected in this image?** If so, please let me know which items you'd like to replace, and I can search for similar products.";
+                        addChatMessage('assistant', followUpQuestion);
+                        
+                        // Update chat history
+                        chatHistory.push(
+                            { role: 'user', content: message || 'Ask about the image' },
+                            { role: 'assistant', content: result + followUpQuestion }
+                        );
+                        
+                        // Limit chat history
+                        if (chatHistory.length > 10) {
+                            chatHistory = chatHistory.slice(-10);
+                        }
+                        return;
+                    } else {
+                        const errorData = await mcpResponse.json().catch(() => ({}));
+                        console.error('[Frontend] MCP image analysis failed:', mcpResponse.status, errorData);
+                        throw new Error(errorData.error || `MCP image analysis failed: ${mcpResponse.status}`);
+                    }
+                } catch (mcpError) {
+                    console.error('[Frontend] MCP image analysis error:', mcpError);
+                    console.warn('MCP image analysis failed, falling back to direct API:', mcpError);
+                    // Fall through to direct API call
+                }
+            }
+            
+            // Check if user wants to search for furniture replacements
+            // This can be triggered by:
+            // 1. User saying yes/okay to the follow-up question
+            // 2. User mentioning furniture items with replacement/search keywords
+            // 3. User mentioning specific furniture types
+            // 4. User mentioning any object/furniture after image analysis
+            const furnitureKeywords = /(furniture|chair|desk|table|sofa|bed|lamp|cabinet|shelf|stool|ottoman|dresser|wardrobe|stand|tv stand|entertainment center|bookshelf|bookcase|nightstand|end table|coffee table|dining table|office chair|desk chair|monitor|fan|rug|mat)/i;
+            const replacementKeywords = /(yes|yeah|yep|sure|okay|ok|replace|replacement|search|find|look|buy|purchase|options|alternatives|similar|show me|i want|i need|can you|please)/i;
+            const objectKeywords = /(tv|television|monitor|fan|router|modem|stand|furniture|item|object|thing)/i;
+            
+            const hasFurniture = furnitureKeywords.test(message);
+            const wantsReplacement = replacementKeywords.test(message);
+            const hasObject = objectKeywords.test(message);
+            
+            // Check if this is a follow-up to image analysis
+            const isAfterImageAnalysis = chatHistory.length > 0 && 
+                                        chatHistory[chatHistory.length - 1].role === 'assistant' && 
+                                        chatHistory[chatHistory.length - 1].content.includes('replacement options');
+            
+            // Trigger furniture search if:
+            // 1. User explicitly wants replacement/search AND mentions furniture/objects
+            // 2. User is responding to follow-up question (even just saying furniture name)
+            // 3. User mentions furniture/objects after image analysis context
+            const wantsFurnitureSearch = (wantsReplacement && (hasFurniture || hasObject)) || 
+                                        (isAfterImageAnalysis && (hasFurniture || hasObject || message.length < 50)); // Short messages after follow-up are likely furniture requests
+            
+            if (wantsFurnitureSearch) {
+                try {
+                    // Extract furniture type from message - check longer phrases first
+                    const furnitureTypes = [
+                        'tv stand', 'entertainment center', 'office chair', 'dining table', 'coffee table', 
+                        'side table', 'end table', 'dining chair', 'desk chair', 'bookcase', 'bookshelf',
+                        'nightstand', 'dresser', 'wardrobe', 'cabinet', 'shelf', 'ottoman', 'stool',
+                        'chair', 'desk', 'table', 'sofa', 'couch', 'bed', 'lamp', 'rug', 'mat', 'fan',
+                        'monitor stand', 'tv', 'television'
+                    ];
+                    let searchQuery = message.trim();
+                    
+                    // Try to extract specific furniture type (check longer phrases first)
+                    let foundType = false;
+                    for (const type of furnitureTypes) {
+                        if (searchQuery.toLowerCase().includes(type)) {
+                            searchQuery = type;
+                            foundType = true;
+                            break;
+                        }
+                    }
+                    
+                    // If user just said "yes" or similar, try to extract from previous context
+                    if ((/^(yes|yeah|yep|sure|okay|ok)$/i.test(searchQuery) || (wantsReplacement && !foundType)) && chatHistory.length > 0) {
+                        // Look for furniture mentions in recent chat history (check assistant messages from image analysis)
+                        const recentMessages = chatHistory.slice(-4).map(m => m.content).join(' ');
+                        for (const type of furnitureTypes) {
+                            if (recentMessages.toLowerCase().includes(type)) {
+                                searchQuery = type;
+                                foundType = true;
+                                break;
+                            }
+                        }
+                        // If still no specific type, use a general furniture search
+                        if (!foundType) {
+                            searchQuery = 'furniture';
+                        }
+                    } else if (!foundType) {
+                        // If no specific type found but message contains furniture-related words, use message as-is
+                        // Otherwise add "furniture" prefix for better search results
+                        if (hasFurniture || hasObject) {
+                            searchQuery = message; // Use the message as the search query
+                        } else {
+                            searchQuery = 'furniture ' + message;
+                        }
+                    }
+                    
+                    // Clean up the search query - remove common filler words
+                    searchQuery = searchQuery.replace(/\b(show me|i want|i need|find|search for|look for|options for|replace|replacement)\b/gi, '').trim();
+                    
+                    console.log('[Frontend] User wants furniture search, query:', searchQuery);
+                    
+                    const furnitureResponse = await fetch(`${MCP_BRIDGE_URL}/search-furniture`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            query: searchQuery,
+                            num_results: 10
+                        })
+                    });
+
+                    if (furnitureResponse.ok) {
+                        const furnitureData = await furnitureResponse.json();
+                        
+                        console.log('[Frontend] Furniture search response:', furnitureData);
+                        
+                        // Try to extract product data from the result
+                        let furnitureResult = '';
+                        let productData = null;
+                        
+                        // The result is an array of content items
+                        if (furnitureData.result && Array.isArray(furnitureData.result)) {
+                            console.log('[Frontend] Result array length:', furnitureData.result.length);
+                            console.log('[Frontend] Result items:', furnitureData.result.map(r => ({ type: r.type, mimeType: r.mimeType, textLength: r.text?.length })));
+                            
+                            // Find text content (first item is usually text, or any item without mimeType)
+                            const textResult = furnitureData.result.find(r => 
+                                (r.type === 'text' && !r.mimeType) || 
+                                (r.type === 'text' && r.mimeType !== 'application/json')
+                            );
+                            if (textResult) {
+                                furnitureResult = textResult.text || '';
+                                console.log('[Frontend] Found text result, length:', furnitureResult.length);
+                            }
+                            
+                            // Find JSON data (item with mimeType or JSON text)
+                            const jsonResult = furnitureData.result.find(r => 
+                                r.mimeType === 'application/json' || 
+                                (r.type === 'text' && r.text && r.text.trim().startsWith('{'))
+                            );
+                            
+                            if (jsonResult) {
+                                try {
+                                    const jsonText = jsonResult.text || jsonResult.content || '';
+                                    console.log('[Frontend] Found JSON result, length:', jsonText.length);
+                                    console.log('[Frontend] JSON preview:', jsonText.substring(0, 200));
+                                    productData = JSON.parse(jsonText);
+                                    console.log('[Frontend] Successfully parsed product data, products count:', productData.products?.length);
+                                } catch (e) {
+                                    console.error('Could not parse product data JSON:', e);
+                                    console.error('JSON text preview:', jsonResult.text?.substring(0, 200));
+                                }
+                            } else {
+                                console.warn('[Frontend] No JSON result found in response');
+                            }
+                        } else {
+                            console.warn('[Frontend] Result is not an array:', furnitureData.result);
+                        }
+                        
+                        // If no JSON data found in structured format, try to parse from text result
+                        if (!productData && furnitureResult) {
+                            try {
+                                // Check if there's a JSON string embedded in the text
+                                const jsonMatch = furnitureResult.match(/\{[\s\S]*"products"[\s\S]*\}/);
+                                if (jsonMatch) {
+                                    productData = JSON.parse(jsonMatch[0]);
+                                    console.log('[Frontend] Extracted product data from text');
+                                }
+                            } catch (e) {
+                                // Ignore parsing errors
+                            }
+                        }
+                        
+                        removeChatMessage(loadingId);
+                        
+                        // Always display furniture results with product images if available
+                        // This ensures consistent display whether triggered after image or directly
+                        displayFurnitureResults(furnitureResult, productData);
+                        
+                        chatHistory.push(
+                            { role: 'user', content: message },
+                            { role: 'assistant', content: furnitureResult || `Found furniture options for "${searchQuery}"` }
+                        );
+                        
+                        if (chatHistory.length > 10) {
+                            chatHistory = chatHistory.slice(-10);
+                        }
+                        return;
+                    }
+                } catch (furnitureError) {
+                    console.warn('Furniture search failed:', furnitureError);
+                    // Continue to normal flow
+                }
+            }
+            
             // Check if this is a spatial data query (try MCP first)
             const isSpatialQuery = imagesToSend.length === 0 && /(chair|desk|table|sofa|bed|lamp|cabinet|shelf|door|window|color|material|room|dimension|size|how many|number of|list|count)/i.test(message);
             
@@ -3562,6 +3921,7 @@ function setupChatInterface() {
                 }
             }
 
+            // Fallback to direct API calls (OpenAI or OpenRouter) if MCP is not available or failed
             // Check for API keys - prefer OpenAI if available, fallback to OpenRouter
             const openAIKey = getOpenAIApiKey();
             const openRouterKey = getOpenRouterApiKey();

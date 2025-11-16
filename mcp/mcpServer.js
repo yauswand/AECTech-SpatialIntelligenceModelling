@@ -22,9 +22,9 @@ if (!process.env.QDRANT_URL) {
     process.exit(1);
 }
 
-if (!process.env.OPENAI_API_KEY) {
-    console.error("ERROR: OPENAI_API_KEY environment variable is not set!");
-    console.error("Please set OPENAI_API_KEY in your .env file or environment variables.");
+if (!process.env.VITE_OPENAI_API_KEY) {
+    console.error("ERROR: VITE_OPENAI_API_KEY environment variable is not set!");
+    console.error("Please set VITE_OPENAI_API_KEY in your .env file or environment variables.");
     process.exit(1);
 }
 
@@ -35,7 +35,7 @@ const qdrantClient = new QdrantClient({
 });
 
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: process.env.VITE_OPENAI_API_KEY,
 });
 
 const DEFAULT_COLLECTION = "dummy";
@@ -522,6 +522,232 @@ mcpServer.tool(
                     isError: true,
                 };
             }
+        }
+    }
+);
+
+// Register image analysis tool
+mcpServer.tool(
+    "analyze_image",
+    "Analyze an image using vision AI. Accepts a base64-encoded image and a question/prompt about the image. Returns detailed analysis of what's in the image.",
+    {
+        image: z.string().describe("Base64-encoded image data (data URL format: data:image/jpeg;base64,...)"),
+        question: z.string().optional().describe("Question or prompt about the image. If not provided, will analyze what's in the image."),
+        model: z.string().optional().default("gpt-4o").describe("OpenAI model to use for vision analysis"),
+    },
+    async (args) => {
+        const { image, question, model } = args;
+        
+        // Log that the tool was called
+        console.error("[MCP Tool] analyze_image called");
+        console.error(`[MCP Tool] Question: ${question || '(none provided)'}`);
+        console.error(`[MCP Tool] Model: ${model}`);
+        console.error(`[MCP Tool] Image data length: ${image ? image.length : 0} characters`);
+        console.error(`[MCP Tool] Image format: ${image ? image.substring(0, 30) : 'none'}...`);
+        
+        try {
+            // Validate image format
+            if (!image.startsWith('data:image/')) {
+                console.error("[MCP Tool] ERROR: Invalid image format");
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: `Error: Invalid image format. Expected data URL starting with 'data:image/', got: ${image.substring(0, 50)}...`,
+                        },
+                    ],
+                    isError: true,
+                };
+            }
+
+            // Prepare the prompt
+            const prompt = question || "What do you see in this image? Provide a detailed description.";
+            console.error(`[MCP Tool] Using prompt: "${prompt}"`);
+            console.error("[MCP Tool] Calling OpenAI vision API...");
+
+            // Call OpenAI vision API
+            const response = await openai.chat.completions.create({
+                model: model,
+                messages: [
+                    {
+                        role: "system",
+                        content: "You are a helpful AI assistant that analyzes images in detail. Provide clear, detailed descriptions of what you see in images.",
+                    },
+                    {
+                        role: "user",
+                        content: [
+                            {
+                                type: "text",
+                                text: prompt,
+                            },
+                            {
+                                type: "image_url",
+                                image_url: {
+                                    url: image,
+                                },
+                            },
+                        ],
+                    },
+                ],
+                max_tokens: 1000,
+            });
+
+            const analysis = response.choices[0].message.content;
+            console.error(`[MCP Tool] OpenAI API response received (${analysis.length} characters)`);
+            console.error(`[MCP Tool] Analysis preview: ${analysis.substring(0, 100)}...`);
+
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: analysis,
+                    },
+                ],
+                isError: false,
+            };
+        } catch (error) {
+            console.error("[MCP Tool] Image Analysis Error:", error);
+            console.error("[MCP Tool] Error details:", error.message);
+            console.error("[MCP Tool] Error stack:", error.stack);
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error analyzing image: ${error.message}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+    }
+);
+
+// Register Serp API furniture search tool
+mcpServer.tool(
+    "search_furniture",
+    "Search for furniture options on Google Shopping using Serp API. Returns product listings with prices, links, and details for furniture items.",
+    {
+        query: z.string().describe("Search query for furniture (e.g., 'modern office chair', 'wooden dining table')"),
+        num_results: z.number().optional().default(10).describe("Number of results to return (default: 10, max: 100)"),
+        min_price: z.number().optional().describe("Minimum price filter (optional)"),
+        max_price: z.number().optional().describe("Maximum price filter (optional)"),
+    },
+    async (args) => {
+        const { query, num_results, min_price, max_price } = args;
+        
+        console.error("[MCP Tool] search_furniture called");
+        console.error(`[MCP Tool] Query: "${query}"`);
+        console.error(`[MCP Tool] Num results: ${num_results}`);
+        
+        try {
+            if (!process.env.VITE_SERP_API_KEY) {
+                throw new Error("VITE_SERP_API_KEY environment variable is not set");
+            }
+
+            // Build Serp API request URL
+            const baseUrl = "https://serpapi.com/search.json";
+            const params = new URLSearchParams({
+                engine: "google_shopping",
+                q: query,
+                api_key: process.env.VITE_SERP_API_KEY,
+                num: Math.min(num_results, 100).toString(),
+            });
+
+            if (min_price !== undefined) {
+                params.append("tbs", `vw:g,price:1,ppr_min:${min_price}`);
+            }
+            if (max_price !== undefined) {
+                params.append("tbs", `vw:g,price:1,ppr_max:${max_price}`);
+            }
+            if (min_price !== undefined && max_price !== undefined) {
+                params.set("tbs", `vw:g,price:1,ppr_min:${min_price},ppr_max:${max_price}`);
+            }
+
+            const url = `${baseUrl}?${params.toString()}`;
+            console.error(`[MCP Tool] Calling Serp API: ${baseUrl}?engine=google_shopping&q=${encodeURIComponent(query)}&...`);
+
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Serp API error: ${response.status} - ${errorText}`);
+            }
+
+            const data = await response.json();
+            const shoppingResults = data.shopping_results || [];
+
+            if (shoppingResults.length === 0) {
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: `No furniture options found for "${query}". Try adjusting your search terms.`,
+                        },
+                    ],
+                    isError: false,
+                };
+            }
+
+            // Format results with images
+            const formattedResults = shoppingResults.slice(0, num_results).map((product, index) => {
+                const title = product.title || "No title";
+                const price = product.price || "Price not available";
+                const link = product.link || "#";
+                const rating = product.rating ? `${product.rating}/5` : "No rating";
+                const reviews = product.reviews ? `(${product.reviews} reviews)` : "";
+                const thumbnail = product.thumbnail || "";
+                
+                return {
+                    index: index + 1,
+                    title,
+                    price,
+                    link,
+                    rating,
+                    reviews,
+                    thumbnail
+                };
+            });
+
+            // Build text summary
+            const textResults = formattedResults.map(p => 
+                `${p.index}. **${p.title}**\n   Price: ${p.price}\n   Rating: ${p.rating} ${p.reviews}\n   Link: ${p.link}`
+            ).join("\n\n");
+
+            const summary = `Found ${shoppingResults.length} furniture options for "${query}":\n\n${textResults}`;
+            
+            console.error(`[MCP Tool] Serp API returned ${shoppingResults.length} results`);
+            
+            // Return both text and structured data with images
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: summary,
+                    },
+                    {
+                        type: "text",
+                        text: JSON.stringify({
+                            products: formattedResults,
+                            query: query,
+                            total: shoppingResults.length
+                        }),
+                        mimeType: "application/json"
+                    }
+                ],
+                isError: false,
+            };
+        } catch (error) {
+            console.error("[MCP Tool] Furniture Search Error:", error);
+            console.error("[MCP Tool] Error details:", error.message);
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Error searching for furniture: ${error.message}`,
+                    },
+                ],
+                isError: true,
+            };
         }
     }
 );
