@@ -1,0 +1,85 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "printer",
+        "distinctive_features": [
+            "rectangular shape",
+            "flat surface",
+            "control panel"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "Approximately 12 inches (width) x 18 inches (length)",
+        "materials": [
+            "plastic",
+            "metal"
+        ],
+        "color_appearance": "Black with some metallic parts",
+        "condition": "Used, with visible wear and tear"
+    },
+    "functional_analysis": {
+        "primary_function": "Printing documents and images",
+        "usage_context": "Office or home workspace",
+        "user_interaction": "User interacts with the control panel to select print settings and load paper"
+    },
+    "contextual_information": {
+        "typical_location": "Office desk or home workspace",
+        "brand_manufacturer": "Not visible",
+        "value_category": "Mid-range"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "Open top cover",
+            "Visible internal components"
+        ],
+        "environment_relationship": "Printer is placed on a wooden desk with other office supplies",
+        "additional_notes": "The printer appears to be in a working condition, but the exact model cannot be determined from the image."
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object's label is verified as 'printer' based on its shape and features. The detection confidence is high, indicating a strong likelihood of the object being a printer.",
+    "object_id": "2351209327795",
+    "current_label": "printer",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2351209327795.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'printer' is an electronic device and not a part of building architecture, interior design, or furniture. It is a general object.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "fan",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the green bounding box appears to be a printer, not a fan. It has a rectangular shape with a flat surface and a control panel, which is characteristic of a printer. The label 'fan' is incorrect for this object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.46465633872998313
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            1.9735376396205884
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            1.0458910327373578
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

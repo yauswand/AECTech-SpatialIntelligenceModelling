@@ -1,0 +1,3985 @@
+{
+    "analyses": {
+        "2350531815848": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "handwritten notes and diagrams on paper",
+                "distinctive_features": [
+                    "handwritten text",
+                    "diagrams",
+                    "notations"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "Approximately A4 size",
+                "materials": [
+                    "paper",
+                    "ink"
+                ],
+                "color_appearance": "White paper with red and blue ink",
+                "condition": "Used, with visible markings and diagrams"
+            },
+            "functional_analysis": {
+                "primary_function": "Note-taking and sketching",
+                "usage_context": "Educational, brainstorming, or planning sessions",
+                "user_interaction": "Written by hand, used for recording ideas and concepts"
+            },
+            "contextual_information": {
+                "typical_location": "Office, classroom, or meeting room",
+                "brand_manufacturer": "Not visible",
+                "value_category": "Budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "handwritten content",
+                    "diagrams",
+                    "notations"
+                ],
+                "environment_relationship": "Placed on a flat surface, possibly a table or desk",
+                "additional_notes": "The object is not a book but a piece of paper used for writing and drawing."
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is clearly a piece of paper with handwritten notes and diagrams, not a book. The label 'book' is incorrect as the object lacks the typical characteristics of a book.",
+            "object_id": "2350531815848",
+            "current_label": "paper",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350531815848.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The object is a piece of paper with drawings and text, which does not fit into the categories of architectural, interior design, or furniture. It is a general object.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "book",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image appears to be a piece of paper with handwritten notes and diagrams, not a book. The label 'book' is incorrect as the object does not have the typical characteristics of a book, such as a cover, spine, or pages bound together."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.5345837253762928
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.3162350442734785
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.7730505831832222
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350694346918": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "art installation resembling a clock",
+                "distinctive_features": [
+                    "circular structure",
+                    "decorative design",
+                    "non-functional"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small to medium-sized, approximately 1-2 feet in diameter",
+                "materials": [
+                    "wood",
+                    "metal"
+                ],
+                "color_appearance": "wooden color with a natural finish, metallic elements",
+                "condition": "new, likely part of an exhibition or gallery setting"
+            },
+            "functional_analysis": {
+                "primary_function": "decorative or conceptual piece",
+                "usage_context": "art gallery, museum, or public space",
+                "user_interaction": "viewing and appreciation, not for time-keeping"
+            },
+            "contextual_information": {
+                "typical_location": "art gallery, museum, or public space",
+                "brand_manufacturer": "not visible",
+                "value_category": "mid-range to premium, depending on the artist and context"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "artistic design",
+                    "non-functional",
+                    "prominent display"
+                ],
+                "environment_relationship": "part of a larger exhibition or gallery space",
+                "additional_notes": "The object is likely a conceptual or decorative piece rather than a functional clock."
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is detected with a high confidence score, indicating a strong likelihood that it is an art installation resembling a clock. The verification notes confirm that it is not a functional clock but rather a decorative or conceptual piece.",
+            "object_id": "2350694346918",
+            "current_label": "art installation",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350694346918.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'art installation' indicates that the object is not a typical architectural, interior, or furniture item. Art installations are typically standalone pieces designed to be displayed in a space, often as a form of visual art, and do not fit into the categories of building architecture, interior design, or furniture.",
+                "confidence": 0.85
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "clock",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object detected as a clock appears to be an artistic installation resembling a clock, but it is not a functional clock. It is likely a decorative or conceptual piece rather than a clock."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.8967364657202408
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.5544902358124996
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.8954129641390294
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350500153106": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "window",
+                "distinctive_features": [
+                    "frame",
+                    "glass panel",
+                    "reflection"
+                ]
+            },
+            "architectural_context": {
+                "category": "architectural element",
+                "typical_location": "wall",
+                "architectural_style": "modern",
+                "functional_role": "natural light, ventilation, view"
+            },
+            "spatial_analysis": {
+                "size_scale": "medium",
+                "orientation": "horizontal",
+                "relationship_to_space": "integral to the wall",
+                "placement": "centered on the wall"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "metal",
+                    "glass"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "polished",
+                "color_palette": [
+                    "black",
+                    "clear"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "minimalist",
+                    "functional"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "new",
+                "cleanliness": "well-maintained",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "natural light",
+                "usage_context": "residential, commercial",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "frame"
+                ],
+                "visual_weight": "light",
+                "aesthetic_contribution": "neutral",
+                "coordination": "coordination with the room's design"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "standard"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "reflective glass"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "frame design suggests a modern aesthetic"
+                ]
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is accurately identified as a window, with a clear frame and glass panel. The reflection and the frame indicate it is a window, not a mirror. The modern design and clean appearance suggest a contemporary setting.",
+            "object_id": "2350500153106",
+            "current_label": "window",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350500153106.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "architectural/interior",
+                "reasoning": "The object detected as 'window' is a part of the building's architecture, specifically a window that is an architectural element.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "original_label": "mirror",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is a window, not a mirror. The reflection and the frame indicate it is a window, not a mirror."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.7302755867515858
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.37792745910422565
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -2.5767732524186284
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350531082220": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "whiteboard",
+                "distinctive_features": [
+                    "writing",
+                    "drawings",
+                    "notations"
+                ]
+            },
+            "architectural_context": {
+                "category": "furniture",
+                "typical_location": "office, classroom, meeting room",
+                "architectural_style": "modern",
+                "functional_role": "writing and brainstorming tool"
+            },
+            "spatial_analysis": {
+                "size_scale": "medium",
+                "orientation": "horizontal",
+                "relationship_to_space": "central",
+                "placement": "attached to wall"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "plastic",
+                    "paint"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "smooth",
+                "color_palette": [
+                    "white",
+                    "black"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "functional",
+                    "practical"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "well-maintained",
+                "cleanliness": "clean",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "writing and brainstorming",
+                "usage_context": "office, classroom, meeting room",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "writing",
+                    "drawings",
+                    "notations"
+                ],
+                "visual_weight": "light",
+                "aesthetic_contribution": "practical",
+                "coordination": "not applicable"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "standard"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "notations",
+                    "drawings"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "writing appears to be in multiple colors"
+                ]
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The detected object is a whiteboard, which is a common piece of furniture used for writing and brainstorming. The green bounding box indicates a plain surface, which is consistent with a whiteboard. The presence of writing and drawings suggests it is actively used, but the condition appears well-maintained.",
+            "object_id": "2350531082220",
+            "current_label": "wall",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350531082220.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "architectural/interior/furniture",
+                "reasoning": "The object detected as 'wall' is part of the architectural and interior design elements of a building, as it is a structural component that forms the boundary and support of the space.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "original_label": "curtain",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The detected object appears to be a wall, not a curtain. The green bounding box is placed on a plain surface, which is more indicative of a wall rather than a curtain. Curtains typically have a more textured and patterned appearance, which is not present here."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.1791258572904046
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.6963481058993395
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -1.8275583373732291
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350577717505": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "ergonomic office chair",
+                "distinctive_features": [
+                    "mesh seat",
+                    "high backrest",
+                    "armrests",
+                    "swivel base"
+                ]
+            },
+            "architectural_context": {
+                "category": "furniture",
+                "typical_location": "office or home office",
+                "architectural_style": "contemporary",
+                "functional_role": "seating for work or study"
+            },
+            "spatial_analysis": {
+                "size_scale": "medium",
+                "orientation": "sideways",
+                "relationship_to_space": "centered in the frame",
+                "placement": "on a carpeted floor, near a desk"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "plastic",
+                    "metal"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "polished",
+                "color_palette": [
+                    "black"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "functional",
+                    "aesthetic"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "well-maintained",
+                "cleanliness": "clean",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "seating",
+                "usage_context": "residential or commercial office",
+                "ergonomic_notes": "ergonomically designed for comfort and support",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "mesh seat",
+                    "high backrest",
+                    "armrests"
+                ],
+                "visual_weight": "moderate",
+                "aesthetic_contribution": "contributes to a modern aesthetic",
+                "coordination": "coordinates well with the surrounding space"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "average"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "ergonomic design",
+                    "modern style"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "the chair appears to be in a home office setting"
+                ]
+            },
+            "confidence_score": 0.95,
+            "analysis_notes": "The chair is clearly identified as a modern ergonomic office chair with a mesh seat and high backrest, suitable for a contemporary office environment.",
+            "object_id": "2350577717505",
+            "current_label": "chair",
+            "detection_confidence": 0.95,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350577717505.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "furniture",
+                "reasoning": "The object detected as a 'chair' is a piece of furniture commonly used in interior spaces for seating purposes.",
+                "confidence": 0.61
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is clearly a chair, as it has the typical features of a chair such as a seat, backrest, and armrests. The bounding box is centered on this object, and the label 'chair' is correctly applied."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.178502034452944
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.7236788930438862
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.7736486070095241
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350514675632": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "rectangular wall-mounted mirror with a black frame",
+                "distinctive_features": [
+                    "reflective surface",
+                    "black frame",
+                    "horizontal orientation"
+                ]
+            },
+            "architectural_context": {
+                "category": "furniture",
+                "typical_location": "bathroom, bedroom, or entryway",
+                "architectural_style": "modern",
+                "functional_role": "enhances the room's aesthetics and provides a functional reflection surface"
+            },
+            "spatial_analysis": {
+                "size_scale": "medium",
+                "orientation": "horizontal",
+                "relationship_to_space": "mounted on the wall",
+                "placement": "centered on the wall, adjacent to a textured wall panel"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "glass",
+                    "metal"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "polished",
+                "color_palette": [
+                    "black",
+                    "clear"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "minimalist",
+                    "functional"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "new",
+                "cleanliness": "well-maintained",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "reflection",
+                "usage_context": "residential",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "black frame",
+                    "horizontal orientation"
+                ],
+                "visual_weight": "light",
+                "aesthetic_contribution": "enhances the room's modern aesthetic",
+                "coordination": "well-coordinated with the surrounding elements"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "standard"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "horizontal orientation",
+                    "black frame"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "the mirror is mounted on a wall with a textured panel, suggesting a modern or contemporary design theme"
+                ]
+            },
+            "confidence_score": 0.9,
+            "analysis_notes": "The mirror's detection confidence is high, and the analysis is based on the visible features and context. The black frame and horizontal orientation are distinctive and contribute to the modern aesthetic of the space.",
+            "object_id": "2350514675632",
+            "current_label": "mirror",
+            "detection_confidence": 0.9,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350514675632.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "architectural/interior/furniture",
+                "reasoning": "The object detected as a 'mirror' is typically used as a decorative or functional element in interior design, often placed in living rooms, bedrooms, or bathrooms. It is not a piece of furniture but rather a fixture used for reflection and aesthetic purposes.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is a reflective surface with a frame, which is characteristic of a mirror. The label 'mirror' is accurate for this object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.08211390369548432
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.2029241111764688
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -1.8791011102182773
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350686493830": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "mechanical gear",
+                "distinctive_features": [
+                    "circular shape",
+                    "interlocking teeth",
+                    "metallic structure"
+                ]
+            },
+            "architectural_context": {
+                "category": "fixture",
+                "typical_location": "industrial setting, mechanical room, or display area",
+                "architectural_style": "industrial",
+                "functional_role": "part of a larger mechanical system, decorative element, or educational display"
+            },
+            "spatial_analysis": {
+                "size_scale": "medium",
+                "orientation": "vertical",
+                "relationship_to_space": "attached to a red wall",
+                "placement": "centered in the image, slightly off-center to the right"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "metal"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "polished",
+                "color_palette": [
+                    "metallic gray"
+                ]
+            },
+            "style_design": {
+                "design_style": "industrial",
+                "design_era": "industrial era",
+                "aesthetic_qualities": [
+                    "functional",
+                    "mechanical"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "new",
+                "cleanliness": "clean",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "part of a mechanical system",
+                "usage_context": "industrial or educational setting",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "interlocking teeth",
+                    "metallic structure"
+                ],
+                "visual_weight": "moderate",
+                "aesthetic_contribution": "functional and utilitarian",
+                "coordination": "not applicable"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "standard"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "industrial design",
+                    "mechanical functionality"
+                ],
+                "cultural_influences": "industrial era design",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "likely part of a larger mechanical system or display"
+                ]
+            },
+            "confidence_score": 0.85,
+            "analysis_notes": "The object is identified as a clock, but based on the visual characteristics, it is more accurately described as a mechanical gear. The detection confidence is high, and the object is likely part of a larger mechanical system or display.",
+            "object_id": "2350686493830",
+            "current_label": "clock",
+            "detection_confidence": 0.85,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350686493830.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "architectural/interior/furniture",
+                "reasoning": "The object detected as a 'clock' is typically used as a decorative or functional item in interior design, often placed on walls or furniture. It is not a general object but rather an item that fits within the broader category of interior design or furniture.",
+                "confidence": 0.77
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is a clock with a circular shape and hands, which matches the label 'clock'. The confidence score of 0.773 is high enough to confirm the detection."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.0408223700726249
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.3771190051702173
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.2454807794098055
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350689711762": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "flat-screen display",
+                "distinctive_features": [
+                    "wall-mounted",
+                    "flat-screen",
+                    "digital display"
+                ]
+            },
+            "architectural_context": {
+                "category": "fixture",
+                "typical_location": "living room, office, or public space",
+                "architectural_style": "modern",
+                "functional_role": "entertainment, information display, or communication"
+            },
+            "spatial_analysis": {
+                "size_scale": "medium",
+                "orientation": "horizontal",
+                "relationship_to_space": "central focus",
+                "placement": "mounted on the wall, above a decorative element"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "plastic",
+                    "glass"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "polished",
+                "color_palette": [
+                    "black",
+                    "silver"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "minimalist",
+                    "functional"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "new",
+                "cleanliness": "well-maintained",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "digital display",
+                "usage_context": "residential, commercial, or public",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "number 8",
+                    "wooden structure"
+                ],
+                "visual_weight": "light",
+                "aesthetic_contribution": "accentuates the modern aesthetic",
+                "coordination": "well-coordinated with the wall color and overall design"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "standard"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "wall-mounted display",
+                    "modern design"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "the display is likely used for entertainment or information purposes"
+                ]
+            },
+            "confidence_score": 0.9,
+            "analysis_notes": "The detected object is accurately labeled as a television. The image shows a flat-screen display mounted on a wall, which is a common placement for televisions. The design is modern and minimalist, with a focus on functionality and aesthetics. The display appears to be in good condition and well-maintained.",
+            "object_id": "2350689711762",
+            "current_label": "television",
+            "detection_confidence": 0.9,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350689711762.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "architectural/interior/furniture",
+                "reasoning": "The object detected as a 'television' is typically used as a decorative or functional element in interior design, often placed on walls or shelves as part of a room's decor or as a piece of furniture.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is a flat-screen display mounted on the wall, which is commonly referred to as a television. The label 'television' is accurate for this object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -1.409459132915269
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.25212355007966325
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.2781966217039447
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350685326704": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "large number '8' sculpture",
+                "distinctive_features": [
+                    "wooden rings",
+                    "marble base",
+                    "green bounding box"
+                ]
+            },
+            "architectural_context": {
+                "category": "decor",
+                "typical_location": "entryway, hallway, or wall display",
+                "architectural_style": "modern",
+                "functional_role": "accent piece, decorative focal point"
+            },
+            "spatial_analysis": {
+                "size_scale": "large",
+                "orientation": "vertical",
+                "relationship_to_space": "mounted on a red wall",
+                "placement": "centered on a white base with a marble finish"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "wood",
+                    "marble"
+                ],
+                "quality_level": "high-end",
+                "surface_finish": "polished",
+                "color_palette": [
+                    "brown",
+                    "white",
+                    "red"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "minimalist",
+                    "geometric"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "new",
+                "cleanliness": "well-maintained",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "decorative",
+                "usage_context": "residential or commercial",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "wooden rings forming the number '8'",
+                    "marble base"
+                ],
+                "visual_weight": "medium",
+                "aesthetic_contribution": "enhances the space with a bold, modern design",
+                "coordination": "well-coordinated with the red wall and white base"
+            },
+            "quality_value": {
+                "build_quality": "high",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "excellent"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "bold design",
+                    "geometric shape"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "the green bounding box suggests it is a detected object by a machine learning model"
+                ]
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is a large, modern, decorative number '8' sculpture mounted on a red wall. It is likely a piece of contemporary art or a unique architectural element designed to draw attention and add a bold aesthetic to the space.",
+            "object_id": "2350685326704",
+            "current_label": "number",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350685326704.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "architectural/interior/furniture",
+                "reasoning": "The object appears to be a decorative element, likely a wall-mounted piece, which is commonly used in interior design to add visual interest to a space. The detected label 'number' suggests it might be a decorative number, possibly part of a larger design or installation.",
+                "confidence": 0.8
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "original_label": "clock",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object detected is a large number '8' rather than a clock. The label 'clock' is incorrect as the object does not have the typical features of a clock, such as hands or a face."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.06738968662235356
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.09200241407609117
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.6215305397673179
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350883904166": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "ergonomic office chair",
+                "distinctive_features": [
+                    "backrest",
+                    "armrests",
+                    "wheels"
+                ]
+            },
+            "architectural_context": {
+                "category": "furniture",
+                "typical_location": "office or meeting room",
+                "architectural_style": "contemporary",
+                "functional_role": "seating for office or meeting activities"
+            },
+            "spatial_analysis": {
+                "size_scale": "medium",
+                "orientation": "facing away from the camera",
+                "relationship_to_space": "adjacent to a table and other office furniture",
+                "placement": "centered in the room, near the table"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "fabric",
+                    "metal"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "smooth",
+                "color_palette": [
+                    "gray",
+                    "black"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "functional",
+                    "minimalist"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "well-maintained",
+                "cleanliness": "clean",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "office seating",
+                "usage_context": "commercial",
+                "ergonomic_notes": "ergonomic design with backrest and armrests",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "smooth surface",
+                    "simple design"
+                ],
+                "visual_weight": "light",
+                "aesthetic_contribution": "contributes to a clean and professional look",
+                "coordination": "coordinates well with the room's modern aesthetic"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "standard"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "ergonomic design",
+                    "office furniture"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "image shows a clean and organized office space"
+                ]
+            },
+            "confidence_score": 0.9,
+            "analysis_notes": "The chair is clearly an office chair with a backrest, armrests, and wheels, consistent with the label 'office chair'. The context of the image, showing a room with a table and other office furniture, further supports this. The chair appears to be in good condition and well-maintained, with a modern and minimalist design.",
+            "object_id": "2350883904166",
+            "current_label": "office chair",
+            "detection_confidence": 0.9,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350883904166.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "furniture",
+                "reasoning": "The object detected as 'office chair' is a piece of furniture commonly used in interior design and office settings.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "original_label": "chair",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is clearly a chair with a backrest, armrests, and wheels, which is consistent with the label 'chair'. The context of the image, showing a room with a table and other office furniture, further supports that this is an office chair."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.4716215356756362
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.40727233408663666
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.2705236074602513
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350986927064": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "wooden desk with various items placed on it",
+                "distinctive_features": [
+                    "flat surface",
+                    "wood grain texture",
+                    "sticker on the surface"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "approximately 120 cm x 60 cm",
+                "materials": [
+                    "wood",
+                    "plastic"
+                ],
+                "color_appearance": "light brown with visible wood grain",
+                "condition": "used, with some wear and tear"
+            },
+            "functional_analysis": {
+                "primary_function": "workstation or study area",
+                "usage_context": "office or home office",
+                "user_interaction": "used for writing, typing, and organizing items"
+            },
+            "contextual_information": {
+                "typical_location": "office or home office",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "sticker on the surface",
+                    "various items placed on it"
+                ],
+                "environment_relationship": "chair partially visible, suggesting a workspace",
+                "additional_notes": "items on the desk include a water bottle, a bag, a marker, a tape dispenser, and a trash bin"
+            },
+            "confidence_score": 0.95,
+            "analysis_notes": "The high detection confidence (0.950) supports the accuracy of the label 'desk'. The presence of a chair and typical desk items further confirms the label. The desk appears to be a standard office desk with a wooden surface and some wear, indicating it is likely a used item.",
+            "object_id": "2350986927064",
+            "current_label": "desk",
+            "detection_confidence": 0.95,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350986927064.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'desk' refers to a piece of furniture, which is not an architectural or interior element in the context of building structures or design.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The entire image shows a flat surface with various items placed on it, which is characteristic of a desk. The presence of a chair and other typical desk items further supports this label."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.3113156407532123
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.5570265444012167
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.22518239149531608
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350700449315": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "picture frame",
+                "distinctive_features": [
+                    "rectangular frame",
+                    "visible image inside"
+                ]
+            },
+            "architectural_context": {
+                "category": "furniture",
+                "typical_location": "living room, hallway, or office",
+                "architectural_style": "modern",
+                "functional_role": "decorative and functional, used to display artwork or photographs"
+            },
+            "spatial_analysis": {
+                "size_scale": "small",
+                "orientation": "vertical",
+                "relationship_to_space": "aligned with the wall",
+                "placement": "on a glass shelf or display stand"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "wood",
+                    "metal"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "polished",
+                "color_palette": [
+                    "brown",
+                    "silver"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "minimalist",
+                    "clean lines"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "new",
+                "cleanliness": "well-maintained",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "display",
+                "usage_context": "residential or commercial",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "rectangular frame",
+                    "visible image inside"
+                ],
+                "visual_weight": "light",
+                "aesthetic_contribution": "adds visual interest and complements the modern aesthetic",
+                "coordination": "coordinates with the modern design of the space"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "average"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "modern design",
+                    "simple structure"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "the frame appears to be lightweight and portable"
+                ]
+            },
+            "confidence_score": 0.85,
+            "analysis_notes": "The picture frame is accurately identified and fits well within the modern architectural context of the space. The design is simple and functional, contributing to the overall aesthetic of the room.",
+            "object_id": "2350700449315",
+            "current_label": "picture frame",
+            "detection_confidence": 0.85,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350700449315.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "architectural/interior/furniture",
+                "reasoning": "The detected label 'picture frame' indicates that the object is related to interior design, as picture frames are typically used for decorative purposes within a home or office setting.",
+                "confidence": 0.6
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the bounding box is a rectangular frame with a visible image inside, which is characteristic of a picture frame. The label 'picture frame' is accurate for this object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.685840261464711
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.1876509095966413
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.2605508546069264
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350784698984": {
+            "object_identification": {
+                "verified_label": "can",
+                "specific_type": "aluminum beverage can",
+                "distinctive_features": [
+                    "pull-tab",
+                    "aluminum material",
+                    "label with text"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small, compact",
+                "materials": [
+                    "aluminum"
+                ],
+                "color_appearance": "silver with red and white label",
+                "condition": "new"
+            },
+            "functional_analysis": {
+                "primary_function": "containing and serving beverages",
+                "usage_context": "in a kitchen or dining area",
+                "user_interaction": "opened with a pull-tab and consumed"
+            },
+            "contextual_information": {
+                "typical_location": "kitchen counter or dining table",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "aluminum construction",
+                    "pull-tab design"
+                ],
+                "environment_relationship": "placed on a marble countertop",
+                "additional_notes": "The can appears to be a soft drink can, likely a diet soda given the red and white label."
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object's label was corrected from 'bottle' to 'can' based on the shape and the presence of a pull-tab, which is characteristic of a can.",
+            "object_id": "2350784698984",
+            "current_label": "can",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350784698984.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'can' refers to a beverage can, which is a general object and not related to architecture, interior design, or furniture.",
+                "confidence": 0.73
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "bottle",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object detected with the label 'bottle' appears to be a can, as indicated by the shape and the presence of a pull-tab. The label 'bottle' is incorrect for this object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.15288452762535337
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.23472684508064498
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.2584052677568005
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350743416169": {
+            "object_identification": {
+                "verified_label": "inaccurate label",
+                "specific_type": "booklet or manual",
+                "distinctive_features": [
+                    "rectangular shape",
+                    "text and images"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small to medium size, approximate dimensions not visible",
+                "materials": [
+                    "paper",
+                    "plastic"
+                ],
+                "color_appearance": "white with black text and images",
+                "condition": "new, no visible signs of wear"
+            },
+            "functional_analysis": {
+                "primary_function": "providing information or instructions",
+                "usage_context": "typically found in retail stores, offices, or homes",
+                "user_interaction": "read and follow instructions or information"
+            },
+            "contextual_information": {
+                "typical_location": "retail store, office, or home",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "contains text and images",
+                    "rectangular shape"
+                ],
+                "environment_relationship": "placed on a surface, possibly a table or counter",
+                "additional_notes": "the object is likely a booklet or manual, not a picture frame"
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is more likely a booklet or manual based on its appearance and the verification notes provided.",
+            "object_id": "2350743416169",
+            "current_label": "booklet",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350743416169.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'booklet' does not correspond to any architectural, interior design, or furniture elements. It is a general object, likely a piece of paper or booklet.",
+                "confidence": 0.85
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "picture frame",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the bounding box appears to be a booklet or manual, not a picture frame. It is rectangular and contains text and images, which is more indicative of a booklet or manual rather than a picture frame."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.018080302581581442
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.03025175263652491
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.7650917321113289
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350772827682": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "clear plastic bottle",
+                "distinctive_features": [
+                    "transparent",
+                    "plastic material",
+                    "label with text"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small to medium size, approximately 15-20 cm in height and 5-7 cm in diameter",
+                "materials": [
+                    "plastic"
+                ],
+                "color_appearance": "transparent with a green label",
+                "condition": "new, no visible signs of wear or damage"
+            },
+            "functional_analysis": {
+                "primary_function": "container for liquid",
+                "usage_context": "commonly used for storing and transporting beverages",
+                "user_interaction": "held or placed on surfaces, typically for drinking or refilling"
+            },
+            "contextual_information": {
+                "typical_location": "kitchen, dining area, or outdoor setting",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "transparent material",
+                    "green label with text"
+                ],
+                "environment_relationship": "placed on a countertop near a trash bin",
+                "additional_notes": "the bottle appears to be empty or nearly empty"
+            },
+            "confidence_score": 0.85,
+            "analysis_notes": "The object is accurately identified as a bottle, and the confidence score supports the detection. The bottle is likely a water bottle given its size and transparency.",
+            "object_id": "2350772827682",
+            "current_label": "bottle",
+            "detection_confidence": 0.85,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350772827682.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'bottle' refers to a beverage container, which is not typically considered part of building architecture, interior design, or furniture. It is a general object.",
+                "confidence": 0.65
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object detected with the label 'bottle' is a clear plastic bottle, which matches the label accurately. The confidence score of 0.653 is reasonable for a correctly identified object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.2477266930249893
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.1364171677751918
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.2089170750560987
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350695313964": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "large, artistic sculpture made of stacked wooden pieces",
+                "distinctive_features": [
+                    "stacked wooden pieces",
+                    "artistic design",
+                    "geometric shapes"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "large, approximate dimensions not provided",
+                "materials": [
+                    "wood"
+                ],
+                "color_appearance": "wooden, natural color with some green markings",
+                "condition": "new, well-maintained"
+            },
+            "functional_analysis": {
+                "primary_function": "decorative",
+                "usage_context": "art gallery, museum, or public space",
+                "user_interaction": "viewing and admiration"
+            },
+            "contextual_information": {
+                "typical_location": "art gallery, museum, or public space",
+                "brand_manufacturer": "not visible",
+                "value_category": "premium"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "geometric shapes",
+                    "stacked wooden pieces",
+                    "artistic design"
+                ],
+                "environment_relationship": "placed on a red carpeted floor, near a glass display case",
+                "additional_notes": "The object is not a clock, as indicated by the verification notes."
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is a large, artistic sculpture made of stacked wooden pieces, not a clock. The label 'clock' is incorrect as there is no clock-like object in the image.",
+            "object_id": "2350695313964",
+            "current_label": "sculpture",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350695313964.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'sculpture' indicates that the object is not a part of building architecture, interior design, or furniture. Sculptures are typically standalone art pieces and do not fit into the architectural/interior/furniture category.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "clock",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is a large, artistic sculpture made of stacked wooden pieces, not a clock. The label 'clock' is incorrect as there is no clock-like object in the image."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.7180173539091514
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.40192110784900026
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.6760801882907708
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350780530690": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "plastic water bottle with a green label and a flip-top cap",
+                "distinctive_features": [
+                    "flip-top cap",
+                    "green label"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "approximately 20 cm in height and 7 cm in diameter",
+                "materials": [
+                    "plastic"
+                ],
+                "color_appearance": "clear plastic with a green label",
+                "condition": "new"
+            },
+            "functional_analysis": {
+                "primary_function": "containing and dispensing water",
+                "usage_context": "commonly found in homes, offices, or public places for hydration",
+                "user_interaction": "opened with a flip-top cap and used to drink water"
+            },
+            "contextual_information": {
+                "typical_location": "on a countertop or table",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "flip-top cap",
+                    "green label"
+                ],
+                "environment_relationship": "placed on a white marble countertop",
+                "additional_notes": "the bottle appears to be a single-use water bottle"
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The detection confidence is high, and the object is accurately identified as a water bottle, which is a more specific and accurate label than 'bottle'. The bottle appears to be new and is likely a single-use water bottle.",
+            "object_id": "2350780530690",
+            "current_label": "water bottle",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350780530690.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'water bottle' refers to a personal item, not an architectural, interior, or furniture element. Water bottles are typically used for personal hydration and are not part of building architecture, interior design, or furniture.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "bottle",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object detected as a 'bottle' is actually a water bottle, which is a more specific and accurate label."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.17736498842563989
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.19372079173179652
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.2706595726307941
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350703617226": {
+            "object_identification": {
+                "verified_label": "inaccurate label",
+                "specific_type": "large, intricate wooden sculpture with a circular design",
+                "distinctive_features": [
+                    "circular design",
+                    "intricate details",
+                    "wooden construction"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "large, circular, with an approximate diameter of 30-40 cm",
+                "materials": [
+                    "wood"
+                ],
+                "color_appearance": "natural wood color, possibly stained or varnished",
+                "condition": "new, well-maintained"
+            },
+            "functional_analysis": {
+                "primary_function": "decorative",
+                "usage_context": "displayed in a gallery or museum setting",
+                "user_interaction": "observed, admired, but not interacted with"
+            },
+            "contextual_information": {
+                "typical_location": "art gallery, museum, or home decor",
+                "brand_manufacturer": "not visible",
+                "value_category": "premium"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "intricate details",
+                    "wooden construction",
+                    "circular design"
+                ],
+                "environment_relationship": "placed on a red carpet, suggesting a formal or artistic setting",
+                "additional_notes": "The object is likely a piece of art rather than a functional clock."
+            },
+            "confidence_score": 0.5,
+            "analysis_notes": "The object is incorrectly labeled as a 'clock' due to its circular design, which is a common feature in wooden sculptures. The high detection confidence (0.71) for 'clock' suggests the object's circular shape is a significant feature, but it lacks the typical features of a clock.",
+            "object_id": "2350703617226",
+            "current_label": "wooden sculpture",
+            "detection_confidence": 0.5,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350703617226.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The object is a wooden sculpture, which is not a part of building architecture, interior design, or furniture. It is a standalone decorative item.",
+                "confidence": 0.85
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "clock",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object detected as a clock is actually a large, intricate wooden sculpture with a circular design, not a clock. The label 'clock' is incorrect because the object does not have the typical features of a clock, such as numbers, hands, or a face."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.6075642592659247
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.25657142602378136
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.5657899309967149
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350906796321": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "disposable paper cup",
+                "distinctive_features": [
+                    "paper material",
+                    "disposable",
+                    "circular shape",
+                    "text on the side"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small to medium size, typical for a disposable cup",
+                "materials": [
+                    "paper",
+                    "plastic"
+                ],
+                "color_appearance": "white with some brown stains and text in orange",
+                "condition": "used, with visible stains and marks"
+            },
+            "functional_analysis": {
+                "primary_function": "used for holding beverages",
+                "usage_context": "commonly found in cafes, restaurants, or homes for serving drinks",
+                "user_interaction": "held with hands, placed on surfaces, or used with a straw"
+            },
+            "contextual_information": {
+                "typical_location": "tables, counters, or surfaces in public or private settings",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "stains on the cup",
+                    "text on the side"
+                ],
+                "environment_relationship": "cup is placed on a wooden table with other items like a bottle and a packet",
+                "additional_notes": "cup appears to be a single-use disposable cup, commonly used for takeaway beverages."
+            },
+            "confidence_score": 0.9,
+            "analysis_notes": "The high detection confidence (0.900) supports the accuracy of the label and the object's characteristics. The context of the image, showing a table with a cup and other items, supports the correct label and usage scenario.",
+            "object_id": "2350906796321",
+            "current_label": "cup",
+            "detection_confidence": 0.9,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350906796321.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The object detected as a 'cup' is a general object and not related to architecture, interior design, or furniture. It is a disposable cup, which is typically used for holding beverages and is not an architectural, interior, or furniture item.",
+                "confidence": 0.71
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is a disposable paper cup, which matches the label 'cup'. The context of the image, showing a table with a cup and other items, supports the correct label. The confidence is high due to the clear visual match."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.007078328071669748
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.2832359280136565
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.10476474373708777
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350767358877": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "flat-screen television",
+                "distinctive_features": [
+                    "blue screen",
+                    "thin bezel"
+                ]
+            },
+            "architectural_context": {
+                "category": "furniture",
+                "typical_location": "living room, bedroom, or home office",
+                "architectural_style": "modern",
+                "functional_role": "entertainment, information display, or multimedia center"
+            },
+            "spatial_analysis": {
+                "size_scale": "medium",
+                "orientation": "horizontal",
+                "relationship_to_space": "aligned with the red wall",
+                "placement": "on the floor, leaning against the wall"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "plastic",
+                    "glass"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "polished",
+                "color_palette": [
+                    "black",
+                    "blue"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "minimalist",
+                    "functional"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "new",
+                "cleanliness": "clean",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "display content",
+                "usage_context": "residential",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "thin bezel",
+                    "blue screen"
+                ],
+                "visual_weight": "light",
+                "aesthetic_contribution": "neutral",
+                "coordination": "coordination with the red wall"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "standard"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "thin bezel",
+                    "blue screen"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "leaning against the wall, not mounted"
+                ]
+            },
+            "confidence_score": 0.85,
+            "analysis_notes": "The detected object is a flat-screen television with a blue screen, placed on the floor against a red wall. The object is identified as a modern, minimalist flat-screen television with a standard build quality and mid-range value. The object is in good condition and clean, with no visible signs of wear or damage.",
+            "object_id": "2350767358877",
+            "current_label": "tv",
+            "detection_confidence": 0.85,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350767358877.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "architectural/interior/furniture",
+                "reasoning": "The object detected as 'tv' is a piece of furniture that is commonly used in interior design settings, such as living rooms or bedrooms, to display content on a screen.",
+                "confidence": 0.62
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is a flat-screen device with a screen displaying a blue image, which is characteristic of a television. The label 'tv' is accurate for this object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.1908600697096376
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.5022023449058353
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.374300780909109
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350802005732": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "red carpet",
+                "distinctive_features": [
+                    "red color",
+                    "textured surface"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "large, covering the floor",
+                "materials": [
+                    "textile"
+                ],
+                "color_appearance": "solid red, uniform in color",
+                "condition": "new, clean"
+            },
+            "functional_analysis": {
+                "primary_function": "floor covering",
+                "usage_context": "interior spaces, such as living rooms or hallways",
+                "user_interaction": "walk on, sit on"
+            },
+            "contextual_information": {
+                "typical_location": "inside buildings, residential or commercial",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "uniform red color",
+                    "textured surface"
+                ],
+                "environment_relationship": "carpet is on the floor, adjacent to a trash bin",
+                "additional_notes": "The carpet appears to be in good condition and is likely used for aesthetic and comfort purposes."
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is correctly identified as a red carpet, not a carpet as initially labeled. The label 'carpet' is incorrect as it refers to a type of floor covering, not the object in the image.",
+            "object_id": "2350802005732",
+            "current_label": "floor",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350802005732.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'floor' does not correspond to any architectural, interior, or furniture elements. It is a general object that describes the surface on which the trash bin is placed.",
+                "confidence": 0.93
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "carpet",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The detected object is a red carpet, not a carpet. The label 'carpet' is incorrect as it refers to a type of floor covering, not the object in the image."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.01519855664201053
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.6861399593746651
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.872233306622467
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350806724236": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "trash bin",
+                "distinctive_features": [
+                    "plastic liner",
+                    "filled with waste"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small to medium size, approximately 1-2 feet in height and width",
+                "materials": [
+                    "plastic",
+                    "metal"
+                ],
+                "color_appearance": "black plastic liner, metallic exterior",
+                "condition": "used, with visible wear and tear"
+            },
+            "functional_analysis": {
+                "primary_function": "waste disposal",
+                "usage_context": "in indoor settings, such as homes, offices, or public spaces",
+                "user_interaction": "placed in a designated area for waste collection, typically emptied regularly"
+            },
+            "contextual_information": {
+                "typical_location": "indoors, near walls or corners",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "plastic liner",
+                    "filled with waste"
+                ],
+                "environment_relationship": "placed on a red carpet, indicating it might be in a residential or commercial setting",
+                "additional_notes": "The object is a trash bin, which is commonly referred to as a 'bag' in the context of waste disposal."
+            },
+            "confidence_score": 0.95,
+            "analysis_notes": "The object is accurately identified as a trash bin, and the label 'bag' is appropriate for this context. The image shows a used trash bin with a plastic liner, filled with waste, placed on a red carpet.",
+            "object_id": "2350806724236",
+            "current_label": "bag",
+            "detection_confidence": 0.95,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350806724236.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The object detected as a 'bag' is not a typical architectural, interior, or furniture item. It is a general object, likely a trash bag, which is not typically considered part of building architecture, interior design, or furniture.",
+                "confidence": 0.94
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is a trash bin, which is commonly referred to as a 'bag' in the context of waste disposal. The label 'bag' is accurate for this object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.3995279121549661
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.5892549123455462
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.6377209741190126
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350810525716": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "plastic bag",
+                "distinctive_features": [
+                    "transparent",
+                    "folded"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small, approximate size not visible",
+                "materials": [
+                    "plastic"
+                ],
+                "color_appearance": "transparent, black",
+                "condition": "new"
+            },
+            "functional_analysis": {
+                "primary_function": "storage or carrying",
+                "usage_context": "indoor, possibly in a kitchen or pantry",
+                "user_interaction": "used to hold items"
+            },
+            "contextual_information": {
+                "typical_location": "kitchen, pantry, or storage area",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "transparent",
+                    "folded"
+                ],
+                "environment_relationship": "partially visible in the bottom right corner of the image",
+                "additional_notes": "The object appears to be a plastic bag, not a bag as labeled. It is a common object in indoor scenes and matches the label 'bag' more closely."
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is identified as a plastic bag with a high detection confidence. The label 'plastic bag' is verified as accurate.",
+            "object_id": "2350810525716",
+            "current_label": "plastic bag",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350810525716.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'plastic bag' does not correspond to any architectural, interior, or furniture elements. It is a general object typically used for carrying items.",
+                "confidence": 0.65
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "bag",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the bottom right corner appears to be a plastic bag, not a bag as labeled. It is a common object in indoor scenes and matches the label 'bag' more closely."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.6873772471540839
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.04116472466009191
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.2584531437366402
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350872216322": {
+            "object_identification": {
+                "verified_label": "inaccurate label",
+                "specific_type": "office chair",
+                "distinctive_features": [
+                    "textured fabric",
+                    "black metal base",
+                    "swivel mechanism"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "not determinable from the image",
+                "materials": [
+                    "textured fabric",
+                    "black metal"
+                ],
+                "color_appearance": "gray fabric, black metal",
+                "condition": "new"
+            },
+            "functional_analysis": {
+                "primary_function": "seating",
+                "usage_context": "office or meeting room",
+                "user_interaction": "sitting, adjusting height, swiveling"
+            },
+            "contextual_information": {
+                "typical_location": "office or meeting room",
+                "brand_manufacturer": "not visible",
+                "value_category": "mid-range"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "ergonomic design",
+                    "textured fabric for comfort"
+                ],
+                "environment_relationship": "chair is placed on a patterned carpet",
+                "additional_notes": "The label 'carpet' is accurate for the object detected, but the object itself is an office chair."
+            },
+            "confidence_score": 0.85,
+            "analysis_notes": "The detected object is the floor, which is covered with a patterned carpet. The label 'carpet' is accurate for the object detected, but the object itself is an office chair.",
+            "object_id": "2350872216322",
+            "current_label": "carpet",
+            "detection_confidence": 0.85,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350872216322.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'carpet' does not correspond to the object in the image, which is a chair. The chair is a piece of furniture, not a carpet.",
+                "confidence": 0.0
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The detected object is the floor, which is covered with a patterned carpet. The label 'carpet' is accurate for the object detected."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.486267576235708
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.17051251711210702
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.20616675344428947
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350829416396": {
+            "object_identification": {
+                "verified_label": "trash can",
+                "specific_type": "rectangular, open-top trash receptacle with a liner",
+                "distinctive_features": [
+                    "rectangular shape",
+                    "black liner",
+                    "open top"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small to medium size, approximately 24 inches in height and 18 inches in diameter",
+                "materials": [
+                    "plastic",
+                    "metal"
+                ],
+                "color_appearance": "black exterior, black liner",
+                "condition": "new, clean"
+            },
+            "functional_analysis": {
+                "primary_function": "disposal of waste and trash",
+                "usage_context": "commonly found in public spaces, offices, or residential areas",
+                "user_interaction": "users place waste into the liner for disposal"
+            },
+            "contextual_information": {
+                "typical_location": "public spaces, offices, or residential areas",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "black liner",
+                    "open top"
+                ],
+                "environment_relationship": "placed on a surface near a wall, possibly in a public or office setting",
+                "additional_notes": "The object appears to be a trash can, not a bag, as indicated by its shape and the presence of a liner."
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object's label was corrected from 'bag' to 'trash can' based on its shape and the presence of a liner, which is characteristic of a trash can.",
+            "object_id": "2350829416396",
+            "current_label": "trash can",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350829416396.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'trash can' indicates that the object is a piece of equipment used for waste disposal, which is not typically considered part of building architecture, interior design, or furniture. It is a general object.",
+                "confidence": 0.52
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "bag",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object detected as a 'bag' appears to be a trash can, as indicated by its shape and the presence of a liner. The label 'bag' is not precise for this object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -1.6838344083767716
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.2727119932224027
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.4244102463275794
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2351030276896": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "ceramic mug with a handle",
+                "distinctive_features": [
+                    "ceramic material",
+                    "white color",
+                    "handle for easy grip"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small to medium-sized mug, approximately 10-12 cm in height and 8-10 cm in diameter",
+                "materials": [
+                    "ceramic",
+                    "handle made of ceramic or plastic"
+                ],
+                "color_appearance": "white ceramic mug with a glossy finish",
+                "condition": "new, no visible signs of wear or damage"
+            },
+            "functional_analysis": {
+                "primary_function": "used for holding beverages such as coffee, tea, or hot chocolate",
+                "usage_context": "commonly found in homes, offices, or cafes, used for drinking",
+                "user_interaction": "held by the handle and brought to the mouth for drinking"
+            },
+            "contextual_information": {
+                "typical_location": "on a table, desk, or counter in a home or office setting",
+                "brand_manufacturer": "not visible in the image",
+                "value_category": "budget to mid-range, depending on the brand and material quality"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "ceramic material",
+                    "white color",
+                    "handle for easy grip"
+                ],
+                "environment_relationship": "placed on a wooden table, suggesting a casual or home environment",
+                "additional_notes": "the mug contains a dark liquid, likely a hot beverage"
+            },
+            "confidence_score": 0.85,
+            "analysis_notes": "The object is accurately labeled as a mug, and the detection confidence is high, indicating a strong likelihood of the label being correct.",
+            "object_id": "2351030276896",
+            "current_label": "mug",
+            "detection_confidence": 0.85,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2351030276896.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The object 'mug' is a general object and not related to architecture, interior design, or furniture. It is a common household item used for drinking beverages.",
+                "confidence": 0.8
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is a ceramic cup with a handle, which is commonly used for holding beverages. The label 'mug' is accurate for this object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.3999512432471186
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.41764555721936847
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.37552972434195553
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350819929375": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "dressing table",
+                "distinctive_features": [
+                    "black plastic cover",
+                    "rectangular shape",
+                    "furniture piece"
+                ]
+            },
+            "architectural_context": {
+                "category": "furniture",
+                "typical_location": "bedroom, dressing area",
+                "architectural_style": "modern",
+                "functional_role": "storage and dressing"
+            },
+            "spatial_analysis": {
+                "size_scale": "medium",
+                "orientation": "horizontal",
+                "relationship_to_space": "adjacent to wall",
+                "placement": "against wall, near floor"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "plastic",
+                    "wood"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "polished",
+                "color_palette": [
+                    "black",
+                    "white"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "minimalist",
+                    "functional"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "new",
+                "cleanliness": "clean",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "dressing and storage",
+                "usage_context": "residential",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "black plastic cover"
+                ],
+                "visual_weight": "light",
+                "aesthetic_contribution": "neutral",
+                "coordination": "not visible"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "standard"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "black plastic cover",
+                    "modern design"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "object appears to be a piece of furniture, not a bag"
+                ]
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is identified as a 'dressing table' due to its rectangular shape and placement against a wall, which is typical for such furniture. The black plastic cover suggests it might be a temporary or protective covering, but the overall structure and context indicate it is a piece of furniture.",
+            "object_id": "2350819929375",
+            "current_label": "dressing table",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350819929375.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "furniture",
+                "reasoning": "The object labeled as 'dressing table' is a piece of furniture typically used for personal grooming and storage, which fits the category of furniture.",
+                "confidence": 0.32
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "original_label": "bag",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object detected as a 'bag' appears to be a black plastic cover on a piece of furniture, which is more accurately described as a 'dressing table' in this context. The label 'bag' is not precise for this object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -1.0454197141303634
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.32606779587840234
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.3025692740225989
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350817928596": {
+            "object_identification": {
+                "verified_label": "monitor",
+                "specific_type": "a black plastic bag covering a monitor",
+                "distinctive_features": [
+                    "black plastic bag",
+                    "monitor"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small to medium-sized monitor, approximate dimensions not visible",
+                "materials": [
+                    "plastic",
+                    "monitor material"
+                ],
+                "color_appearance": "black plastic bag, monitor color not visible",
+                "condition": "new, as the bag appears to be intact"
+            },
+            "functional_analysis": {
+                "primary_function": "to display content on a screen",
+                "usage_context": "typically used in offices, homes, or other workspaces for computer or multimedia purposes",
+                "user_interaction": "user interacts with the monitor by using a keyboard, mouse, or other input devices to control the content displayed on the screen"
+            },
+            "contextual_information": {
+                "typical_location": "office, home, or workspace",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget to mid-range, depending on the monitor's specifications"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "plastic bag covering",
+                    "monitor"
+                ],
+                "environment_relationship": "the monitor is placed on a surface, possibly a desk or table, with a wall and a carpeted floor in the background",
+                "additional_notes": "the plastic bag covering the monitor suggests it might be a new or recently purchased monitor, or it could be for protection during transport or storage"
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is accurately labeled as a 'monitor' despite the presence of a black plastic bag, which is likely covering the monitor. The bag's presence does not affect the primary identification of the object.",
+            "object_id": "2350817928596",
+            "current_label": "monitor",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350817928596.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'monitor' refers to an electronic device, which is not typically classified as part of building architecture, interior design, or furniture. It is a general object.",
+                "confidence": 0.24
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "bag",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object detected as a 'bag' appears to be a black plastic bag covering a monitor, not a bag itself. The label 'monitor' is more accurate for the object in the image."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.8176844056275341
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.07717439124998904
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.3001073353666015
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2351218781340": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "wooden table",
+                "distinctive_features": [
+                    "wooden texture",
+                    "flat surface"
+                ]
+            },
+            "architectural_context": {
+                "category": "furniture",
+                "typical_location": "kitchen, dining area, or casual workspace",
+                "architectural_style": "modern",
+                "functional_role": "surface for dining, working, or casual activities"
+            },
+            "spatial_analysis": {
+                "size_scale": "medium",
+                "orientation": "horizontal",
+                "relationship_to_space": "central to the scene",
+                "placement": "supported by chairs, suggesting a dining or workspace setting"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "wood"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "polished",
+                "color_palette": [
+                    "light brown",
+                    "natural wood"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "clean",
+                    "functional"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "well-maintained",
+                "cleanliness": "clean",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "dining or workspace",
+                "usage_context": "residential or commercial",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "flat surface",
+                    "wooden texture"
+                ],
+                "visual_weight": "light",
+                "aesthetic_contribution": "neutral",
+                "coordination": "coordination with chairs and other elements"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "average"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "simple design",
+                    "clean surface"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "object detection confidence is high, indicating a strong likelihood of the object being a table"
+                ]
+            },
+            "confidence_score": 0.95,
+            "analysis_notes": "The detected object is accurately labeled as a table, with a high confidence score. The table appears to be a simple, modern design with a polished wooden finish, likely intended for casual dining or workspace use. The scene suggests a clean and well-maintained environment.",
+            "object_id": "2351218781340",
+            "current_label": "table",
+            "detection_confidence": 0.95,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2351218781340.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "furniture",
+                "reasoning": "The object detected as 'table' is a piece of furniture commonly used in interior design and architecture for seating and dining purposes.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is a flat surface with a wooden texture, which is characteristic of a table. There are no other objects that could be more accurately labeled as a table in this scene."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.2793361218730811
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.26989364885708844
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.3134902054340875
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350808041415": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "light switch",
+                "distinctive_features": [
+                    "rectangular shape",
+                    "multiple buttons"
+                ]
+            },
+            "architectural_context": {
+                "category": "fixture",
+                "typical_location": "wall",
+                "architectural_style": "modern",
+                "functional_role": "controls lighting"
+            },
+            "spatial_analysis": {
+                "size_scale": "small",
+                "orientation": "vertical",
+                "relationship_to_space": "attached to wall",
+                "placement": "on wall, near ceiling"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "plastic"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "polished",
+                "color_palette": [
+                    "white"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "functional",
+                    "minimalist"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "new",
+                "cleanliness": "clean",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "controls lighting",
+                "usage_context": "residential",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "rectangular shape",
+                    "multiple buttons"
+                ],
+                "visual_weight": "light",
+                "aesthetic_contribution": "functional",
+                "coordination": "not applicable"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "budget",
+                "brand_indicators": "not visible",
+                "craftsmanship": "standard"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "rectangular shape with multiple buttons"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "corrected label from 'picture frame' to 'light switch'"
+                ]
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is clearly identified as a light switch based on its shape and the multiple buttons, which are characteristic features of a light switch. The detection confidence is high, and the object is correctly labeled as a light switch, not a picture frame.",
+            "object_id": "2350808041415",
+            "current_label": "light switch",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350808041415.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "architectural/interior/furniture",
+                "reasoning": "The detected label 'light switch' is a component typically found in interior design and architecture, used for controlling lighting in buildings and rooms.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "original_label": "picture frame",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is a light switch, not a picture frame. The label 'picture frame' is incorrect because the object has a rectangular shape with multiple buttons, which is characteristic of a light switch, not a picture frame."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.4050076604885497
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.16170354660859532
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.10810198468257548
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350949612772": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "snack packet",
+                "distinctive_features": [
+                    "popcorn",
+                    "skinny",
+                    "packaging"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small, rectangular",
+                "materials": [
+                    "plastic",
+                    "foil"
+                ],
+                "color_appearance": "green and white packaging with blue text",
+                "condition": "new"
+            },
+            "functional_analysis": {
+                "primary_function": "containing popcorn",
+                "usage_context": "snacking, movie nights, or casual eating",
+                "user_interaction": "opened and consumed"
+            },
+            "contextual_information": {
+                "typical_location": "table, desk, or counter",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "popcorn flavor",
+                    "skinny label"
+                ],
+                "environment_relationship": "on a wooden table",
+                "additional_notes": "no other objects are interacting with the snack packet"
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is clearly a snack packet, and the label 'snack packet' is more accurate than 'bag' as it is specifically designed for popcorn and not a general bag.",
+            "object_id": "2350949612772",
+            "current_label": "snack packet",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350949612772.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'snack packet' indicates that the object is a food item, which does not fall under the categories of architectural, interior design, or furniture.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "bag",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object detected as a 'bag' is actually a snack packet, which is a type of bag but not the same as a typical handbag or backpack. The label 'snack packet' is more accurate for this object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.14081462987340965
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.37531952063342705
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.19278906046037436
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350946778352": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "popcorn packet",
+                "distinctive_features": [
+                    "yellow and white packaging",
+                    "popcorn kernels visible through the packaging",
+                    "text 'Popcorn' on the packaging"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small, rectangular shape, approximately 10 cm x 15 cm",
+                "materials": [
+                    "plastic",
+                    "foil"
+                ],
+                "color_appearance": "yellow and white with some text and graphics",
+                "condition": "new, unused"
+            },
+            "functional_analysis": {
+                "primary_function": "contains popcorn",
+                "usage_context": "snacking, movie nights, or casual gatherings",
+                "user_interaction": "opened and poured popcorn into a bowl or eaten directly from the packet"
+            },
+            "contextual_information": {
+                "typical_location": "on a table, in a kitchen, or in a movie theater",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "popcorn kernels visible",
+                    "text 'Popcorn' on the packaging"
+                ],
+                "environment_relationship": "on a wooden table, near other items like a water bottle and a chair",
+                "additional_notes": "The popcorn packet is the most confidently detected object, with a high detection confidence of 0.750."
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is clearly a popcorn packet, as indicated by the label and the visible popcorn kernels through the packaging. The detection confidence is high, supporting the accuracy of the label.",
+            "object_id": "2350946778352",
+            "current_label": "popcorn packet",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350946778352.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'popcorn packet' is a food item and not an architectural, interior, or furniture element.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "bag",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object detected as a 'bag' appears to be a popcorn packet, which is a type of snack packaging, not a typical bag. The label 'popcorn packet' is more accurate for the object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.311213983242991
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.2868907510573268
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.25533165590010043
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350948879158": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "snack bag",
+                "distinctive_features": [
+                    "popcorn",
+                    "green and white packaging",
+                    "text 'Skinny Pop'"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small, rectangular, approximately 10 cm x 15 cm",
+                "materials": [
+                    "plastic",
+                    "paper"
+                ],
+                "color_appearance": "green and white, with a clear plastic window",
+                "condition": "new, unused"
+            },
+            "functional_analysis": {
+                "primary_function": "storage and transport of popcorn snacks",
+                "usage_context": "typically found in snack areas, movie theaters, or at home",
+                "user_interaction": "snack bag is opened to access the popcorn inside, then consumed"
+            },
+            "contextual_information": {
+                "typical_location": "snack area, movie theater, or home",
+                "brand_manufacturer": "Skinny Pop",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "popcorn branding",
+                    "clear plastic window"
+                ],
+                "environment_relationship": "placed on a wooden surface, near other snacks and a bottle",
+                "additional_notes": "the snack bag is the main focus of the image, indicating it is the primary object of interest."
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is clearly identified as a snack bag, and the label 'bag' is corrected to 'snack bag' for better specificity. The image provides a clear view of the snack bag, allowing for accurate identification and analysis.",
+            "object_id": "2350948879158",
+            "current_label": "snack bag",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350948879158.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'snack bag' indicates that the object is a snack item, which is not related to building architecture, interior design, or furniture. It is a general object.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "bag",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object detected as a 'bag' appears to be a snack bag, which is a type of bag used for storing and transporting snacks. The label 'bag' is close but not precise enough, as it could be more specific to the context of a snack bag."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.1908895544276401
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.30543376915943804
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.2425655106193101
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350908213533": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "rug",
+                "distinctive_features": [
+                    "patterned design",
+                    "dark color with light accents"
+                ]
+            },
+            "architectural_context": {
+                "category": "furniture",
+                "typical_location": "living room, dining area, or entryway",
+                "architectural_style": "contemporary",
+                "functional_role": "add comfort and style to the floor space"
+            },
+            "spatial_analysis": {
+                "size_scale": "medium",
+                "orientation": "aligned with the right edge of the table",
+                "relationship_to_space": "adjacent to the table and floor",
+                "placement": "on the floor to the right of the table"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "textile"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "textured",
+                "color_palette": [
+                    "dark gray",
+                    "light gray"
+                ]
+            },
+            "style_design": {
+                "design_style": "contemporary",
+                "design_era": "modern",
+                "aesthetic_qualities": [
+                    "subtle",
+                    "functional"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "new",
+                "cleanliness": "clean",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "add aesthetic value to the space",
+                "usage_context": "residential",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "patterned design"
+                ],
+                "visual_weight": "light",
+                "aesthetic_contribution": "enhances the space with a subtle pattern",
+                "coordination": "coordinates with the table and other elements in the space"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "budget",
+                "brand_indicators": "not visible",
+                "craftsmanship": "average"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "patterned design",
+                    "dark color with light accents"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "matches the typical appearance of a rug in an indoor setting"
+                ]
+            },
+            "confidence_score": 0.8,
+            "analysis_notes": "The detected object is clearly a rug, and the confidence score supports the accuracy of the label. The rug's pattern and color scheme are consistent with contemporary design trends, and it appears to be in good condition with no visible signs of wear or damage.",
+            "object_id": "2350908213533",
+            "current_label": "rug",
+            "detection_confidence": 0.8,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350908213533.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "architectural/interior/furniture",
+                "reasoning": "The detected label 'rug' indicates that the object is a type of floor covering, which is typically used in interior design to enhance the aesthetic and functional aspects of a space. Rugs are not architectural elements but are considered part of interior design and furniture in the broader sense.",
+                "confidence": 0.56
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object labeled as 'rug' is clearly visible on the floor to the right of the table, and it matches the typical appearance of a rug in an indoor setting. The confidence score of 0.565 is reasonable for a correctly identified object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.1392658934725004
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.5802409449529566
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.9503736870444581
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2351023807771": {
+            "object_identification": {
+                "verified_label": "tablet",
+                "specific_type": "portable electronic device used for computing and entertainment purposes",
+                "distinctive_features": [
+                    "touchscreen",
+                    "portable",
+                    "thin profile"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small to medium size, typically around 7-10 inches diagonally",
+                "materials": [
+                    "plastic",
+                    "glass"
+                ],
+                "color_appearance": "varies, but often comes in black, white, or silver",
+                "condition": "new or used, condition not specified"
+            },
+            "functional_analysis": {
+                "primary_function": "used for computing, browsing the internet, reading, watching videos, and entertainment",
+                "usage_context": "commonly found in homes, offices, or public spaces, used for personal or professional purposes",
+                "user_interaction": "users interact with the tablet through touch, using a stylus or their fingers, and sometimes with a keyboard or mouse via a docking station"
+            },
+            "contextual_information": {
+                "typical_location": "desk, table, or workspace",
+                "brand_manufacturer": "not visible in the image",
+                "value_category": "mid-range to premium, depending on the specific model and features"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "portable",
+                    "touchscreen",
+                    "multifunctional"
+                ],
+                "environment_relationship": "tablet is placed on a wooden desk, indicating a workspace or home office setting",
+                "additional_notes": "tablet is being used as a monitor, but it is not a television. The label 'television' is incorrect."
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object is accurately identified as a tablet, and the detection confidence score supports this identification. The object is being used as a monitor, but it is not a television, as indicated by the verification notes.",
+            "object_id": "2351023807771",
+            "current_label": "tablet",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2351023807771.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'tablet' refers to an electronic device, which is not typically classified under architectural, interior design, or furniture categories. Tablets are personal items and not part of building architecture, interior design, or furniture.",
+                "confidence": 0.62
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "television",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is a tablet, not a television. It is being used as a monitor, but it is not a television. The label 'television' is incorrect because the object is a tablet, which is a portable electronic device used for computing and entertainment purposes."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.3953189115906661
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.6056774352217708
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.011933692692336795
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2351102170795": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "business card",
+                "distinctive_features": [
+                    "QR code",
+                    "text",
+                    "rectangular shape"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "small, rectangular",
+                "materials": [
+                    "paper",
+                    "plastic"
+                ],
+                "color_appearance": "black with white and red text",
+                "condition": "new"
+            },
+            "functional_analysis": {
+                "primary_function": "to provide contact information and possibly access to digital content",
+                "usage_context": "professional or business settings, such as conferences or meetings",
+                "user_interaction": "scanning the QR code with a smartphone to access digital information"
+            },
+            "contextual_information": {
+                "typical_location": "on a table in a meeting room or office",
+                "brand_manufacturer": "not visible",
+                "value_category": "budget"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "QR code",
+                    "text"
+                ],
+                "environment_relationship": "on a wooden table, suggesting a professional setting",
+                "additional_notes": "The business card is placed on a table with other items, indicating it might be part of a networking or promotional event."
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object was initially detected as a 'book' but was corrected to a 'business card' due to its size, shape, and the presence of a QR code and text.",
+            "object_id": "2351102170795",
+            "current_label": "business card",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2351102170795.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'business card' does not fall under the categories of architectural, interior, or furniture elements. It is a general object typically used for personal or business purposes.",
+                "confidence": 0.5
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "book",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object detected as a 'book' is actually a business card with a QR code and text, not a book."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.07991526218714373
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.5321917905225347
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.30218961069737693
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2350973155129": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "floor lamp with a base and a lampshade",
+                "distinctive_features": [
+                    "lampshade",
+                    "base",
+                    "lighting fixture"
+                ]
+            },
+            "architectural_context": {
+                "category": "furniture",
+                "typical_location": "office, home office, living room",
+                "architectural_style": "modern",
+                "functional_role": "provides ambient and task lighting"
+            },
+            "spatial_analysis": {
+                "size_scale": "medium",
+                "orientation": "vertical, standing upright",
+                "relationship_to_space": "adjacent to a chair and desk",
+                "placement": "on the floor, near the desk"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "metal",
+                    "plastic"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "polished",
+                "color_palette": [
+                    "black",
+                    "silver"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "minimalist",
+                    "functional"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "new",
+                "cleanliness": "clean",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "provides lighting",
+                "usage_context": "residential, office",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "lampshade",
+                    "base"
+                ],
+                "visual_weight": "light",
+                "aesthetic_contribution": "contributes to a modern aesthetic",
+                "coordination": "coordinates with the chair and desk"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "average"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "simple design",
+                    "modern style"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "matches the modern office setting"
+                ]
+            },
+            "confidence_score": 0.85,
+            "analysis_notes": "The object is clearly identified as a floor lamp, and the analysis is based on the visible features and context within the image.",
+            "object_id": "2350973155129",
+            "current_label": "floor lamp",
+            "detection_confidence": 0.85,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350973155129.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "architectural/interior/furniture",
+                "reasoning": "The detected label 'floor lamp' is a type of lighting fixture, which is typically used in interior design and furniture settings to provide illumination and enhance the aesthetic of a space.",
+                "confidence": 0.55
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the image is a lamp with a base and a lampshade, which matches the description of a floor lamp. The label is correctly identified."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -1.1927402255948305
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.1649482952558896
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.046533015053266125
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2351209327795": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "printer",
+                "distinctive_features": [
+                    "rectangular shape",
+                    "flat surface",
+                    "control panel"
+                ]
+            },
+            "physical_attributes": {
+                "size_dimensions": "Approximately 12 inches (width) x 18 inches (length)",
+                "materials": [
+                    "plastic",
+                    "metal"
+                ],
+                "color_appearance": "Black with some metallic parts",
+                "condition": "Used, with visible wear and tear"
+            },
+            "functional_analysis": {
+                "primary_function": "Printing documents and images",
+                "usage_context": "Office or home workspace",
+                "user_interaction": "User interacts with the control panel to select print settings and load paper"
+            },
+            "contextual_information": {
+                "typical_location": "Office desk or home workspace",
+                "brand_manufacturer": "Not visible",
+                "value_category": "Mid-range"
+            },
+            "observations": {
+                "unique_characteristics": [
+                    "Open top cover",
+                    "Visible internal components"
+                ],
+                "environment_relationship": "Printer is placed on a wooden desk with other office supplies",
+                "additional_notes": "The printer appears to be in a working condition, but the exact model cannot be determined from the image."
+            },
+            "confidence_score": 0.75,
+            "analysis_notes": "The object's label is verified as 'printer' based on its shape and features. The detection confidence is high, indicating a strong likelihood of the object being a printer.",
+            "object_id": "2351209327795",
+            "current_label": "printer",
+            "detection_confidence": 0.75,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2351209327795.jpg",
+            "object_classification": {
+                "is_architectural_interior": false,
+                "category": "general object",
+                "reasoning": "The detected label 'printer' is an electronic device and not a part of building architecture, interior design, or furniture. It is a general object.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": false,
+            "analysis_type": "general",
+            "original_label": "fan",
+            "was_corrected": true,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The object in the green bounding box appears to be a printer, not a fan. It has a rectangular shape with a flat surface and a control panel, which is characteristic of a printer. The label 'fan' is incorrect for this object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.46465633872998313
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.9735376396205884
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0458910327373578
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        },
+        "2351258696267": {
+            "object_identification": {
+                "verified_label": "accurate label",
+                "specific_type": "office cabinet",
+                "distinctive_features": [
+                    "rectangular shape",
+                    "closed front",
+                    "hinges visible"
+                ]
+            },
+            "architectural_context": {
+                "category": "furniture",
+                "typical_location": "office or home office",
+                "architectural_style": "modern",
+                "functional_role": "storage and organization"
+            },
+            "spatial_analysis": {
+                "size_scale": "medium",
+                "orientation": "vertical",
+                "relationship_to_space": "adjacent to wall",
+                "placement": "against the wall, near a window"
+            },
+            "material_finish": {
+                "primary_materials": [
+                    "wood",
+                    "metal"
+                ],
+                "quality_level": "standard",
+                "surface_finish": "polished",
+                "color_palette": [
+                    "brown",
+                    "black"
+                ]
+            },
+            "style_design": {
+                "design_style": "modern",
+                "design_era": "contemporary",
+                "aesthetic_qualities": [
+                    "functional",
+                    "minimalist"
+                ],
+                "design_complexity": "simple"
+            },
+            "condition_maintenance": {
+                "visible_condition": "new",
+                "cleanliness": "well-maintained",
+                "wear_damage": "none visible"
+            },
+            "functional_analysis": {
+                "primary_function": "storage",
+                "usage_context": "office",
+                "ergonomic_notes": "not applicable",
+                "functionality": "single-purpose"
+            },
+            "decorative_elements": {
+                "features": [
+                    "hinges",
+                    "closed front"
+                ],
+                "visual_weight": "light",
+                "aesthetic_contribution": "functional",
+                "coordination": "matches other furniture"
+            },
+            "quality_value": {
+                "build_quality": "standard",
+                "value_category": "mid-range",
+                "brand_indicators": "not visible",
+                "craftsmanship": "standard"
+            },
+            "contextual_notes": {
+                "unique_characteristics": [
+                    "modern design",
+                    "fits well in the office setting"
+                ],
+                "cultural_influences": "not apparent",
+                "sustainability_features": "not visible",
+                "additional_observations": [
+                    "matches the overall modern office aesthetic"
+                ]
+            },
+            "confidence_score": 0.85,
+            "analysis_notes": "The cabinet appears to be a standard office storage unit, likely made of wood and metal, with a polished finish. Its placement and design suggest it is intended for functional use in an office environment.",
+            "object_id": "2351258696267",
+            "current_label": "cabinet",
+            "detection_confidence": 0.85,
+            "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2351258696267.jpg",
+            "object_classification": {
+                "is_architectural_interior": true,
+                "category": "architectural/interior/furniture",
+                "reasoning": "The object labeled as 'cabinet' is typically used for storage and is a common element in interior design and furniture, often found in offices, homes, and other buildings.",
+                "confidence": 0.95
+            },
+            "is_architectural_interior": true,
+            "analysis_type": "architectural",
+            "was_corrected": false,
+            "verification_info": {
+                "verified": true,
+                "reasoning": "The detected object appears to be a cabinet based on its shape and the context of the image, which shows a typical office or home setting with furniture. The label 'cabinet' is accurate for this object."
+            },
+            "has_3d_position": true,
+            "direction": [
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0591991666262235
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    -0.6393201167699156
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.5320522489014081
+                ],
+                [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            ]
+        }
+    },
+    "stats": {
+        "total": 39,
+        "successful": 39,
+        "failed": 0,
+        "by_category": {
+            "architectural element": 1,
+            "furniture": 11,
+            "fixture": 3,
+            "decor": 1
+        },
+        "architectural_count": 16,
+        "general_count": 23
+    }
+}

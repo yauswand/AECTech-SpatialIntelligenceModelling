@@ -1,0 +1,85 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "business card",
+        "distinctive_features": [
+            "QR code",
+            "text",
+            "rectangular shape"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "small, rectangular",
+        "materials": [
+            "paper",
+            "plastic"
+        ],
+        "color_appearance": "black with white and red text",
+        "condition": "new"
+    },
+    "functional_analysis": {
+        "primary_function": "to provide contact information and possibly access to digital content",
+        "usage_context": "professional or business settings, such as conferences or meetings",
+        "user_interaction": "scanning the QR code with a smartphone to access digital information"
+    },
+    "contextual_information": {
+        "typical_location": "on a table in a meeting room or office",
+        "brand_manufacturer": "not visible",
+        "value_category": "budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "QR code",
+            "text"
+        ],
+        "environment_relationship": "on a wooden table, suggesting a professional setting",
+        "additional_notes": "The business card is placed on a table with other items, indicating it might be part of a networking or promotional event."
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object was initially detected as a 'book' but was corrected to a 'business card' due to its size, shape, and the presence of a QR code and text.",
+    "object_id": "2351102170795",
+    "current_label": "business card",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2351102170795.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'business card' does not fall under the categories of architectural, interior, or furniture elements. It is a general object typically used for personal or business purposes.",
+        "confidence": 0.5
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "book",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object detected as a 'book' is actually a business card with a QR code and text, not a book."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.07991526218714373
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.5321917905225347
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.30218961069737693
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

@@ -1,0 +1,127 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "flat-screen display",
+        "distinctive_features": [
+            "wall-mounted",
+            "flat-screen",
+            "digital display"
+        ]
+    },
+    "architectural_context": {
+        "category": "fixture",
+        "typical_location": "living room, office, or public space",
+        "architectural_style": "modern",
+        "functional_role": "entertainment, information display, or communication"
+    },
+    "spatial_analysis": {
+        "size_scale": "medium",
+        "orientation": "horizontal",
+        "relationship_to_space": "central focus",
+        "placement": "mounted on the wall, above a decorative element"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "plastic",
+            "glass"
+        ],
+        "quality_level": "standard",
+        "surface_finish": "polished",
+        "color_palette": [
+            "black",
+            "silver"
+        ]
+    },
+    "style_design": {
+        "design_style": "modern",
+        "design_era": "contemporary",
+        "aesthetic_qualities": [
+            "minimalist",
+            "functional"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "new",
+        "cleanliness": "well-maintained",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "digital display",
+        "usage_context": "residential, commercial, or public",
+        "ergonomic_notes": "not applicable",
+        "functionality": "single-purpose"
+    },
+    "decorative_elements": {
+        "features": [
+            "number 8",
+            "wooden structure"
+        ],
+        "visual_weight": "light",
+        "aesthetic_contribution": "accentuates the modern aesthetic",
+        "coordination": "well-coordinated with the wall color and overall design"
+    },
+    "quality_value": {
+        "build_quality": "standard",
+        "value_category": "mid-range",
+        "brand_indicators": "not visible",
+        "craftsmanship": "standard"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "wall-mounted display",
+            "modern design"
+        ],
+        "cultural_influences": "not apparent",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "the display is likely used for entertainment or information purposes"
+        ]
+    },
+    "confidence_score": 0.9,
+    "analysis_notes": "The detected object is accurately labeled as a television. The image shows a flat-screen display mounted on a wall, which is a common placement for televisions. The design is modern and minimalist, with a focus on functionality and aesthetics. The display appears to be in good condition and well-maintained.",
+    "object_id": "2350689711762",
+    "current_label": "television",
+    "detection_confidence": 0.9,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350689711762.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "architectural/interior/furniture",
+        "reasoning": "The object detected as a 'television' is typically used as a decorative or functional element in interior design, often placed on walls or shelves as part of a room's decor or as a piece of furniture.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "architectural",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the image is a flat-screen display mounted on the wall, which is commonly referred to as a television. The label 'television' is accurate for this object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -1.409459132915269
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.25212355007966325
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            1.2781966217039447
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

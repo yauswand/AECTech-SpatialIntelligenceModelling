@@ -1,0 +1,85 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "large, artistic sculpture made of stacked wooden pieces",
+        "distinctive_features": [
+            "stacked wooden pieces",
+            "artistic design",
+            "geometric shapes"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "large, approximate dimensions not provided",
+        "materials": [
+            "wood"
+        ],
+        "color_appearance": "wooden, natural color with some green markings",
+        "condition": "new, well-maintained"
+    },
+    "functional_analysis": {
+        "primary_function": "decorative",
+        "usage_context": "art gallery, museum, or public space",
+        "user_interaction": "viewing and admiration"
+    },
+    "contextual_information": {
+        "typical_location": "art gallery, museum, or public space",
+        "brand_manufacturer": "not visible",
+        "value_category": "premium"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "geometric shapes",
+            "stacked wooden pieces",
+            "artistic design"
+        ],
+        "environment_relationship": "placed on a red carpeted floor, near a glass display case",
+        "additional_notes": "The object is not a clock, as indicated by the verification notes."
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object is a large, artistic sculpture made of stacked wooden pieces, not a clock. The label 'clock' is incorrect as there is no clock-like object in the image.",
+    "object_id": "2350695313964",
+    "current_label": "sculpture",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350695313964.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'sculpture' indicates that the object is not a part of building architecture, interior design, or furniture. Sculptures are typically standalone art pieces and do not fit into the architectural/interior/furniture category.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "clock",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the image is a large, artistic sculpture made of stacked wooden pieces, not a clock. The label 'clock' is incorrect as there is no clock-like object in the image."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.7180173539091514
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.40192110784900026
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.6760801882907708
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

@@ -1,0 +1,85 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "disposable paper cup",
+        "distinctive_features": [
+            "paper material",
+            "disposable",
+            "circular shape",
+            "text on the side"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "small to medium size, typical for a disposable cup",
+        "materials": [
+            "paper",
+            "plastic"
+        ],
+        "color_appearance": "white with some brown stains and text in orange",
+        "condition": "used, with visible stains and marks"
+    },
+    "functional_analysis": {
+        "primary_function": "used for holding beverages",
+        "usage_context": "commonly found in cafes, restaurants, or homes for serving drinks",
+        "user_interaction": "held with hands, placed on surfaces, or used with a straw"
+    },
+    "contextual_information": {
+        "typical_location": "tables, counters, or surfaces in public or private settings",
+        "brand_manufacturer": "not visible",
+        "value_category": "budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "stains on the cup",
+            "text on the side"
+        ],
+        "environment_relationship": "cup is placed on a wooden table with other items like a bottle and a packet",
+        "additional_notes": "cup appears to be a single-use disposable cup, commonly used for takeaway beverages."
+    },
+    "confidence_score": 0.9,
+    "analysis_notes": "The high detection confidence (0.900) supports the accuracy of the label and the object's characteristics. The context of the image, showing a table with a cup and other items, supports the correct label and usage scenario.",
+    "object_id": "2350906796321",
+    "current_label": "cup",
+    "detection_confidence": 0.9,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350906796321.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The object detected as a 'cup' is a general object and not related to architecture, interior design, or furniture. It is a disposable cup, which is typically used for holding beverages and is not an architectural, interior, or furniture item.",
+        "confidence": 0.71
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the image is a disposable paper cup, which matches the label 'cup'. The context of the image, showing a table with a cup and other items, supports the correct label. The confidence is high due to the clear visual match."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.007078328071669748
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.2832359280136565
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.10476474373708777
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

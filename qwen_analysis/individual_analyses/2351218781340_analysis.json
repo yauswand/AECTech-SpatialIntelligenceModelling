@@ -1,0 +1,125 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "wooden table",
+        "distinctive_features": [
+            "wooden texture",
+            "flat surface"
+        ]
+    },
+    "architectural_context": {
+        "category": "furniture",
+        "typical_location": "kitchen, dining area, or casual workspace",
+        "architectural_style": "modern",
+        "functional_role": "surface for dining, working, or casual activities"
+    },
+    "spatial_analysis": {
+        "size_scale": "medium",
+        "orientation": "horizontal",
+        "relationship_to_space": "central to the scene",
+        "placement": "supported by chairs, suggesting a dining or workspace setting"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "wood"
+        ],
+        "quality_level": "standard",
+        "surface_finish": "polished",
+        "color_palette": [
+            "light brown",
+            "natural wood"
+        ]
+    },
+    "style_design": {
+        "design_style": "modern",
+        "design_era": "contemporary",
+        "aesthetic_qualities": [
+            "clean",
+            "functional"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "well-maintained",
+        "cleanliness": "clean",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "dining or workspace",
+        "usage_context": "residential or commercial",
+        "ergonomic_notes": "not applicable",
+        "functionality": "single-purpose"
+    },
+    "decorative_elements": {
+        "features": [
+            "flat surface",
+            "wooden texture"
+        ],
+        "visual_weight": "light",
+        "aesthetic_contribution": "neutral",
+        "coordination": "coordination with chairs and other elements"
+    },
+    "quality_value": {
+        "build_quality": "standard",
+        "value_category": "mid-range",
+        "brand_indicators": "not visible",
+        "craftsmanship": "average"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "simple design",
+            "clean surface"
+        ],
+        "cultural_influences": "not apparent",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "object detection confidence is high, indicating a strong likelihood of the object being a table"
+        ]
+    },
+    "confidence_score": 0.95,
+    "analysis_notes": "The detected object is accurately labeled as a table, with a high confidence score. The table appears to be a simple, modern design with a polished wooden finish, likely intended for casual dining or workspace use. The scene suggests a clean and well-maintained environment.",
+    "object_id": "2351218781340",
+    "current_label": "table",
+    "detection_confidence": 0.95,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2351218781340.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "furniture",
+        "reasoning": "The object detected as 'table' is a piece of furniture commonly used in interior design and architecture for seating and dining purposes.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "architectural",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the image is a flat surface with a wooden texture, which is characteristic of a table. There are no other objects that could be more accurately labeled as a table in this scene."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.2793361218730811
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.26989364885708844
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.3134902054340875
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

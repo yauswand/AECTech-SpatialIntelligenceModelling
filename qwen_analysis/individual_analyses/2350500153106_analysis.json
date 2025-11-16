@@ -1,0 +1,108 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "television",
+        "distinctive_features": [
+            "flat screen display",
+            "rectangular frame",
+            "mounted on wall"
+        ]
+    },
+    "architectural_context": {
+        "category": "interior device",
+        "typical_location": "conference room, living room, office",
+        "architectural_style": "modern",
+        "functional_role": "visual display for media, presentations"
+    },
+    "spatial_analysis": {
+        "size_scale": "medium-large",
+        "orientation": "vertical (portrait mode)",
+        "relationship_to_space": "mounted on the wall",
+        "placement": "slightly above eye level, aligned to wall surface"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "plastic",
+            "glass",
+            "metal internal components"
+        ],
+        "quality_level": "commercial standard",
+        "surface_finish": "glossy screen, matte frame",
+        "color_palette": [
+            "black",
+            "dark gray"
+        ]
+    },
+    "style_design": {
+        "design_style": "minimalist",
+        "design_era": "contemporary",
+        "aesthetic_qualities": [
+            "sleek",
+            "tech-oriented"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "new",
+        "cleanliness": "well-maintained",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "displaying digital content",
+        "usage_context": "commercial meeting room, office, home",
+        "ergonomic_notes": "mounted at a comfortable viewing height",
+        "functionality": "multi-purpose (presentations, media, signage)"
+    },
+    "decorative_elements": {
+        "features": [
+            "thin bezels"
+        ],
+        "visual_weight": "medium",
+        "aesthetic_contribution": "adds a modern tech aesthetic",
+        "coordination": "fits with the clean modern interior design"
+    },
+    "quality_value": {
+        "build_quality": "standard to high",
+        "value_category": "mid-range to high-end",
+        "brand_indicators": "not fully visible",
+        "craftsmanship": "consistent with modern display panels"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "screen displays digital UI elements",
+            "mounted in portrait orientation"
+        ],
+        "cultural_influences": "common in modern tech-equipped conference rooms",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "screen shows a QR code and interface, confirming it is an active display"
+        ]
+    },
+    "confidence_score": 0.98,
+    "analysis_notes": "The object is a vertically oriented flat-screen television or digital display mounted on the wall. The screen content and reflective surface confirm it is an electronic display, not a window or mirror.",
+    "object_id": "2350500153106",
+    "current_label": "television",
+    "detection_confidence": 0.98,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350500153106.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "device/electronics",
+        "reasoning": "The object is a television mounted on the wall of an interior space.",
+        "confidence": 0.97
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "interior object",
+    "original_label": "mirror",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "Screen content, reflections, and bezel design confirm the object is a television, not a window or mirror."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [0.0, 0.0, 0.0, 0.7302755867515858],
+        [0.0, 0.0, 0.0, 0.37792745910422565],
+        [0.0, 0.0, 0.0, -2.5767732524186284],
+        [0.0, 0.0, 0.0, 0.0]
+    ]
+}

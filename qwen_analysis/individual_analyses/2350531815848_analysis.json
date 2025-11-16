@@ -1,0 +1,86 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "handwritten notes and diagrams on paper",
+        "distinctive_features": [
+            "handwritten text",
+            "diagrams",
+            "notations"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "Approximately A4 size",
+        "materials": [
+            "paper",
+            "ink"
+        ],
+        "color_appearance": "White paper with red and blue ink",
+        "condition": "Used, with visible markings and diagrams"
+    },
+    "functional_analysis": {
+        "primary_function": "Note-taking and sketching",
+        "usage_context": "Educational, brainstorming, or planning sessions",
+        "user_interaction": "Written by hand, used for recording ideas and concepts"
+    },
+    "contextual_information": {
+        "typical_location": "Office, classroom, or meeting room",
+        "brand_manufacturer": "Not visible",
+        "value_category": "Budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "handwritten content",
+            "diagrams",
+            "notations"
+        ],
+        "environment_relationship": "Placed on a flat surface, possibly a table or desk",
+        "additional_notes": "The object is not a book but a piece of paper used for writing and drawing."
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object is clearly a piece of paper with handwritten notes and diagrams, not a book. The label 'book' is incorrect as the object lacks the typical characteristics of a book.",
+    "object_id": "2350531815848",
+    "current_label": "paper",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350531815848.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The object is a piece of paper with drawings and text, which does not fit into the categories of architectural, interior design, or furniture. It is a general object.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "book",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the image appears to be a piece of paper with handwritten notes and diagrams, not a book. The label 'book' is incorrect as the object does not have the typical characteristics of a book, such as a cover, spine, or pages bound together."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.5345837253762928
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.3162350442734785
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.7730505831832222
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

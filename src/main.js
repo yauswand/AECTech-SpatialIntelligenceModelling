@@ -71,7 +71,8 @@ let folderFileHandles = {
     correctedImagesFolder: null,
     correctedCamerasFolder: null,
     imagesFolder: null, // Fallback regular images folder
-    camerasFolder: null  // Fallback regular cameras folder
+    camerasFolder: null,  // Fallback regular cameras folder
+    yoloDetectionFolder: null  // YOLO detection frames folder
 };
 
 // Semantic labels
@@ -551,7 +552,8 @@ async function validateFolderStructure(dirHandle) {
         correctedImagesFolder: null,
         correctedCamerasFolder: null,
         imagesFolder: null,
-        camerasFolder: null
+        camerasFolder: null,
+        yoloDetectionFolder: null
     };
     
     try {
@@ -607,6 +609,15 @@ async function validateFolderStructure(dirHandle) {
             
         } catch {
             errors.push('❌ keyframes/ folder not found');
+        }
+        
+        // Check for yolo_detection folder (optional)
+        try {
+            handles.yoloDetectionFolder = await dirHandle.getDirectoryHandle('yolo_detection');
+            console.log('✅ yolo_detection folder found');
+        } catch {
+            // yolo_detection folder is optional, so don't add to errors
+            console.log('ℹ️ yolo_detection folder not found (optional)');
         }
         
     } catch (error) {
@@ -3295,57 +3306,86 @@ function setupChatDropZone(container, chatInput, addChatMessageFn) {
         const imageUrl = e.dataTransfer.getData('image-url');
 
         if (frameData && frameData.startsWith('frame-')) {
-            // It's a frame image
+            // It's a frame image - automatically use YOLO detection frame if available
             const frameNumber = frameData.replace('frame-', '');
             
             try {
                 let base64Image;
                 
-                // If we have an image URL, try to use it
-                if (imageUrl) {
-                    try {
-                        base64Image = await imageToBase64(imageUrl);
-                    } catch (urlError) {
-                        console.warn('Failed to convert image URL, trying to reload from folder:', urlError);
-                        // Fallback: reload image from folder handle
-                        if (scanFolderPath === 'folder-handle' && frameTimestampMap && frameTimestampMap.has(parseInt(frameNumber))) {
-                            const timestamp = frameTimestampMap.get(parseInt(frameNumber));
-                            const imageFolder = folderFileHandles.correctedImagesFolder || folderFileHandles.imagesFolder;
-                            if (imageFolder) {
-                                try {
-                                    const fileHandle = await imageFolder.getFileHandle(`${timestamp}.jpg`);
-                                    const imageFile = await fileHandle.getFile();
-                                    base64Image = await new Promise((resolve, reject) => {
-                                        const reader = new FileReader();
-                                        reader.onload = () => resolve(reader.result);
-                                        reader.onerror = reject;
-                                        reader.readAsDataURL(imageFile);
-                                    });
-                                } catch (fileError) {
-                                    console.error('Failed to load file from folder:', fileError);
-                                }
-                            }
-                        }
-                        if (!base64Image) {
-                            throw new Error('Could not load image from folder');
-                        }
-                    }
-                } else {
-                    // No URL provided, try to load from folder
-                    if (scanFolderPath === 'folder-handle' && frameTimestampMap && frameTimestampMap.has(parseInt(frameNumber))) {
-                        const timestamp = frameTimestampMap.get(parseInt(frameNumber));
-                        const imageFolder = folderFileHandles.correctedImagesFolder || folderFileHandles.imagesFolder;
-                        if (imageFolder) {
-                            const fileHandle = await imageFolder.getFileHandle(`${timestamp}.jpg`);
-                            const imageFile = await fileHandle.getFile();
+                // First, try to load YOLO detection frame (yolo_frame_{frameNumber}.jpg)
+                // Try both .jpg and .png extensions, and both padded and unpadded frame numbers
+                if (scanFolderPath === 'folder-handle' && folderFileHandles.yoloDetectionFolder) {
+                    const frameNumInt = parseInt(frameNumber);
+                    const frameNumberPadded = String(frameNumInt).padStart(5, '0');
+                    
+                    // Try different filename patterns
+                    const yoloFileNames = [
+                        `yolo_frame_${frameNumber}.jpg`,
+                        `yolo_frame_${frameNumber}.png`,
+                        `yolo_frame_${frameNumberPadded}.jpg`,
+                        `yolo_frame_${frameNumberPadded}.png`,
+                    ];
+                    
+                    let yoloLoaded = false;
+                    for (const yoloFileName of yoloFileNames) {
+                        try {
+                            const yoloFileHandle = await folderFileHandles.yoloDetectionFolder.getFileHandle(yoloFileName);
+                            const yoloImageFile = await yoloFileHandle.getFile();
                             base64Image = await new Promise((resolve, reject) => {
                                 const reader = new FileReader();
                                 reader.onload = () => resolve(reader.result);
                                 reader.onerror = reject;
-                                reader.readAsDataURL(imageFile);
+                                reader.readAsDataURL(yoloImageFile);
                             });
+                            console.log(`✅ Loaded YOLO detection frame: ${yoloFileName}`);
+                            yoloLoaded = true;
+                            break;
+                        } catch (yoloError) {
+                            // Try next filename pattern
+                            continue;
                         }
                     }
+                    
+                    if (!yoloLoaded) {
+                        console.log(`ℹ️ YOLO frame not found for frame ${frameNumber} (tried: ${yoloFileNames.join(', ')}), using regular frame`);
+                    }
+                }
+                
+                // If YOLO frame not found, use regular frame
+                // Skip imageUrl if we have a YOLO folder (to avoid using the dragged image)
+                if (!base64Image) {
+                    // Try to load from folder first (preferred method)
+                    if (scanFolderPath === 'folder-handle' && frameTimestampMap && frameTimestampMap.has(parseInt(frameNumber))) {
+                        const timestamp = frameTimestampMap.get(parseInt(frameNumber));
+                        const imageFolder = folderFileHandles.correctedImagesFolder || folderFileHandles.imagesFolder;
+                        if (imageFolder) {
+                            try {
+                                const fileHandle = await imageFolder.getFileHandle(`${timestamp}.jpg`);
+                                const imageFile = await fileHandle.getFile();
+                                base64Image = await new Promise((resolve, reject) => {
+                                    const reader = new FileReader();
+                                    reader.onload = () => resolve(reader.result);
+                                    reader.onerror = reject;
+                                    reader.readAsDataURL(imageFile);
+                                });
+                                console.log(`✅ Loaded regular frame from folder: ${timestamp}.jpg`);
+                            } catch (fileError) {
+                                console.error('Failed to load file from folder:', fileError);
+                            }
+                        }
+                    }
+                    
+                    // If still no image and we have imageUrl, use it as last resort
+                    // But only if we don't have a YOLO folder (to avoid using dragged image when YOLO exists)
+                    if (!base64Image && imageUrl && !folderFileHandles.yoloDetectionFolder) {
+                        try {
+                            base64Image = await imageToBase64(imageUrl);
+                            console.log('✅ Loaded frame from drag URL');
+                        } catch (urlError) {
+                            console.warn('Failed to convert image URL:', urlError);
+                        }
+                    }
+                    
                     if (!base64Image) {
                         throw new Error('Could not find image file');
                     }
@@ -3448,6 +3488,67 @@ function getOpenRouterApiKey() {
     }
 }
 
+// Gallery storage and management
+let furnitureGallery = [];
+
+// Load gallery from localStorage
+function loadGallery() {
+    try {
+        const saved = localStorage.getItem('furnitureGallery');
+        if (saved) {
+            furnitureGallery = JSON.parse(saved);
+        }
+    } catch (e) {
+        console.error('Error loading gallery:', e);
+        furnitureGallery = [];
+    }
+}
+
+// Save gallery to localStorage
+function saveGallery() {
+    try {
+        localStorage.setItem('furnitureGallery', JSON.stringify(furnitureGallery));
+    } catch (e) {
+        console.error('Error saving gallery:', e);
+    }
+}
+
+// Add product to gallery
+function addToGallery(product) {
+    // Check if product already exists (by title and link)
+    const exists = furnitureGallery.some(p => 
+        p.title === product.title && p.link === product.link
+    );
+    
+    if (!exists) {
+        furnitureGallery.push({
+            ...product,
+            addedAt: new Date().toISOString()
+        });
+        saveGallery();
+        updateGalleryButton();
+        return true;
+    }
+    return false;
+}
+
+// Remove product from gallery
+function removeFromGallery(index) {
+    furnitureGallery.splice(index, 1);
+    saveGallery();
+    updateGalleryButton();
+}
+
+// Update gallery button badge
+function updateGalleryButton() {
+    const galleryBtn = document.getElementById('gallery-btn');
+    const badge = galleryBtn?.querySelector('.gallery-badge');
+    if (badge) {
+        badge.textContent = furnitureGallery.length;
+        badge.style.display = furnitureGallery.length > 0 ? 'flex' : 'none';
+    }
+}
+
 // Setup chat interface
 function setupChatInterface() {
     const chatContainer = document.getElementById('chat-container');
@@ -3456,6 +3557,9 @@ function setupChatInterface() {
     const chatInput = document.getElementById('chat-input');
     const chatSendBtn = document.getElementById('chat-send-btn');
     const chatMessages = document.getElementById('chat-messages');
+    
+    // Load gallery on initialization
+    loadGallery();
 
     // Toggle chat visibility
     chatToggleBtn.addEventListener('click', () => {
@@ -3471,6 +3575,31 @@ function setupChatInterface() {
     
     // Chat is open by default, so hide the toggle button initially
     chatToggleBtn.classList.add('hidden');
+    
+    // Setup gallery button
+    const chatHeader = document.querySelector('.chat-header');
+    const galleryBtn = document.createElement('button');
+    galleryBtn.id = 'gallery-btn';
+    galleryBtn.className = 'gallery-btn';
+    galleryBtn.innerHTML = '🖼️ <span class="gallery-badge"></span>';
+    galleryBtn.title = 'View My Objects';
+    galleryBtn.addEventListener('click', () => showGalleryModal());
+    chatHeader.insertBefore(galleryBtn, toggleChatBtn);
+    updateGalleryButton();
+    
+    // Setup clear chat button
+    const clearChatBtn = document.createElement('button');
+    clearChatBtn.id = 'clear-chat-btn';
+    clearChatBtn.className = 'clear-chat-btn';
+    clearChatBtn.innerHTML = '🔄';
+    clearChatBtn.title = 'Clear Chat';
+    clearChatBtn.addEventListener('click', () => {
+        chatMessages.innerHTML = '';
+    });
+    chatHeader.insertBefore(clearChatBtn, toggleChatBtn);
+    
+    // Setup gallery modal
+    setupGalleryModal();
 
     // Setup drag and drop for chat input container
     const chatInputContainer = document.querySelector('.chat-input-container');
@@ -3498,6 +3627,25 @@ function setupChatInterface() {
             productData.products.forEach((product) => {
                 const productCard = document.createElement('div');
                 productCard.className = 'furniture-product-card';
+                
+                // Add click handler to add to gallery (but allow links to work)
+                productCard.addEventListener('click', (e) => {
+                    // Don't trigger if clicking on a link
+                    if (e.target.tagName === 'A' || e.target.closest('a')) {
+                        return;
+                    }
+                    // Add to gallery
+                    const added = addToGallery(product);
+                    if (added) {
+                        // Show visual feedback
+                        productCard.classList.add('added-to-gallery');
+                        setTimeout(() => {
+                            productCard.classList.remove('added-to-gallery');
+                        }, 1000);
+                    }
+                });
+                productCard.style.cursor = 'pointer';
+                productCard.title = 'Click to add to My Objects';
                 
                 // Product image as clickable link
                 if (product.thumbnail) {
@@ -3652,6 +3800,210 @@ function setupChatInterface() {
     }
     
     setupChatDropZone(chatInputContainer, chatInput, addChatMessage);
+    
+    // Setup gallery modal
+    function setupGalleryModal() {
+        // Create modal if it doesn't exist
+        let modal = document.getElementById('gallery-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'gallery-modal';
+            modal.className = 'gallery-modal hidden';
+            document.body.appendChild(modal);
+        }
+    }
+    
+    // Show gallery modal
+    function showGalleryModal() {
+        let modal = document.getElementById('gallery-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'gallery-modal';
+            modal.className = 'gallery-modal hidden';
+            document.body.appendChild(modal);
+        }
+        
+        modal.classList.remove('hidden');
+        
+        // Get chat input reference
+        const chatInput = document.getElementById('chat-input');
+        
+        // Clear and populate gallery
+        modal.innerHTML = '';
+        const galleryContent = document.createElement('div');
+        galleryContent.className = 'gallery-content';
+        modal.appendChild(galleryContent);
+        
+        // Create header
+        const header = document.createElement('div');
+        header.className = 'gallery-header';
+        header.innerHTML = `
+            <h2>My Objects</h2>
+            <button class="gallery-close-btn" id="gallery-close-btn">×</button>
+        `;
+        galleryContent.appendChild(header);
+        
+        // Create gallery grid
+        const grid = document.createElement('div');
+        grid.className = 'gallery-grid';
+        
+        if (furnitureGallery.length === 0) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.className = 'gallery-empty';
+            emptyMsg.textContent = 'Your objects collection is empty. Click on any product to add it to My Objects.';
+            grid.appendChild(emptyMsg);
+        } else {
+            // Create a copy of the gallery array to avoid index issues when removing
+            const galleryCopy = [...furnitureGallery];
+            galleryCopy.forEach((product, displayIndex) => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                
+                // Find the actual index in the original array
+                const actualIndex = furnitureGallery.findIndex(p => 
+                    p.title === product.title && 
+                    p.link === product.link &&
+                    p.addedAt === product.addedAt
+                );
+                
+                // Product image with attach button on hover
+                if (product.thumbnail) {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'gallery-item-image';
+                    
+                    const img = document.createElement('img');
+                    img.src = product.thumbnail;
+                    img.alt = product.title;
+                    img.onerror = () => {
+                        img.style.display = 'none';
+                    };
+                    imgContainer.appendChild(img);
+                    
+                    // Attach to chat button (shown on hover)
+                    const attachBtn = document.createElement('button');
+                    attachBtn.className = 'gallery-attach-btn';
+                    attachBtn.innerHTML = '📎 Attach to Chat';
+                    attachBtn.title = 'Attach this image to chat';
+                    attachBtn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        try {
+                            // Check if imageUrl is valid
+                            if (!product.thumbnail) {
+                                throw new Error('Image URL is missing');
+                            }
+
+                            console.log(`[Frontend] Attaching image from: ${product.thumbnail.substring(0, 100)}...`);
+                            
+                            // CRITICAL FIX: Pass the original URL directly - don't convert to base64 here!
+                            // The MCP server will fetch it fresh when uploading to Replicate, preserving quality
+                            // Converting to base64 here and then again in MCP server causes quality loss
+                            pendingImages.push({
+                                type: 'image_url',
+                                image_url: {
+                                    url: product.thumbnail  // Pass original URL - MCP server handles fetching
+                                }
+                            });
+                            
+                            console.log('[Frontend] Image URL attached (will be fetched fresh by MCP server)');
+                            
+                            // Update placeholder
+                            chatInput.placeholder = `Ask about the image... (${pendingImages.length} image${pendingImages.length > 1 ? 's' : ''} attached)`;
+                            // Close modal
+                            modal.classList.add('hidden');
+                            // Show feedback
+                            const notification = document.createElement('div');
+                            notification.className = 'gallery-attach-notification';
+                            notification.textContent = `✓ Image attached to chat`;
+                            document.body.appendChild(notification);
+                            setTimeout(() => {
+                                notification.classList.add('show');
+                            }, 10);
+                            setTimeout(() => {
+                                notification.classList.remove('show');
+                                setTimeout(() => notification.remove(), 300);
+                            }, 2000);
+                        } catch (error) {
+                            console.error('Error attaching image:', error);
+                            alert(`Failed to attach image: ${error.message}. Please try again.`);
+                        }
+                    });
+                    imgContainer.appendChild(attachBtn);
+                    
+                    galleryItem.appendChild(imgContainer);
+                }
+                
+                // Product info
+                const info = document.createElement('div');
+                info.className = 'gallery-item-info';
+                
+                const title = document.createElement('div');
+                title.className = 'gallery-item-title';
+                title.textContent = product.title;
+                info.appendChild(title);
+                
+                if (product.price) {
+                    const price = document.createElement('div');
+                    price.className = 'gallery-item-price';
+                    price.textContent = product.price;
+                    info.appendChild(price);
+                }
+                
+                // Remove button
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'gallery-remove-btn';
+                removeBtn.textContent = 'Remove';
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Use the actual index from the original array
+                    if (actualIndex !== -1) {
+                        removeFromGallery(actualIndex);
+                        showGalleryModal(); // Refresh modal
+                    }
+                });
+                info.appendChild(removeBtn);
+                
+                // Link to product if available
+                if (product.link && product.link !== '#') {
+                    const linkBtn = document.createElement('a');
+                    linkBtn.href = product.link;
+                    linkBtn.target = '_blank';
+                    linkBtn.rel = 'noopener noreferrer';
+                    linkBtn.className = 'gallery-item-link';
+                    linkBtn.textContent = 'View Product';
+                    info.appendChild(linkBtn);
+                }
+                
+                galleryItem.appendChild(info);
+                grid.appendChild(galleryItem);
+            });
+        }
+        
+        galleryContent.appendChild(grid);
+        
+        // Close button handler
+        const closeBtn = modal.querySelector('#gallery-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+        }
+        
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+        
+        // Close on Escape key
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+    }
 
     // Send message on button click
     chatSendBtn.addEventListener('click', () => {
@@ -3691,6 +4043,90 @@ function setupChatInterface() {
         const loadingId = addChatMessage('assistant', '', true);
 
         try {
+            // Check if 2 images are sent - one frame and one furniture (for replacement)
+            if (imagesToSend.length === 2) {
+                // Identify which is frame (has frameNumber) and which is furniture (no frameNumber)
+                const frameImage = imagesToSend.find(img => img.frameNumber !== undefined);
+                const furnitureImage = imagesToSend.find(img => img.frameNumber === undefined);
+                
+                if (frameImage && furnitureImage) {
+                    try {
+                        console.log('[Frontend] Detected 2 images: frame + furniture, calling replacement tool...');
+                        
+                        // DEBUG: Log what we're sending
+                        console.log('[Frontend] Sending to replace-object:');
+                        console.log('[Frontend] Frame image type:', frameImage.image_url.url.startsWith('data:') ? 'data URL' : frameImage.image_url.url.startsWith('http') ? 'URL' : 'other');
+                        console.log('[Frontend] Frame image length:', frameImage.image_url.url.length);
+                        console.log('[Frontend] Frame image preview:', frameImage.image_url.url.substring(0, 50));
+                        console.log('[Frontend] Furniture image type:', furnitureImage.image_url.url.startsWith('data:') ? 'data URL' : furnitureImage.image_url.url.startsWith('http') ? 'URL' : 'other');
+                        console.log('[Frontend] Furniture image length:', furnitureImage.image_url.url.length);
+                        console.log('[Frontend] Furniture image preview:', furnitureImage.image_url.url.substring(0, 50));
+                        
+                        const replaceResponse = await fetch(`${MCP_BRIDGE_URL}/replace-object`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                frameImage: frameImage.image_url.url,
+                                furnitureImage: furnitureImage.image_url.url
+                            })
+                        });
+                        
+                        if (replaceResponse.ok) {
+                            const replaceData = await replaceResponse.json();
+                            const result = replaceData.result || [];
+                            
+                            console.log('[Frontend] Replacement result:', result);
+                            
+                            // Find the image result (could be in text format with base64 data URL)
+                            const imageResult = result.find(r => r.type === 'image');
+                            const textResults = result.filter(r => r.type === 'text');
+                            
+                            // Find text result that contains base64 image data
+                            const imageTextResult = textResults.find(r => r.text && r.text.startsWith('data:image/'));
+                            const messageTextResult = textResults.find(r => r.text && !r.text.startsWith('data:image/'));
+                            
+                            // Check if text result contains base64 image data
+                            let base64Image = null;
+                            if (imageResult && imageResult.data) {
+                                base64Image = imageResult.data;
+                                console.log('[Frontend] Found image in imageResult.data');
+                            } else if (imageTextResult && imageTextResult.text) {
+                                base64Image = imageTextResult.text;
+                                console.log('[Frontend] Found image in text result, length:', base64Image.length);
+                            }
+                            
+                            removeChatMessage(loadingId);
+                            
+                            if (base64Image) {
+                                // Display the replaced image
+                                const message = messageTextResult?.text || 'Image replacement completed!';
+                                console.log('[Frontend] Displaying image with message:', message);
+                                addChatMessage('assistant', message, false, base64Image);
+                            } else {
+                                console.warn('[Frontend] No image found in result:', result);
+                                addChatMessage('assistant', messageTextResult?.text || 'Replacement completed, but no image returned.');
+                            }
+                            
+                            chatHistory.push(
+                                { role: 'user', content: message || 'Replace objects in frame' },
+                                { role: 'assistant', content: messageTextResult?.text || 'Image replacement completed.' }
+                            );
+                            
+                            if (chatHistory.length > 10) {
+                                chatHistory = chatHistory.slice(-10);
+                            }
+                            return;
+                        } else {
+                            const errorData = await replaceResponse.json().catch(() => ({}));
+                            throw new Error(errorData.error || `Replacement failed: ${replaceResponse.status}`);
+                        }
+                    } catch (replaceError) {
+                        console.error('[Frontend] Image replacement error:', replaceError);
+                        // Fall through to regular image analysis
+                    }
+                }
+            }
+            
             // If images are present, use MCP image analysis tool
             if (imagesToSend.length > 0) {
                 try {
@@ -3749,11 +4185,52 @@ function setupChatInterface() {
                 }
             }
             
+            // Check for negative responses first
+            const negativeResponses = /(no|nope|nah|not|don't|dont|no thanks|no thank you|not interested|maybe later|later|skip|pass|decline)/i;
+            const isNegative = negativeResponses.test(message) && 
+                              !/(no problem|no worries|no issue)/i.test(message); // Allow "no problem" etc.
+            
+            // Check if this is a follow-up to image analysis
+            // Only allow furniture search if there was an image uploaded (current message or recent history)
+            const hasImageInCurrentMessage = imagesToSend.length > 0;
+            const isAfterImageAnalysis = chatHistory.length > 0 && 
+                                        chatHistory[chatHistory.length - 1].role === 'assistant' && 
+                                        chatHistory[chatHistory.length - 1].content.includes('replacement options');
+            
+            // Check if any recent user messages had images (within last 3 messages)
+            let hasRecentImageUpload = false;
+            if (chatHistory.length > 0) {
+                const recentUserMessages = chatHistory.slice(-3).filter(m => m.role === 'user');
+                // Check if any recent user message indicates image was uploaded
+                // (messages with images are stored as arrays with image_url objects)
+                hasRecentImageUpload = recentUserMessages.some(msg => 
+                    Array.isArray(msg.content) && 
+                    msg.content.some(item => item.type === 'image_url')
+                );
+            }
+            
+            // Only allow furniture search if there was an image upload (current or recent)
+            const canSearchFurniture = hasImageInCurrentMessage || isAfterImageAnalysis || hasRecentImageUpload;
+            
+            // If user says no after image analysis, don't search for furniture
+            if (isNegative && isAfterImageAnalysis) {
+                removeChatMessage(loadingId);
+                addChatMessage('assistant', 'No problem! Feel free to ask if you change your mind or need help with anything else.');
+                chatHistory.push(
+                    { role: 'user', content: message },
+                    { role: 'assistant', content: 'No problem! Feel free to ask if you change your mind or need help with anything else.' }
+                );
+                if (chatHistory.length > 10) {
+                    chatHistory = chatHistory.slice(-10);
+                }
+                return;
+            }
+            
             // Check if user wants to search for furniture replacements
-            // This can be triggered by:
-            // 1. User saying yes/okay to the follow-up question
-            // 2. User mentioning furniture items with replacement/search keywords
-            // 3. User mentioning specific furniture types
+            // This can ONLY be triggered after an image upload:
+            // 1. User saying yes/okay to the follow-up question after image analysis
+            // 2. User mentioning furniture items with replacement/search keywords after image upload
+            // 3. User mentioning specific furniture types after image upload
             // 4. User mentioning any object/furniture after image analysis
             const furnitureKeywords = /(furniture|chair|desk|table|sofa|bed|lamp|cabinet|shelf|stool|ottoman|dresser|wardrobe|stand|tv stand|entertainment center|bookshelf|bookcase|nightstand|end table|coffee table|dining table|office chair|desk chair|monitor|fan|rug|mat)/i;
             const replacementKeywords = /(yes|yeah|yep|sure|okay|ok|replace|replacement|search|find|look|buy|purchase|options|alternatives|similar|show me|i want|i need|can you|please)/i;
@@ -3763,17 +4240,13 @@ function setupChatInterface() {
             const wantsReplacement = replacementKeywords.test(message);
             const hasObject = objectKeywords.test(message);
             
-            // Check if this is a follow-up to image analysis
-            const isAfterImageAnalysis = chatHistory.length > 0 && 
-                                        chatHistory[chatHistory.length - 1].role === 'assistant' && 
-                                        chatHistory[chatHistory.length - 1].content.includes('replacement options');
-            
-            // Trigger furniture search if:
-            // 1. User explicitly wants replacement/search AND mentions furniture/objects
-            // 2. User is responding to follow-up question (even just saying furniture name)
-            // 3. User mentions furniture/objects after image analysis context
-            const wantsFurnitureSearch = (wantsReplacement && (hasFurniture || hasObject)) || 
-                                        (isAfterImageAnalysis && (hasFurniture || hasObject || message.length < 50)); // Short messages after follow-up are likely furniture requests
+            // Trigger furniture search ONLY if:
+            // 1. There was an image upload (current or recent), AND
+            // 2. User is responding to follow-up question OR explicitly wants replacement/search with furniture/objects
+            const wantsFurnitureSearch = canSearchFurniture && !isNegative && (
+                (isAfterImageAnalysis && (hasFurniture || hasObject || message.length < 50)) ||
+                (wantsReplacement && (hasFurniture || hasObject))
+            ); // Only trigger after image upload
             
             if (wantsFurnitureSearch) {
                 try {
@@ -3921,7 +4394,9 @@ function setupChatInterface() {
             }
             
             // Check if this is a spatial data query (try MCP first)
-            const isSpatialQuery = imagesToSend.length === 0 && /(chair|desk|table|sofa|bed|lamp|cabinet|shelf|door|window|color|material|room|dimension|size|how many|number of|list|count)/i.test(message);
+            // Send ALL queries to RAG first - let the MCP server decide if it's a spatial query
+            // This allows queries about any objects (like "popcorn packet") to go through RAG
+            const isSpatialQuery = imagesToSend.length === 0;
             
             if (isSpatialQuery) {
                 try {

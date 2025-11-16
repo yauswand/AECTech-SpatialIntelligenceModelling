@@ -1,0 +1,84 @@
+{
+    "object_identification": {
+        "verified_label": "inaccurate label",
+        "specific_type": "office chair",
+        "distinctive_features": [
+            "textured fabric",
+            "black metal base",
+            "swivel mechanism"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "not determinable from the image",
+        "materials": [
+            "textured fabric",
+            "black metal"
+        ],
+        "color_appearance": "gray fabric, black metal",
+        "condition": "new"
+    },
+    "functional_analysis": {
+        "primary_function": "seating",
+        "usage_context": "office or meeting room",
+        "user_interaction": "sitting, adjusting height, swiveling"
+    },
+    "contextual_information": {
+        "typical_location": "office or meeting room",
+        "brand_manufacturer": "not visible",
+        "value_category": "mid-range"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "ergonomic design",
+            "textured fabric for comfort"
+        ],
+        "environment_relationship": "chair is placed on a patterned carpet",
+        "additional_notes": "The label 'carpet' is accurate for the object detected, but the object itself is an office chair."
+    },
+    "confidence_score": 0.85,
+    "analysis_notes": "The detected object is the floor, which is covered with a patterned carpet. The label 'carpet' is accurate for the object detected, but the object itself is an office chair.",
+    "object_id": "2350872216322",
+    "current_label": "carpet",
+    "detection_confidence": 0.85,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350872216322.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'carpet' does not correspond to the object in the image, which is a chair. The chair is a piece of furniture, not a carpet.",
+        "confidence": 0.0
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The detected object is the floor, which is covered with a patterned carpet. The label 'carpet' is accurate for the object detected."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.486267576235708
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.17051251711210702
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.20616675344428947
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

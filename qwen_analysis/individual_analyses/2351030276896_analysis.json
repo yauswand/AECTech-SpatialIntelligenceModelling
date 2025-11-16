@@ -1,0 +1,85 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "ceramic mug with a handle",
+        "distinctive_features": [
+            "ceramic material",
+            "white color",
+            "handle for easy grip"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "small to medium-sized mug, approximately 10-12 cm in height and 8-10 cm in diameter",
+        "materials": [
+            "ceramic",
+            "handle made of ceramic or plastic"
+        ],
+        "color_appearance": "white ceramic mug with a glossy finish",
+        "condition": "new, no visible signs of wear or damage"
+    },
+    "functional_analysis": {
+        "primary_function": "used for holding beverages such as coffee, tea, or hot chocolate",
+        "usage_context": "commonly found in homes, offices, or cafes, used for drinking",
+        "user_interaction": "held by the handle and brought to the mouth for drinking"
+    },
+    "contextual_information": {
+        "typical_location": "on a table, desk, or counter in a home or office setting",
+        "brand_manufacturer": "not visible in the image",
+        "value_category": "budget to mid-range, depending on the brand and material quality"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "ceramic material",
+            "white color",
+            "handle for easy grip"
+        ],
+        "environment_relationship": "placed on a wooden table, suggesting a casual or home environment",
+        "additional_notes": "the mug contains a dark liquid, likely a hot beverage"
+    },
+    "confidence_score": 0.85,
+    "analysis_notes": "The object is accurately labeled as a mug, and the detection confidence is high, indicating a strong likelihood of the label being correct.",
+    "object_id": "2351030276896",
+    "current_label": "mug",
+    "detection_confidence": 0.85,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2351030276896.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The object 'mug' is a general object and not related to architecture, interior design, or furniture. It is a common household item used for drinking beverages.",
+        "confidence": 0.8
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the image is a ceramic cup with a handle, which is commonly used for holding beverages. The label 'mug' is accurate for this object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.3999512432471186
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.41764555721936847
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.37552972434195553
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

@@ -1,0 +1,83 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "clear plastic bottle",
+        "distinctive_features": [
+            "transparent",
+            "plastic material",
+            "label with text"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "small to medium size, approximately 15-20 cm in height and 5-7 cm in diameter",
+        "materials": [
+            "plastic"
+        ],
+        "color_appearance": "transparent with a green label",
+        "condition": "new, no visible signs of wear or damage"
+    },
+    "functional_analysis": {
+        "primary_function": "container for liquid",
+        "usage_context": "commonly used for storing and transporting beverages",
+        "user_interaction": "held or placed on surfaces, typically for drinking or refilling"
+    },
+    "contextual_information": {
+        "typical_location": "kitchen, dining area, or outdoor setting",
+        "brand_manufacturer": "not visible",
+        "value_category": "budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "transparent material",
+            "green label with text"
+        ],
+        "environment_relationship": "placed on a countertop near a trash bin",
+        "additional_notes": "the bottle appears to be empty or nearly empty"
+    },
+    "confidence_score": 0.85,
+    "analysis_notes": "The object is accurately identified as a bottle, and the confidence score supports the detection. The bottle is likely a water bottle given its size and transparency.",
+    "object_id": "2350772827682",
+    "current_label": "bottle",
+    "detection_confidence": 0.85,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350772827682.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'bottle' refers to a beverage container, which is not typically considered part of building architecture, interior design, or furniture. It is a general object.",
+        "confidence": 0.65
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object detected with the label 'bottle' is a clear plastic bottle, which matches the label accurately. The confidence score of 0.653 is reasonable for a correctly identified object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.2477266930249893
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.1364171677751918
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.2089170750560987
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

@@ -1,0 +1,83 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "red carpet",
+        "distinctive_features": [
+            "red color",
+            "textured surface"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "large, covering the floor",
+        "materials": [
+            "textile"
+        ],
+        "color_appearance": "solid red, uniform in color",
+        "condition": "new, clean"
+    },
+    "functional_analysis": {
+        "primary_function": "floor covering",
+        "usage_context": "interior spaces, such as living rooms or hallways",
+        "user_interaction": "walk on, sit on"
+    },
+    "contextual_information": {
+        "typical_location": "inside buildings, residential or commercial",
+        "brand_manufacturer": "not visible",
+        "value_category": "budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "uniform red color",
+            "textured surface"
+        ],
+        "environment_relationship": "carpet is on the floor, adjacent to a trash bin",
+        "additional_notes": "The carpet appears to be in good condition and is likely used for aesthetic and comfort purposes."
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object is correctly identified as a red carpet, not a carpet as initially labeled. The label 'carpet' is incorrect as it refers to a type of floor covering, not the object in the image.",
+    "object_id": "2350802005732",
+    "current_label": "floor",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350802005732.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'floor' does not correspond to any architectural, interior, or furniture elements. It is a general object that describes the surface on which the trash bin is placed.",
+        "confidence": 0.93
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "carpet",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The detected object is a red carpet, not a carpet. The label 'carpet' is incorrect as it refers to a type of floor covering, not the object in the image."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.01519855664201053
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.6861399593746651
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.872233306622467
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

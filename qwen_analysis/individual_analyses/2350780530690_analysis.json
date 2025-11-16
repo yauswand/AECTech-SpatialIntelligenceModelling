@@ -1,0 +1,83 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "plastic water bottle with a green label and a flip-top cap",
+        "distinctive_features": [
+            "flip-top cap",
+            "green label"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "approximately 20 cm in height and 7 cm in diameter",
+        "materials": [
+            "plastic"
+        ],
+        "color_appearance": "clear plastic with a green label",
+        "condition": "new"
+    },
+    "functional_analysis": {
+        "primary_function": "containing and dispensing water",
+        "usage_context": "commonly found in homes, offices, or public places for hydration",
+        "user_interaction": "opened with a flip-top cap and used to drink water"
+    },
+    "contextual_information": {
+        "typical_location": "on a countertop or table",
+        "brand_manufacturer": "not visible",
+        "value_category": "budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "flip-top cap",
+            "green label"
+        ],
+        "environment_relationship": "placed on a white marble countertop",
+        "additional_notes": "the bottle appears to be a single-use water bottle"
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The detection confidence is high, and the object is accurately identified as a water bottle, which is a more specific and accurate label than 'bottle'. The bottle appears to be new and is likely a single-use water bottle.",
+    "object_id": "2350780530690",
+    "current_label": "water bottle",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350780530690.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'water bottle' refers to a personal item, not an architectural, interior, or furniture element. Water bottles are typically used for personal hydration and are not part of building architecture, interior design, or furniture.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "bottle",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object detected as a 'bottle' is actually a water bottle, which is a more specific and accurate label."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.17736498842563989
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.19372079173179652
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.2706595726307941
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

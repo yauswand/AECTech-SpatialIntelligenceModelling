@@ -1,0 +1,84 @@
+{
+    "object_identification": {
+        "verified_label": "can",
+        "specific_type": "aluminum beverage can",
+        "distinctive_features": [
+            "pull-tab",
+            "aluminum material",
+            "label with text"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "small, compact",
+        "materials": [
+            "aluminum"
+        ],
+        "color_appearance": "silver with red and white label",
+        "condition": "new"
+    },
+    "functional_analysis": {
+        "primary_function": "containing and serving beverages",
+        "usage_context": "in a kitchen or dining area",
+        "user_interaction": "opened with a pull-tab and consumed"
+    },
+    "contextual_information": {
+        "typical_location": "kitchen counter or dining table",
+        "brand_manufacturer": "not visible",
+        "value_category": "budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "aluminum construction",
+            "pull-tab design"
+        ],
+        "environment_relationship": "placed on a marble countertop",
+        "additional_notes": "The can appears to be a soft drink can, likely a diet soda given the red and white label."
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object's label was corrected from 'bottle' to 'can' based on the shape and the presence of a pull-tab, which is characteristic of a can.",
+    "object_id": "2350784698984",
+    "current_label": "can",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350784698984.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'can' refers to a beverage can, which is a general object and not related to architecture, interior design, or furniture.",
+        "confidence": 0.73
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "bottle",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object detected with the label 'bottle' appears to be a can, as indicated by the shape and the presence of a pull-tab. The label 'bottle' is incorrect for this object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.15288452762535337
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.23472684508064498
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.2584052677568005
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

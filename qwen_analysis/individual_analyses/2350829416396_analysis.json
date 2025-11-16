@@ -1,0 +1,85 @@
+{
+    "object_identification": {
+        "verified_label": "trash can",
+        "specific_type": "rectangular, open-top trash receptacle with a liner",
+        "distinctive_features": [
+            "rectangular shape",
+            "black liner",
+            "open top"
+        ]
+    },
+    "physical_attributes": {
+        "size_dimensions": "small to medium size, approximately 24 inches in height and 18 inches in diameter",
+        "materials": [
+            "plastic",
+            "metal"
+        ],
+        "color_appearance": "black exterior, black liner",
+        "condition": "new, clean"
+    },
+    "functional_analysis": {
+        "primary_function": "disposal of waste and trash",
+        "usage_context": "commonly found in public spaces, offices, or residential areas",
+        "user_interaction": "users place waste into the liner for disposal"
+    },
+    "contextual_information": {
+        "typical_location": "public spaces, offices, or residential areas",
+        "brand_manufacturer": "not visible",
+        "value_category": "budget"
+    },
+    "observations": {
+        "unique_characteristics": [
+            "black liner",
+            "open top"
+        ],
+        "environment_relationship": "placed on a surface near a wall, possibly in a public or office setting",
+        "additional_notes": "The object appears to be a trash can, not a bag, as indicated by its shape and the presence of a liner."
+    },
+    "confidence_score": 0.75,
+    "analysis_notes": "The object's label was corrected from 'bag' to 'trash can' based on its shape and the presence of a liner, which is characteristic of a trash can.",
+    "object_id": "2350829416396",
+    "current_label": "trash can",
+    "detection_confidence": 0.75,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350829416396.jpg",
+    "object_classification": {
+        "is_architectural_interior": false,
+        "category": "general object",
+        "reasoning": "The detected label 'trash can' indicates that the object is a piece of equipment used for waste disposal, which is not typically considered part of building architecture, interior design, or furniture. It is a general object.",
+        "confidence": 0.52
+    },
+    "is_architectural_interior": false,
+    "analysis_type": "general",
+    "original_label": "bag",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object detected as a 'bag' appears to be a trash can, as indicated by its shape and the presence of a liner. The label 'bag' is not precise for this object."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -1.6838344083767716
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.2727119932224027
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.4244102463275794
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

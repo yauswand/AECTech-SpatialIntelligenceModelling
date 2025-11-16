@@ -1,0 +1,128 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "ergonomic office chair",
+        "distinctive_features": [
+            "backrest",
+            "armrests",
+            "wheels"
+        ]
+    },
+    "architectural_context": {
+        "category": "furniture",
+        "typical_location": "office or meeting room",
+        "architectural_style": "contemporary",
+        "functional_role": "seating for office or meeting activities"
+    },
+    "spatial_analysis": {
+        "size_scale": "medium",
+        "orientation": "facing away from the camera",
+        "relationship_to_space": "adjacent to a table and other office furniture",
+        "placement": "centered in the room, near the table"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "fabric",
+            "metal"
+        ],
+        "quality_level": "standard",
+        "surface_finish": "smooth",
+        "color_palette": [
+            "gray",
+            "black"
+        ]
+    },
+    "style_design": {
+        "design_style": "modern",
+        "design_era": "contemporary",
+        "aesthetic_qualities": [
+            "functional",
+            "minimalist"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "well-maintained",
+        "cleanliness": "clean",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "office seating",
+        "usage_context": "commercial",
+        "ergonomic_notes": "ergonomic design with backrest and armrests",
+        "functionality": "single-purpose"
+    },
+    "decorative_elements": {
+        "features": [
+            "smooth surface",
+            "simple design"
+        ],
+        "visual_weight": "light",
+        "aesthetic_contribution": "contributes to a clean and professional look",
+        "coordination": "coordinates well with the room's modern aesthetic"
+    },
+    "quality_value": {
+        "build_quality": "standard",
+        "value_category": "mid-range",
+        "brand_indicators": "not visible",
+        "craftsmanship": "standard"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "ergonomic design",
+            "office furniture"
+        ],
+        "cultural_influences": "not apparent",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "image shows a clean and organized office space"
+        ]
+    },
+    "confidence_score": 0.9,
+    "analysis_notes": "The chair is clearly an office chair with a backrest, armrests, and wheels, consistent with the label 'office chair'. The context of the image, showing a room with a table and other office furniture, further supports this. The chair appears to be in good condition and well-maintained, with a modern and minimalist design.",
+    "object_id": "2350883904166",
+    "current_label": "office chair",
+    "detection_confidence": 0.9,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350883904166.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "furniture",
+        "reasoning": "The object detected as 'office chair' is a piece of furniture commonly used in interior design and office settings.",
+        "confidence": 0.95
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "architectural",
+    "original_label": "chair",
+    "was_corrected": true,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the image is clearly a chair with a backrest, armrests, and wheels, which is consistent with the label 'chair'. The context of the image, showing a room with a table and other office furniture, further supports that this is an office chair."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.4716215356756362
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.40727233408663666
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.2705236074602513
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}

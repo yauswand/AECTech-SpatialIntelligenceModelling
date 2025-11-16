@@ -1,0 +1,125 @@
+{
+    "object_identification": {
+        "verified_label": "accurate label",
+        "specific_type": "mechanical gear",
+        "distinctive_features": [
+            "circular shape",
+            "interlocking teeth",
+            "metallic structure"
+        ]
+    },
+    "architectural_context": {
+        "category": "fixture",
+        "typical_location": "industrial setting, mechanical room, or display area",
+        "architectural_style": "industrial",
+        "functional_role": "part of a larger mechanical system, decorative element, or educational display"
+    },
+    "spatial_analysis": {
+        "size_scale": "medium",
+        "orientation": "vertical",
+        "relationship_to_space": "attached to a red wall",
+        "placement": "centered in the image, slightly off-center to the right"
+    },
+    "material_finish": {
+        "primary_materials": [
+            "metal"
+        ],
+        "quality_level": "standard",
+        "surface_finish": "polished",
+        "color_palette": [
+            "metallic gray"
+        ]
+    },
+    "style_design": {
+        "design_style": "industrial",
+        "design_era": "industrial era",
+        "aesthetic_qualities": [
+            "functional",
+            "mechanical"
+        ],
+        "design_complexity": "simple"
+    },
+    "condition_maintenance": {
+        "visible_condition": "new",
+        "cleanliness": "clean",
+        "wear_damage": "none visible"
+    },
+    "functional_analysis": {
+        "primary_function": "part of a mechanical system",
+        "usage_context": "industrial or educational setting",
+        "ergonomic_notes": "not applicable",
+        "functionality": "single-purpose"
+    },
+    "decorative_elements": {
+        "features": [
+            "interlocking teeth",
+            "metallic structure"
+        ],
+        "visual_weight": "moderate",
+        "aesthetic_contribution": "functional and utilitarian",
+        "coordination": "not applicable"
+    },
+    "quality_value": {
+        "build_quality": "standard",
+        "value_category": "mid-range",
+        "brand_indicators": "not visible",
+        "craftsmanship": "standard"
+    },
+    "contextual_notes": {
+        "unique_characteristics": [
+            "industrial design",
+            "mechanical functionality"
+        ],
+        "cultural_influences": "industrial era design",
+        "sustainability_features": "not visible",
+        "additional_observations": [
+            "likely part of a larger mechanical system or display"
+        ]
+    },
+    "confidence_score": 0.85,
+    "analysis_notes": "The object is identified as a clock, but based on the visual characteristics, it is more accurately described as a mechanical gear. The detection confidence is high, and the object is likely part of a larger mechanical system or display.",
+    "object_id": "2350686493830",
+    "current_label": "clock",
+    "detection_confidence": 0.85,
+    "image_path": "C:\\Users\\yashw\\Desktop\\simon\\WebCloudRenderer\\MainMainMainMain_FinalMain\\ConferenceRoom02\\ConferenceRoom02\\output\\visualizations\\yolo_detections\\yolo_frame_2350686493830.jpg",
+    "object_classification": {
+        "is_architectural_interior": true,
+        "category": "architectural/interior/furniture",
+        "reasoning": "The object detected as a 'clock' is typically used as a decorative or functional item in interior design, often placed on walls or furniture. It is not a general object but rather an item that fits within the broader category of interior design or furniture.",
+        "confidence": 0.77
+    },
+    "is_architectural_interior": true,
+    "analysis_type": "architectural",
+    "was_corrected": false,
+    "verification_info": {
+        "verified": true,
+        "reasoning": "The object in the image is a clock with a circular shape and hands, which matches the label 'clock'. The confidence score of 0.773 is high enough to confirm the detection."
+    },
+    "has_3d_position": true,
+    "direction": [
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.0408223700726249
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            -0.3771190051702173
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            1.2454807794098055
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ]
+    ]
+}
